@@ -17,7 +17,7 @@ Last updated: 2026-07-22
 |---|---|---|---|---|
 | Motor | T-Motor M1104 KV7500 | 5.61 g | Rated 2–4S (~7.4–16.8V) | High KV, small brushless outrunner. **Runs at 1S (~3.6–4.2V) in this build** — see "Voltage limits & compatibility" below. |
 | Propeller | 6×3 | 14.52 g | n/a | |
-| ESC | Micro brushless ESC | 5.07 g | Unspecified | No specific model recorded — can't look up a rating without one. |
+| ESC | Micro brushless ESC, 5A, 1S | 5.07 g | 1S (~3.0–4.2V) | Confirmed 2026-07-22 (5A rating, 1S). Exact brand/model still not recorded — the product link given couldn't be resolved (Amazon is blocked by this environment's network policy), so full specs (BEC output, exact max current, etc.) aren't available. **Fits its actual Branch C bus voltage (~3.6–4.2V) with no mismatch**, unlike the motor/FC findings below. |
 
 ## Avionics
 
@@ -82,9 +82,11 @@ away:
   potential rather than damage, but the actual achievable thrust at 1S
   hasn't been separately verified against this rating.
 
-Everything marked "Unspecified" in the tables above (ESC, telemetry
+Everything still marked "Unspecified" in the tables above (telemetry
 radio, 5V regulator, 2A current meters, capacitor) needs an actual model
-number before a voltage range can be looked up rather than guessed.
+number before a voltage range can be looked up rather than guessed. The
+ESC is now partially specified (5A, 1S, confirmed 2026-07-22) but still
+lacks an exact brand/model for full specs.
 
 Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650).
 

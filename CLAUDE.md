@@ -40,7 +40,7 @@ shared, kitted, or sold.
 |---|---|---|
 | Motor | T-Motor M1104 KV7500 | 5.61 g |
 | Propeller | 6×3 | 14.52 g |
-| ESC | Micro brushless ESC | 5.07 g |
+| ESC | Micro brushless ESC, 5A, 1S | 5.07 g |
 | Flight Controller | ATOMRC F405 NAVI (full size) | 10.79 g |
 | GPS | BN-880 | 13.23 g |
 | Receiver | Happymodel EP1 ELRS | 1.50 g |
