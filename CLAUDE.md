@@ -19,8 +19,9 @@ shared, kitted, or sold.
 - Foam wing, **SD7037** airfoil, 1210mm span, 150mm chord, carbon fiber spars
 - Carbon fiber tube/rod fuselage, 3D printed motor mount
 - **Wing area:** ~0.182 m² (18.2 dm²)
-- **Estimated AUW:** ~330–350g (see `calculations/power_budget.md`)
-- **Wing loading:** ~18–19 g/dm² (sailplane range)
+- **Estimated AUW:** ~337–357g (see `calculations/power_budget.md`; updated
+  for the 7-cell solar string, theoretical pending bench confirmation)
+- **Wing loading:** ~18.5–19.6 g/dm² (sailplane range)
 - Power path: solar array → ideal-diode OR → 1S Li-ion battery bus → ESC/motor
   and avionics
 
@@ -38,7 +39,7 @@ shared, kitted, or sold.
 | FPV | AKK BA3 AIO Analog Cam + VTX | 4.73 g |
 | Main Battery | 18650 Li-ion, 2600 mAh, 1S | 47.1 g |
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g |
-| Solar Cells | SunPower C60, currently 6 in series | 84 g (14 g ea.) |
+| Solar Cells | SunPower C60, currently 7 in series (updated from 6, 2026-07-22) | 98 g (14 g ea.) |
 | Servos | 4× DM-S0020 micro | 13 g total |
 | Ideal Diode Pair | Pololu Power ORing (6A) | 1.46 g |
 | Ideal Diode Modules | Pololu, ×2 (charging paths) | 0.27 g ea. |
@@ -59,9 +60,11 @@ update instead.
   this clamps available current well below the array's real capability.
   This is why a 6-cell series string (Vmp ≈ 3.5V) delivered only ~2.5A into a
   ~3.9V bus instead of its ~6A Imp capability.
-- **Fix in progress:** adding series cells to raise string Vmp closer to
-  typical battery voltage (a "poor man's MPPT" — static rather than dynamic
-  matching). See `decisions/0001-cell-series-count.md`.
+- **Fix decided, theoretical:** moved from 6 to 7 series cells (2026-07-22)
+  to raise string Vmp closer to typical battery voltage (a "poor man's
+  MPPT" — static rather than dynamic matching). Calculated Vmp moves from
+  ~3.48V to ~4.06V. **Not yet bench-confirmed** — see
+  `decisions/0001-cell-series-count.md` and open questions below.
 - **Avionics baseline draw:** ~1.5A (measured, no motor running).
 - **Estimated cruise power draw:** ~17–24W depending on drag/weight (see
   `calculations/power_budget.md`).
@@ -71,6 +74,13 @@ update instead.
 
 ## 5. Open questions / next steps
 
+- [ ] **The 6→7 cell update (2026-07-22) is theoretical only.**
+      `calculations/power_budget.py`/`.md`, `specs/components.md`, and this
+      file's component table have all been updated to reflect 7 cells and
+      the new theoretical Vmp/Pmax numbers, but nothing has been physically
+      changed or measured on the bench yet. Treat all 7-cell figures as
+      predictions pending real-world confirmation — do not treat them as
+      validated the way the 6-cell baseline in `logs/test_flights.md` is.
 - [ ] Confirm actual Vmp of the array after adding the 7th cell (measured
       under real load, not just theoretical from datasheet)
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
@@ -101,3 +111,10 @@ update instead.
   `calculations/` over doing throwaway math in chat, so the work is reusable.
 - When a component changes, update the table in this file (Section 3) in the
   same session — this file should never fall out of sync with reality.
+- When new measured data is reported (voltage, current, weight, flight
+  results), log it as a dated entry in `logs/test_flights.md` using the
+  template at the top of that file. Then check whether it changes any
+  assumption elsewhere in the repo (specs, calculations, open questions) —
+  **flag inconsistencies rather than silently updating them**, since
+  measured data reconciling with a theoretical estimate is a judgment call
+  the human should confirm, not something to auto-resolve.

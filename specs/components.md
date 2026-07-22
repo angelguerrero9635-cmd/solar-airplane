@@ -36,7 +36,7 @@ Last updated: 2026-07-21
 |---|---|---|---|
 | Main Battery | 18650 Li-ion, 2600 mAh, 1S | 47.1 g | Resting voltage → SOC curve in `calculations/battery_soc.md` |
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g | Separate rail for FPV gear |
-| Solar Cells | SunPower C60 × 6 (series), ≈3.6–4.3V, up to 2.4A each nameplate | 84 g total (14 g each) | See `specs/datasheets/sunpower_c60.md` for full electrical curve. **In progress: adding 1 cell to shift string Vmp toward battery voltage — see decisions/0001.** |
+| Solar Cells | SunPower C60 × 7 (series), Voc≈5.0V/Vmp≈4.06V theoretical, up to 2.4A each nameplate | 98 g total (14 g each) | See `specs/datasheets/sunpower_c60.md` for full electrical curve. **Updated 2026-07-22 from 6→7 cells per decisions/0001 — theoretical, pending bench confirmation (see CLAUDE.md open questions).** |
 | Ideal Diode Pair | Pololu Power ORing Ideal Diode Pair (6A) | 1.46 g | Solar/battery OR node — currently the suspected source of voltage clamping loss |
 | Ideal Diode Modules | Pololu Ideal Diode Modules (charging paths) ×2 | 0.27 g each | |
 | Current Sensors | SparkFun ACS723 breakouts ×3 | 1.27 g each (3.81 g total) | Used for measured current draw (avionics ≈1.5A baseline) — could support coulomb-counting SOC in place of pure voltage lookup |
@@ -44,8 +44,9 @@ Last updated: 2026-07-21
 
 ## Weight summary
 
-- Listed components total: **~233 g**
+- Listed components total: **~247 g** (updated from ~233 g for the 7th
+  solar cell, +14 g)
 - Estimated unlisted mass (foam wing, spars, fuselage tube, mount, wiring,
   adhesives): **~90–110 g** (estimate — replace with a real scale weight ASAP)
-- **Estimated AUW: ~330–350 g** (needs confirmation — see open questions in
+- **Estimated AUW: ~337–357 g** (needs confirmation — see open questions in
   `CLAUDE.md`)

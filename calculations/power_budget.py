@@ -27,7 +27,7 @@ KNOWN_COMPONENTS_G = {
     "fpv_cam_vtx": 4.73,
     "main_battery": 47.1,
     "fpv_battery": 11.2,
-    "solar_cells": 84.0,  # update if cell count changes (14 g/cell)
+    "solar_cells": 98.0,  # 7 cells x 14 g/cell (see decisions/0001-cell-series-count.md)
     "servos": 13.0,
     "ideal_diode_pair": 1.46,
     "ideal_diode_modules": 0.27 * 2,
@@ -47,7 +47,7 @@ W_PER_KG_HIGH = 70
 CELL_VOC = 0.72
 CELL_VMP = 0.58
 CELL_IMP = 5.9  # amps, per string (series doesn't change current)
-N_CELLS_SERIES = 6  # update as the string is modified
+N_CELLS_SERIES = 7  # update as the string is modified; see decisions/0001-cell-series-count.md
 
 
 def total_mass_g():
