@@ -17,7 +17,7 @@ Last updated: 2026-07-22
 |---|---|---|---|---|
 | Motor | T-Motor M1104 KV7500 | 5.61 g | Rated 2–4S (~7.4–16.8V) | High KV, small brushless outrunner. **Runs at 1S (~3.6–4.2V) in this build** — see "Voltage limits & compatibility" below. |
 | Propeller | 6×3 | 14.52 g | n/a | |
-| ESC | Micro brushless ESC, 5A, 1S | 5.07 g | 1S (~3.0–4.2V) | Confirmed 2026-07-22 (5A rating, 1S). Exact brand/model still not recorded — the product link given couldn't be resolved (Amazon is blocked by this environment's network policy), so full specs (BEC output, exact max current, etc.) aren't available. **Fits its actual Branch C bus voltage (~3.6–4.2V) with no mismatch**, unlike the motor/FC findings below. |
+| ESC | E-Power 1S 5A ESC (A), model BE001 | 5.07 g (mfr. spec sheet says 7.3g — **discrepancy not reconciled**, see below) | 1S, 5V max (per mfr. spec — see below) | Identified 2026-07-22 from the product's own spec sheet/packaging. Continuous 5A, burst 7A for 30–45s. Size 15×20mm, servo wire 250mm. **No BEC included — receiver/servo rail gets power directly from the battery, not from the ESC**, which is exactly why this build's separate 5V Regulator (Branch C) exists. Connectors: 2P battery plug (51005) or 1.25mm-pitch 2P battery plug (unclear which this unit uses), 2.54mm-pitch 3P plug, 1.00mm-pitch 3P servo plug — see `specs/wiring_diagram.md`. |
 
 ## Avionics
 
@@ -81,14 +81,32 @@ away:
   motor generally just yields lower RPM/thrust than the motor's
   potential rather than damage, but the actual achievable thrust at 1S
   hasn't been separately verified against this rating.
+- **ESC's 5V max rating has little margin above the array's theoretical
+  Voc (2026-07-22).** The E-Power BE001's own spec sheet states "Max
+  Vol: 1S, 5V." The 7-cell array's theoretical Voc is ~5.0–5.1V — right
+  at or slightly above that 5V ceiling — though the *measured* Voc
+  (4.57V, see `logs/test_flights.md`) has more comfortable margin. This
+  matters specifically in a fault scenario where the main battery is
+  disconnected but the array is still connected to Branch C: the ESC
+  would then see array voltage directly (not clamped by the battery),
+  and if that's near/above theoretical Voc, it's close to or past the
+  ESC's stated max. Not confirmed as an actual problem — just flagging
+  the numbers are close enough to be worth checking, not assuming safe.
+- **ESC weight discrepancy (2026-07-22).** The E-Power BE001 spec sheet
+  states 7.3g, but this table's existing figure (5.07g) was already
+  recorded before the exact model was identified — unclear which is the
+  real weight of the unit actually in this build. Not reconciled; treat
+  the 5.07g figure (and anything derived from it, like the AUW total
+  below) as unconfirmed against the manufacturer spec until weighed
+  again on a scale with the model now known.
 
 Everything still marked "Unspecified" in the tables above (telemetry
 radio, 5V regulator, 2A current meters, capacitor) needs an actual model
 number before a voltage range can be looked up rather than guessed. The
-ESC is now partially specified (5A, 1S, confirmed 2026-07-22) but still
-lacks an exact brand/model for full specs.
+ESC is now fully identified (E-Power BE001, from its own spec
+sheet/packaging, 2026-07-22).
 
-Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650).
+Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650), E-Power 1S 5A ESC (BE001) product spec sheet/packaging photo (2026-07-22).
 
 ## Weight summary
 

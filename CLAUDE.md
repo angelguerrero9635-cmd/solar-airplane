@@ -40,7 +40,7 @@ shared, kitted, or sold.
 |---|---|---|
 | Motor | T-Motor M1104 KV7500 | 5.61 g |
 | Propeller | 6×3 | 14.52 g |
-| ESC | Micro brushless ESC, 5A, 1S | 5.07 g |
+| ESC | E-Power 1S 5A ESC (BE001), no BEC | 5.07 g (mfr. spec says 7.3g, unreconciled) |
 | Flight Controller | ATOMRC F405 NAVI (full size) | 10.79 g |
 | GPS | BN-880 | 13.23 g |
 | Receiver | Happymodel EP1 ELRS | 1.50 g |
@@ -103,6 +103,18 @@ update instead.
 
 ## 5. Open questions / next steps
 
+- [ ] **ESC weight discrepancy (2026-07-22).** Now identified as E-Power
+      BE001 (from its own spec sheet) — mfr. spec says 7.3g, but this
+      file/`specs/components.md` already had 5.07g recorded before the
+      model was known. Not reconciled — reweigh the actual unit to
+      confirm which figure is real before trusting the AUW total.
+- [ ] **ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).**
+      The E-Power BE001 is rated "1S, 5V max." The array's theoretical
+      Voc (~5.0–5.1V) is right at/above that in a fault scenario (main
+      battery disconnected, array still connected to Branch C) — though
+      the *measured* Voc (4.57V) has more margin. Not confirmed as an
+      actual problem, just close enough to check rather than assume
+      safe — see `specs/components.md`.
 - [ ] **Branch A (VBAT voltage-sense tap) is undecided.** Currently wired
       solar array → Ideal Diode Pair (used as a single diode) → Flight
       Controller VBAT pin, to monitor cell voltage via FC telemetry — but

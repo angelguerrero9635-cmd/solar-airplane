@@ -67,6 +67,13 @@ Note: Branch B's FPV rail is fed from solar (via Branch B's diode +
 earlier documentation implied. It remains electrically separate from
 Branch C's main battery bus, though — the two branches never rejoin.
 
+Note (2026-07-22): the ESC (E-Power BE001) has **no built-in BEC** — its
+own spec sheet says the receiver/servo rail is meant to be powered
+directly from the battery, not from the ESC. This is exactly why this
+build has a separate 5V Regulator on Branch C to power the FC via the
+servo rail, rather than relying on ESC-supplied power — see
+`specs/components.md`.
+
 ## In-flight vs. bench-test instrumentation
 
 All 4 current-sensing devices (the 5A array sensor, the 5A ESC-leg
@@ -118,10 +125,14 @@ is worth confirming is intentional before finalizing Branch A — see
   cams.
 - **Branch C (main bus):** match whatever connector the main 18650 pack
   uses (often none — solder directly if the pack ships connector-less).
-  ESC power leads: direct solder, standard for micro ESCs. 5V regulator
-  output → FC servo rail: use a spare **servo header pin** (2.54mm pitch,
-  3-pin) for +5V/GND — don't introduce a new connector type just for
-  this.
+  5V regulator output → FC servo rail: use a spare **servo header pin**
+  (2.54mm pitch, 3-pin) for +5V/GND — don't introduce a new connector
+  type just for this. **ESC connectors are fixed by the actual unit, not
+  a recommendation** — the E-Power BE001 ships pre-wired with a 2P
+  battery plug (51005) or 1.25mm-pitch 2P battery plug (unclear which
+  this unit uses) on the power side, and a 1.00mm-pitch 3P servo plug on
+  the signal side. Match whichever battery-side plug this unit actually
+  has rather than re-terminating it.
 - **GPS/Receiver/Telemetry → FC:** if not already pigtailed from the
   factory, **JST-SH 1.0mm ("GH1.25"-style)** is the common convention for
   UART peripherals in this size class.
@@ -155,6 +166,11 @@ is worth confirming is intentional before finalizing Branch A — see
   unweighed.** Not previously in `specs/components.md`'s weight table —
   their weight isn't in the ~247g listed-components total or the AUW
   estimate.
+- **ESC battery-plug variant unconfirmed.** The E-Power BE001 ships with
+  either a 2P plug (51005) or a 1.25mm-pitch 2P plug on the battery
+  side, per its own product images — which one this specific unit has
+  isn't confirmed. Minor, but matters for matching connectors elsewhere
+  on Branch C.
 - **Physical wiring (gauge/connectors) is only a recommendation so far,
   not a confirmed build.** See "Recommended physical wiring" above —
   it's proposed, pending your decision to actually build it that way.
