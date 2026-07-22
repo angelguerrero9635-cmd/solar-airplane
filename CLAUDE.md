@@ -27,8 +27,12 @@ shared, kitted, or sold.
 - **Wing loading:** ~14.0–14.9 g/dm² (sailplane range; lower than the
   previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
   shorter span)
-- Power path: solar array → ideal-diode OR → 1S Li-ion battery bus → ESC/motor
-  and avionics (see `specs/wiring_diagram.md` for the full block diagram)
+- Power path: solar array → 3 independent ideal-diode branches, **not
+  rejoined downstream** — Branch A (tentative) taps FC VBAT for
+  cell-voltage monitoring, Branch B feeds the FPV rail, Branch C feeds
+  the main battery bus/ESC/FC power (see `specs/wiring_diagram.md` for
+  the full diagram — corrected 2026-07-22, an earlier version of this
+  file wrongly assumed the branches rejoined at one shared bus)
 
 ## 3. Key components (see `specs/components.md` for full table + sources)
 
@@ -46,9 +50,12 @@ shared, kitted, or sold.
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g |
 | Solar Cells | SunPower C60, currently 7 in series (updated from 6, 2026-07-22) | 98 g (14 g ea.) |
 | Servos | 4× DM-S0020 micro | 13 g total |
-| Ideal Diode Pair | Pololu Power ORing (6A) | 1.46 g |
-| Ideal Diode Modules | Pololu, ×2 (charging paths) | 0.27 g ea. |
-| Current Sensors | SparkFun ACS723, ×3 | 1.27 g ea. |
+| Ideal Diode — Branch A (tentative) | Pololu Power ORing, used as single diode, → FC VBAT | 1.46 g |
+| Ideal Diode — Branch B | Pololu Ideal Diode Module, → FPV rail | 0.27 g |
+| Ideal Diode — Branch C | Pololu Ideal Diode Module, → main battery bus | 0.27 g |
+| 5V Regulator | Feeds FC via servo rail (Branch C) | TBD |
+| 2A Current Meters | ×2, Branch B + C outputs | TBD |
+| Current Sensors | SparkFun ACS723, ×3 (count doesn't yet reconcile — see open questions) | 1.27 g ea. |
 | Capacitor | Electrolytic bulk | 0.7 g |
 
 ## 4. Known constraints & hard-won lessons
@@ -58,11 +65,13 @@ update instead.
 
 - **SunPower C60 per-cell specs:** Voc ≈ 0.72V, Vmp ≈ 0.58V, Isc ≈ 6.0–6.3A,
   Imp ≈ 5.8–6.0A, Pmax ≈ 3.4–3.6W, 125×125mm, ~7g bare.
-- **Diode-OR voltage clamping problem:** with the ideal-diode OR (3 diode
-  devices wired in parallel directly to the panel array — see
-  `specs/wiring_diagram.md`) between solar array and battery bus, the
-  array gets pulled toward bus voltage (~3.9–4.2V) rather than operating
-  at its own Vmp. Since solar cells are
+- **Diode-OR voltage clamping problem:** analyzed for Branch C (solar
+  array → its ideal diode → main battery bus — see
+  `specs/wiring_diagram.md` for the 3-branch topology; this hasn't been
+  separately analyzed for Branch B's FPV battery, which may have similar
+  dynamics). With a simple ideal-diode OR between solar array and battery
+  bus, the array gets pulled toward bus voltage (~3.9–4.2V) rather than
+  operating at its own Vmp. Since solar cells are
   current sources whose output current falls steeply above Vmp (toward Voc),
   this clamps available current well below the array's real capability.
   This is why a 6-cell series string (Vmp ≈ 3.5V) delivered only ~2.5A into a
@@ -81,6 +90,23 @@ update instead.
 
 ## 5. Open questions / next steps
 
+- [ ] **Branch A (VBAT voltage-sense tap) is undecided.** Currently wired
+      solar array → Ideal Diode Pair (used as a single diode) → Flight
+      Controller VBAT pin, to monitor cell voltage via FC telemetry — but
+      not finalized; may be replaced with a plain Ideal Diode Module like
+      Branches B/C. Also unconfirmed whether this VBAT connection is
+      purely a sense tap or also delivers power to the FC. See
+      `specs/wiring_diagram.md`.
+- [ ] **Current-sensor count/type doesn't reconcile.** 2026-07-22 wiring
+      details describe 4 distinct current-sensing devices (2× 5A sensor,
+      2× 2A current meter), but `specs/components.md` previously listed
+      only 3 ACS723 breakouts with no rating distinction. Confirm whether
+      the 2A meters are a separate product from the ACS723s, or whether
+      the ACS723 count/rating needs correcting, before treating either as
+      final.
+- [ ] **5V Regulator and 2A Current Meters are unweighed.** Newly
+      documented 2026-07-22, not yet in the ~247g listed-components total
+      or the AUW estimate — weigh once specced/sourced.
 - [ ] **The Clark-Y / 1200×200mm wing update (2026-07-22) hasn't been
       re-weighed.** Wing area and wing loading in this file,
       `specs/components.md`, and `calculations/power_budget.md`/`.py` have
