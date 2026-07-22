@@ -107,6 +107,12 @@ update instead.
   flight, with conditions, readings, and any deviation from predicted values.
 - **Roadmap** lives in `docs/roadmap.md` — update phase status as the project
   moves from prototyping toward production.
+- **`dashboard/`** is a separate Next.js app (own `package.json`, deployed
+  independently) that edits this repo's markdown files via the GitHub API —
+  a web front-end alternative to hand-editing files or going through Claude
+  Code. It does not run `calculations/*.py`; those stay code-only. See
+  `dashboard/README.md` for setup/deploy details. Treat it as its own
+  codebase living inside this repo, not as project docs.
 - When asked to do a calculation, prefer writing/updating a script in
   `calculations/` over doing throwaway math in chat, so the work is reusable.
 - When a component changes, update the table in this file (Section 3) in the

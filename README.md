@@ -20,3 +20,8 @@ it too; it's the fastest way back into context after time away.
 - `logs/` — dated bench test and flight test entries
 - `docs/roadmap.md` — phase plan from prototype to potential market
   introduction
+- `dashboard/` — a separate Next.js web app (its own `package.json`,
+  deployed independently, e.g. to Vercel) that reads and writes this repo's
+  markdown files over the GitHub API, as a nicer front-end than hand-editing
+  files. See `dashboard/README.md` for setup. It does not run the Python
+  scripts in `calculations/` — those stay Claude Code's job.
