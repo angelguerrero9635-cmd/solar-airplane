@@ -28,7 +28,7 @@ shared, kitted, or sold.
   previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
   shorter span)
 - Power path: solar array → ideal-diode OR → 1S Li-ion battery bus → ESC/motor
-  and avionics
+  and avionics (see `specs/wiring_diagram.md` for the full block diagram)
 
 ## 3. Key components (see `specs/components.md` for full table + sources)
 
