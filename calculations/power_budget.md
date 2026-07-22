@@ -84,6 +84,15 @@ glider" end of the range than the old ~19.1 g/dm² was):
   not the measurement this verdict needs: no true Vmp reading, and no
   motor-load test yet, so the ~24W figure and this verdict stay
   unconfirmed for now.
+- **Update (2026-07-22, motor-load test):** a solar-only (no battery)
+  motor-load test now exists with current readings up to 3A motor load
+  / 4A solar output — see `logs/test_flights.md`. Still can't convert to
+  Watts or compare against the ~24W figure: no bus voltage was logged at
+  any step. Also surfaced a new open question (an unexplained current
+  "overhead" that jumps from 0.5A to 1.0A above motor load past 1.5A —
+  see `CLAUDE.md`) and a real finding: this system can't ride through a
+  passing cloud without battery buffering. Verdict stays unconfirmed
+  until voltage is logged alongside current.
 
 ## To do
 
@@ -95,6 +104,12 @@ glider" end of the range than the old ~19.1 g/dm² was):
       diode-OR node~~ — done 2026-07-22 for Branches B & C under
       battery-only and combined loads (see `logs/test_flights.md`); motor
       load still pending.
-- [ ] Run the motor-load test for max current draw (planned next per
-      `logs/test_flights.md`'s 2026-07-22 entry)
+- [x] ~~Run the motor-load test for max current draw~~ — done 2026-07-22,
+      solar-only (no batteries), current up to 3A motor load / 4A solar
+      (see `logs/test_flights.md`). No voltage logged, so this doesn't
+      close out the verdict below — repeat with voltage logged, and with
+      batteries connected (the actual flight config).
+- [ ] Determine true max motor/current draw — the 2026-07-22 test
+      stopped at 3A; unclear if that's a real ceiling or just where
+      testing stopped
 - [ ] Update this file's verdict once real numbers are in

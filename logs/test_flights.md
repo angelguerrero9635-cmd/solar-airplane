@@ -36,6 +36,90 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-22 — Motor-load test, solar-only (no batteries)
+
+**Type:** bench test
+**Conditions:** 4:43pm. Partly cloudy — a cloud passed overhead mid-test
+(see Observations). Temperature not recorded.
+**Config:** 7-cell SunPower C60 series string. **No batteries connected**
+(neither main nor FPV) and no camera connected — only the Flight
+Controller and ESC/motor, powered directly by the array with no battery
+buffer at all. This isolates solar-only behavior under motor load.
+
+**Readings:**
+
+| Motor load | Solar output | Overhead (solar − load) |
+|---|---|---|
+| none (FC only) | 0.5A | — |
+| minimum spin | 0.75A (motor draw, no paired solar reading) | — |
+| 1A | 1.5A | 0.5A |
+| 1.5A | 2.5A | **1.0A** |
+| 2A | 3A | 1.0A |
+| *(cloud passed overhead — ESC browned out / shut down here)* | | |
+| 2.5A | 3.5A | 1.0A |
+| 3A | 4A | 1.0A |
+
+No bus voltage was logged at any step — only currents.
+
+**Observations:**
+- The overhead (solar output minus motor load) is a clean 0.5A at the
+  lowest point (1A load) but **jumps to a stable 1.0A at every load
+  point from 1.5A up** (1.5A, 2A, 2.5A, 3A all show exactly +1.0A). Real-
+  time question raised during the test: "why 1A to controller now? Or
+  losses?" Two plausible explanations, not distinguished by this data:
+  1. **Resistive/diode losses scaling with current** — plausible, though
+     the Pololu ideal diodes are typically low forward-voltage-drop
+     devices, so this would need to be fairly significant loss to
+     account for a full extra 0.5A.
+  2. **The array's own I-V curve** — as the bus sags further under
+     heavier load, the array's operating point moves further below Vmp
+     toward Isc, where a photovoltaic string can supply more raw current
+     for comparatively little further voltage drop (the "current
+     source" flat region of a solar I-V curve — see
+     `specs/datasheets/sunpower_c60.md`). If so, the extra current may
+     genuinely be available from the array rather than "lost" — but
+     without a voltage reading at each step, this can't be confirmed
+     over the loss hypothesis. It's also not confirmed where the extra
+     current actually goes (FC draw increasing with something? Genuinely
+     just heat?).
+  - Can't be resolved from this data alone — needs bus voltage logged
+    alongside current at each step next time.
+- **The system cannot ride through a passing cloud without battery
+  buffering.** With no batteries connected, a brief shading event
+  dropped solar output enough to brown out the ESC mid-test (motor
+  stopped, presumably FC reset or lost power too). This is expected
+  given the test intentionally removed all battery buffering to isolate
+  solar-only behavior — it validates why the actual flight
+  configuration keeps the Main Battery on Branch C rather than running
+  solar-only. Not yet tested: whether battery buffering (as in the real
+  flight config) actually prevents this failure mode — see Follow-up.
+- This is the first real motor-load current data for the 7-cell string,
+  addressing part of the open question pending since ADR 0001 — but it's
+  fixed load points, not a true Vmp/max-power sweep, and without voltage
+  readings it can't be compared directly against
+  `calculations/power_budget.md`'s Watt-based predictions.
+
+**Deviation from prediction:** Can't quantify directly — no voltage was
+recorded, so the current readings above can't be converted to Watts for
+comparison against `calculations/power_budget.md`'s ~24W theoretical
+ceiling. The overhead jump (0.5A → 1.0A) itself wasn't predicted by
+anything in that file.
+
+**Follow-up:**
+- Repeat with bus voltage logged at each current step, to distinguish
+  the "losses" vs. "I-V curve" explanations for the overhead jump.
+- Repeat with batteries connected (the actual flight configuration) to
+  see whether battery buffering prevents the cloud-brownout failure mode
+  seen here.
+- Determine the true max motor/current draw — this test stopped at 3A;
+  unclear if that's a real ceiling (ESC/motor limit) or just where
+  testing stopped.
+- Note which current sensor was read for "solar output" at each step
+  (the array-total 5A sensor vs. a branch-specific 2A meter) in future
+  entries, for consistency — not specified in this one.
+
+---
+
 ## 2026-07-22 — 7-cell string bench measurement (branches B & C)
 
 **Type:** bench test

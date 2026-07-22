@@ -67,3 +67,16 @@ smaller than the 6-cell baseline's collapse (encouraging, but not a full
 confirmation — no true Vmp measurement yet, and the motor-load test is
 still pending). Status stays "pending real-world measurement to confirm"
 until those land.
+
+## Post-decision update (2026-07-22, motor-load test)
+
+A solar-only (no batteries) motor-load test has now been logged — see
+`logs/test_flights.md`. Current draw up to 3A motor load / 4A solar
+output, but no voltage was recorded, so this still doesn't confirm
+whether the fix actually works at the power level that matters (no
+Watt-level comparison possible yet). Also surfaced: this system can't
+ride through a passing cloud without battery buffering when run
+solar-only — expected, since batteries exist in the real flight config
+specifically for this reason, but worth having confirmed. Status still
+stays "pending real-world measurement to confirm" — a true Vmp/voltage
+measurement under motor load is still the missing piece.

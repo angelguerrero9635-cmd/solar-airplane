@@ -100,6 +100,13 @@ update instead.
 - **"All-day" (dawn-to-dusk) flight is not currently realistic** with 6–8
   cells of this size; midday net-positive is achievable, morning/evening is
   battery-buffered only.
+- **Solar-only operation (no battery) can't ride through a passing
+  cloud.** Bench-confirmed 2026-07-22 (see `logs/test_flights.md`): with
+  no batteries connected, a brief cloud shadow browned out the ESC
+  mid-motor-load-test. Battery buffering (as in the actual flight
+  config) is required for continuous operation through variable
+  lighting — not yet confirmed whether it actually prevents this failure
+  mode, since that hasn't been separately tested.
 
 ## 5. Open questions / next steps
 
@@ -168,7 +175,17 @@ update instead.
       contributing factor to check, not a confirmed cause.
 - [ ] Confirm actual Vmp of the array after adding the 7th cell (measured
       at the true max-power operating point, not just Voc under one load
-      — see the caveat in the 2026-07-22 `logs/test_flights.md` entry)
+      — see the caveat in the 2026-07-22 `logs/test_flights.md` entry).
+      A motor-load test now exists (2026-07-22, solar-only, no
+      batteries) with current readings up to 3A motor load, but no
+      voltage was logged at any step — still no true Vmp point.
+- [ ] **Overhead current jump during motor-load test (2026-07-22).**
+      Solar output exceeded motor load by a steady 0.5A at low load but
+      jumped to a steady 1.0A from 1.5A load upward (see
+      `logs/test_flights.md`). Not distinguished between resistive/diode
+      losses and the array's own I-V curve behavior (more current
+      available as the bus sags further below Vmp) — needs voltage
+      logged alongside current to resolve.
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching
 - [ ] **Log a real bench test with current-sensor data** to
@@ -180,7 +197,10 @@ update instead.
       this FC (no free ADC channel; see Section 4). If in-flight
       validation is wanted later, it needs a different approach (e.g. an
       add-on logger, or inferring from the one available voltage
-      reading's discharge rate).
+      reading's discharge rate). The 2026-07-22 motor-load test has
+      current data up to 3A load, but no voltage was recorded, so it
+      can't yet be converted to Watts for comparison against
+      `calculations/power_budget.md`'s estimate.
 - [ ] **Decide whether Branch A should sense main battery instead of
       solar array.** As wired, the one in-flight voltage reading (VBAT)
       shows solar array voltage, not main battery voltage — meaning no
