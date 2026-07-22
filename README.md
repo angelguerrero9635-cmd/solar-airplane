@@ -20,8 +20,11 @@ it too; it's the fastest way back into context after time away.
 - `logs/` — dated bench test and flight test entries
 - `docs/roadmap.md` — phase plan from prototype to potential market
   introduction
-- `dashboard/` — a separate Next.js web app (its own `package.json`,
-  deployed independently, e.g. to Vercel) that reads and writes this repo's
-  markdown files over the GitHub API, as a nicer front-end than hand-editing
-  files. See `dashboard/README.md` for setup. It does not run the Python
-  scripts in `calculations/` — those stay Claude Code's job.
+
+The dashboard is **not** a folder in this repo — it's a separate app/repo,
+[`solar-airplane-dashboard`](https://github.com/angelguerrero9635-cmd/Solar-airplane-dashboard),
+deployed independently (e.g. to Vercel). It reads and writes this repo's
+markdown files over the GitHub API, as a nicer front-end than hand-editing
+files or going through Claude Code. It does not run the Python scripts in
+`calculations/` — those stay Claude Code's job. See that repo's own README
+for setup.
