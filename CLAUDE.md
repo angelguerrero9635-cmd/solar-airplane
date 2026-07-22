@@ -110,6 +110,15 @@ update instead.
       Branches B/C. Also unconfirmed whether this VBAT connection is
       purely a sense tap or also delivers power to the FC. See
       `specs/wiring_diagram.md`.
+- [ ] **VBAT is rated far above what it's actually fed (2026-07-22).**
+      The ATOMRC F405 NAVI's VBAT input is manufacturer-rated 12–30V
+      (3–6S), but Branch A feeds it ~4.4–4.6V — a 1S-equivalent voltage,
+      far below spec. The FC's voltage-divider scaling is likely
+      calibrated for a 3–6S pack, so the raw reading probably needs
+      manual recalibration to mean anything. Not confirmed whether
+      under-ranging like this is safe for this specific board (usually
+      fine for a sense pin, but unverified here) — see
+      `specs/components.md`.
 - [ ] **Current-sensor count/type doesn't reconcile.** 2026-07-22 wiring
       details describe 4 distinct current-sensing devices (2× 5A sensor,
       2× 2A current meter), but `specs/components.md` previously listed
@@ -141,7 +150,10 @@ update instead.
       (~5.0–5.1V) — see `logs/test_flights.md`. Not yet investigated;
       possible causes include cell tolerance, temperature, or bench-test
       lighting conditions (not recorded for that entry). Repeat with
-      conditions logged before concluding anything.
+      conditions logged before concluding anything. Also worth checking:
+      the array's operating voltage sits close to the ideal diodes' rated
+      4V floor (see `specs/components.md`) — that's a plausible
+      contributing factor to check, not a confirmed cause.
 - [ ] Confirm actual Vmp of the array after adding the 7th cell (measured
       at the true max-power operating point, not just Voc under one load
       — see the caveat in the 2026-07-22 `logs/test_flights.md` entry)
