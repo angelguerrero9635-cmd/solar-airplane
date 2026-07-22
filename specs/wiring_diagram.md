@@ -11,53 +11,27 @@ Last updated: 2026-07-22
 ## Main power & signal path
 
 ```
-                       ┌───────────────────────────┐
-                       │  Solar Array               │
-                       │  7× SunPower C60 (series)   │
-                       │  Voc≈5.0V  Vmp≈4.06V        │
-                       └─────────────┬───────────────┘
-                                     │
-                       ┌─────────────▼───────────────┐
-                       │  Ideal Diode Pair             │
-                       │  (Pololu Power ORing, 6A)     │
-                       │  — solar/battery OR node       │
-                       └─────────────┬───────────────┘
-                                     │
-                 ┌───────────────────┼────────────────────┐
-                 │                   │                    │
-      ┌──────────▼─────────┐ ┌───────▼────────┐  ┌────────▼─────────┐
-      │ Ideal Diode          │ │ Main Battery    │  │ Bulk Capacitor    │
-      │ Modules ×2           │ │ Bus              │  │ (bus smoothing)   │
-      │ (charging paths —     │ │ 18650 Li-ion,   │  │                   │
-      │ exact wiring to the   │ │ 2600 mAh, 1S    │  │                   │
-      │ OR node above: TBD)   │ │                 │  │                   │
-      └──────────────────────┘ └───────┬────────┘  └───────────────────┘
-                                        │
-                  ┌─────────────────────┼──────────────────────┐
-                  │                     │                      │
-          ┌───────▼───────┐   ┌─────────▼─────────┐  ┌─────────▼─────────┐
-          │ ESC → Motor    │   │ Flight Controller   │  │ Current Sensors    │
-          │ T-Motor M1104  │   │ ATOMRC F405 NAVI     │  │ ACS723 ×3          │
-          │ KV7500, 6×3    │   │                     │  │ (exact placement    │
-          │ prop           │   │                     │  │  on which leg: TBD) │
-          └────────────────┘   └─────────┬─────────┘  └────────────────────┘
-                                          │
-                ┌──────────────┬──────────┴──────────┬──────────────┐
-                │              │                      │              │
-        ┌───────▼──────┐ ┌─────▼──────┐   ┌───────────▼────────┐ ┌───▼────────┐
-        │ GPS           │ │ Receiver    │   │ Telemetry Radio     │ │ Servos ×4  │
-        │ BN-880        │ │ Happymodel  │   │ 915 MHz             │ │ DM-S0020   │
-        │               │ │ EP1 ELRS    │   │                     │ │ micro      │
-        └───────────────┘ └────────────┘   └─────────────────────┘ └────────────┘
+Solar Array — 7x SunPower C60 (series), Voc≈5.0V Vmp≈4.06V
+  -> Ideal Diode Pair (Pololu Power ORing, 6A) — solar/battery OR node
+       -> Ideal Diode Modules x2 (charging paths — exact wiring to the
+          OR node above: TBD)
+       -> Main Battery Bus — 18650 Li-ion, 2600 mAh, 1S
+       -> Bulk Capacitor (bus smoothing)
+            -> ESC -> Motor — T-Motor M1104 KV7500, 6x3 prop
+            -> Flight Controller — ATOMRC F405 NAVI
+                 -> GPS — BN-880
+                 -> Receiver — Happymodel EP1 ELRS
+                 -> Telemetry Radio — 915 MHz
+                 -> Servos x4 — DM-S0020 micro
+            -> Current Sensors x3 — ACS723 (exact placement on which
+               leg: TBD)
 ```
 
 ## FPV rail (independent)
 
 ```
-┌───────────────────────┐      ┌─────────────────────────────┐
-│ FPV Battery             │────► │ FPV Camera/VTX                │
-│ 1S 400 mAh LiPo         │      │ AKK BA3 AIO Analog Cam + VTX  │
-└───────────────────────┘      └─────────────────────────────┘
+FPV Battery — 1S 400 mAh LiPo
+  -> FPV Camera/VTX — AKK BA3 AIO Analog Cam + VTX
 ```
 
 Runs on its own 1S rail, isolated from the main solar/avionics bus — see
