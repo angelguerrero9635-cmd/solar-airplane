@@ -141,6 +141,23 @@ is worth confirming is intentional before finalizing Branch A — see
   permanent connectors for them — clip leads or an undoable in-line
   solder joint is appropriate.
 
+**Bulk capacitors** (added 2026-07-22, after bench troubleshooting
+brownouts — see `logs/test_flights.md`):
+
+- **At the ESC input** — already built, confirmed reality, not a
+  recommendation. Buffers the load side.
+- **At the main battery terminals — recommended, not yet built.**
+  Addresses the battery's own voltage collapse under current spikes
+  (ESR-limited transient response), which the ESC-side cap doesn't
+  reach. Low-ESR electrolytic or polymer, ~220–470µF, placed as close to
+  the terminals as practical.
+- **At the solar array output, before/at the diode split —
+  recommended, not yet built.** Addresses the array struggling with
+  current spikes even in full sun, consistent with the diode-OR
+  clamping behavior. Same type/value guidance as above.
+- Avoid tantalum for either — reverse-voltage risk given this diode
+  topology.
+
 ## Known unknowns / TBD
 
 - **Branch A is tentative.** Currently wired as described above, but
@@ -166,6 +183,10 @@ is worth confirming is intentional before finalizing Branch A — see
   unweighed.** Not previously in `specs/components.md`'s weight table —
   their weight isn't in the ~247g listed-components total or the AUW
   estimate.
+- **Recommended battery/array capacitors not yet built or validated
+  (2026-07-22).** The reasoning is sound (ESR/transient response), but
+  whether they actually fix the observed brownouts hasn't been tested —
+  see `logs/test_flights.md`'s follow-up.
 - **ESC battery-plug variant unconfirmed.** The E-Power BE001 ships with
   either a 2P plug (51005) or a 1.25mm-pitch 2P plug on the battery
   side, per its own product images — which one this specific unit has

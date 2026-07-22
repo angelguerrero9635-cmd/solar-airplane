@@ -36,6 +36,65 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-22 — Brownout troubleshooting: battery collapse + solar current spikes
+
+**Type:** bench test
+**Conditions:** two sub-conditions compared — (1) battery connected,
+solar barely supporting (under shade), (2) solar array alone, full sun.
+Exact light levels/temperature not recorded.
+**Config:** 7-cell SunPower C60 series string. A capacitor (or
+capacitors — count not recorded) has **already been added at the ESC**
+input, prior to this entry.
+
+**Readings:** Qualitative only — no specific voltage/current numbers
+recorded for this entry, just symptom descriptions below.
+
+**Observations:**
+- **With battery connected and solar barely supporting (shade):** ESC
+  browns out *more* frequently than expected. Hypothesis (user's own,
+  not yet independently confirmed): the battery's own terminal voltage
+  collapses under current spikes — consistent with a small 1S cell's
+  internal resistance (ESR) causing a fast transient voltage sag under a
+  sudden current step, faster than the cell's electrochemical response
+  can follow. The existing ESC-side capacitor doesn't address this,
+  since it buffers the load side, not the battery's own transient
+  response or the wiring resistance between battery and ESC.
+- **Solar array alone, full sun:** fine at lower currents, but has
+  trouble (implied: voltage collapse / instability) at higher current
+  spikes. Consistent with the already-documented diode-OR clamping
+  behavior (`CLAUDE.md` §4) — the array is a current-limited source at
+  its current operating point, and a sudden demand spike beyond what it
+  can supply *at that instant* pulls the post-diode node down until
+  something buffers it.
+- Both symptoms fit the same underlying pattern: **insufficient local
+  bulk capacitance at the source (battery, and separately the array/
+  diode node) to absorb fast current transients**, distinct from the
+  capacitor already added at the ESC (which only helps the load end).
+- Possible (unconfirmed) connection to the "overhead current jump"
+  flagged in the 2026-07-22 motor-load test entry — if some of that
+  extra 0.5A→1.0A jump reflects transient/spike behavior not fully
+  captured by the current sensors' response time, these two findings
+  may be related. Not established, just worth keeping in mind while
+  investigating both.
+
+**Deviation from prediction:** N/A — this is troubleshooting a real
+failure mode (brownouts), not a prediction from `calculations/
+power_budget.md`.
+
+**Follow-up:**
+- Add a capacitor at/near the main battery terminals — see the new
+  recommendation in `specs/wiring_diagram.md` and `specs/components.md`.
+- Add a capacitor at/near the solar array output (before or at the
+  diode input) — same reasoning, see recommendation.
+- Re-test after adding both to confirm whether brownout frequency
+  actually improves — the real proof is empirical, not this reasoning
+  alone.
+- Record actual voltage/current numbers next time (with an
+  oscilloscope or fast-logging meter if available) — this entry is
+  qualitative only, which limits how precisely the fix can be verified.
+
+---
+
 ## 2026-07-22 — Motor-load test, solar-only (no batteries)
 
 **Type:** bench test

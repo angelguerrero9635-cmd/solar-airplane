@@ -43,7 +43,9 @@ Last updated: 2026-07-22
 | 5V Regulator | Unspecified model — feeds Flight Controller via the servo rail | TBD (not yet weighed) | Unspecified | **Newly documented, 2026-07-22 — not previously in this table.** On Branch C. Not yet included in the weight totals below. |
 | 2A Current Meters | ×2 (one per Branch B and Branch C output) | TBD (not yet weighed) | Unspecified | **Newly documented, 2026-07-22.** May or may not overlap with the "Current Sensors" row below — see open question in `CLAUDE.md`. Not yet included in the weight totals below. |
 | Current Sensors | SparkFun ACS723 breakouts ×3 | 1.27 g each (3.81 g total) | Vcc supply rated 4.5–5.5V | The sensor IC's own supply requirement — separate from the ~3.6–4.6V branch current it measures, so it needs its own 5V-ish supply, consistent with its bench-test-only status (see `specs/wiring_diagram.md`). **Count/placement doesn't yet reconcile with the 4 current-sensing points described 2026-07-22** (2× 5A sensor + 2× 2A current meter, above) — see open question in `CLAUDE.md`. |
-| Capacitor | Electrolytic bulk | 0.7 g | Unspecified | No model/voltage rating recorded. Branch C's bus could see up to ~4.6–5.1V in a fault condition (main battery disconnected, array still connected) — confirm the eventual model has adequate voltage margin above that. |
+| Capacitor (ESC) | Electrolytic bulk, at the ESC input | 0.7 g | Unspecified | No model/voltage rating recorded. Confirmed 2026-07-22 to be located at the ESC input (previously just "bus smoothing" with no location). Branch C's bus could see up to ~4.6–5.1V in a fault condition (main battery disconnected, array still connected) — confirm the eventual model has adequate voltage margin above that. |
+| Capacitor (Main Battery) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, near the battery terminals | TBD | ≥4.2V (battery max) with margin | **Recommendation, 2026-07-22** — see "Voltage limits & compatibility" below. Addresses observed battery-voltage collapse under current spikes, distinct from the existing ESC-side cap. |
+| Capacitor (Solar Array) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, at/near the array output before the diode split | TBD | ≥5.1V (theoretical Voc) with margin | **Recommendation, 2026-07-22** — see "Voltage limits & compatibility" below. Addresses observed current-spike instability under full sun at higher currents. |
 
 ## Voltage limits & compatibility (added 2026-07-22)
 
@@ -99,20 +101,40 @@ away:
   the 5.07g figure (and anything derived from it, like the AUW total
   below) as unconfirmed against the manufacturer spec until weighed
   again on a scale with the model now known.
+- **Recommended: capacitors at the main battery and solar array,
+  in addition to the existing ESC-side one (2026-07-22).** Bench
+  troubleshooting (see `logs/test_flights.md`) found the ESC browning
+  out more with the battery connected under shade (hypothesis: the
+  battery's own ESR causes its terminal voltage to sag under fast
+  current steps faster than its electrochemistry can respond), and
+  separately, the solar array alone struggling at higher current spikes
+  even in full sun (consistent with the diode-OR clamping behavior
+  already documented). A cap only at the ESC buffers the load side, not
+  the battery's or array's own transient response, or the wiring
+  resistance between them. Recommend adding a low-ESR electrolytic or
+  polymer capacitor (~220–470µF is a reasonable starting point given
+  the few-amp current levels here; not tantalum, given reverse-voltage
+  risk with this diode topology) near the battery terminals and near the
+  array output. This is a recommendation, not yet built — validate by
+  re-testing whether brownout frequency actually improves.
 
 Everything still marked "Unspecified" in the tables above (telemetry
-radio, 5V regulator, 2A current meters, capacitor) needs an actual model
-number before a voltage range can be looked up rather than guessed. The
-ESC is now fully identified (E-Power BE001, from its own spec
-sheet/packaging, 2026-07-22).
+radio, 5V regulator, 2A current meters, ESC capacitor) needs an actual
+model number before a voltage range can be looked up rather than
+guessed. The ESC is now fully identified (E-Power BE001, from its own
+spec sheet/packaging, 2026-07-22). The two recommended capacitors
+(battery, array) are marked "TBD" rather than "Unspecified" since
+they're not built yet at all, not just missing a model number.
 
 Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650), E-Power 1S 5A ESC (BE001) product spec sheet/packaging photo (2026-07-22).
 
 ## Weight summary
 
 - Listed components total: **~247 g** (updated from ~233 g for the 7th
-  solar cell, +14 g). **Does not yet include** the 5V Regulator or the 2A
-  Current Meters newly documented 2026-07-22 — their weight is unknown.
+  solar cell, +14 g). **Does not yet include** the 5V Regulator, the 2A
+  Current Meters, or the two newly-recommended battery/array capacitors
+  — none of their weights are known yet (the recommended capacitors
+  aren't even built).
 - Estimated unlisted mass (foam wing, spars, fuselage tube, mount, wiring,
   adhesives): **~90–110 g** (estimate — replace with a real scale weight
   ASAP; this predates the 2026-07-22 Clark-Y/1200×200mm wing change, and

@@ -107,6 +107,16 @@ update instead.
   config) is required for continuous operation through variable
   lighting — not yet confirmed whether it actually prevents this failure
   mode, since that hasn't been separately tested.
+- **Brownouts happen even with the battery connected, under current
+  spikes.** Bench-observed 2026-07-22 (see `logs/test_flights.md`): with
+  battery connected but solar barely supporting (shade), ESC brownouts
+  got *more* frequent, not less — hypothesized as the battery's own ESR
+  causing terminal voltage to sag under fast current steps. Separately,
+  the solar array alone (full sun) struggles at higher current spikes
+  too, consistent with the diode-OR clamping behavior above. A capacitor
+  is already at the ESC input; capacitors at the battery terminals and
+  the array output are recommended but not yet built — see
+  `specs/wiring_diagram.md` and `specs/components.md`.
 
 ## 5. Open questions / next steps
 
@@ -185,7 +195,14 @@ update instead.
       `logs/test_flights.md`). Not distinguished between resistive/diode
       losses and the array's own I-V curve behavior (more current
       available as the bus sags further below Vmp) — needs voltage
-      logged alongside current to resolve.
+      logged alongside current to resolve. Possibly related to the
+      battery/array current-spike brownouts below — not established.
+- [ ] **Build and validate the recommended battery/array capacitors
+      (2026-07-22).** Recommended in `specs/wiring_diagram.md` and
+      `specs/components.md` to address the ESC-brownout-under-battery
+      and solar-current-spike findings, but not yet built. Re-test after
+      adding to confirm brownout frequency actually improves — the
+      reasoning is sound but unvalidated.
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching
 - [ ] **Log a real bench test with current-sensor data** to
