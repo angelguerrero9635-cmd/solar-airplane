@@ -1,17 +1,14 @@
 # Solar Glider — Project Log Dashboard
 
 A password-gated Next.js dashboard for the solar glider project. It reads
-and writes files **directly in the docs repo** (`solar-airplane`) via the
+and writes files **directly in your docs repo** (`solar-airplane`) via the
 GitHub API — there's no separate database. The repo stays the single source
 of truth; this is just a nicer window into it than editing markdown files
 by hand.
 
-This app lives inside the docs repo as `dashboard/`, but it's a **separate
-codebase** with its own `package.json` and deploy lifecycle — it gets its
-own Vercel project and talks back to this same repo over the GitHub API
-using a personal access token. (You can also extract this folder into its
-own repo later if you'd rather deploy from a dedicated repo — nothing here
-depends on being a subfolder except the setup commands below.)
+This is a **separate app from your docs repo**. It has its own GitHub repo
+and its own Vercel project, and talks to your docs repo over the GitHub API
+using a personal access token.
 
 ## What it does
 
@@ -31,13 +28,16 @@ Every save is a real git commit to your docs repo, with a message like
 
 ## Setup
 
-### 1. Point Vercel at this subfolder
+### 1. Push this app to its own GitHub repo
 
-Since this app now lives at `dashboard/` inside the `solar-airplane` repo
-rather than its own repo, import the **`solar-airplane`** repo into Vercel
-and set **Project Settings → Root Directory** to `dashboard`. (If you'd
-rather keep it fully separate, you can still copy this folder out into its
-own repo and import that instead — the app itself doesn't care either way.)
+```bash
+cd solar-glider-dashboard
+git init
+git add .
+git commit -m "Initial dashboard scaffold"
+gh repo create solar-glider-dashboard --private --source=. --push
+# or create the repo on github.com and `git remote add origin ...` + push
+```
 
 ### 2. Create a GitHub Personal Access Token
 
@@ -49,9 +49,11 @@ Use a **fine-grained token** scoped to only the docs repo:
 3. Permissions → **Contents: Read and write**
 4. Generate, copy the token (starts with `github_pat_`)
 
-### 3. Configure environment variables
+### 3. Deploy to Vercel
 
-Add these in Vercel (Project Settings → Environment Variables):
+1. Import the `solar-glider-dashboard` repo into Vercel
+2. Add these environment variables (Project Settings → Environment
+   Variables):
 
    | Variable | Value |
    |---|---|
@@ -61,7 +63,7 @@ Add these in Vercel (Project Settings → Environment Variables):
    | `GITHUB_TOKEN` | the fine-grained PAT from step 2 |
    | `DASHBOARD_PASSWORD` | any passphrase you choose |
 
-4. Deploy. Visit the URL, enter your passphrase, and you're in.
+3. Deploy. Visit the URL, enter your passphrase, and you're in.
 
 ### 4. Local development (optional)
 
@@ -87,12 +89,7 @@ npm run dev
   those and show live output, that's a further step (Vercel serverless
   functions can run Python, but it's a bigger lift than this scaffold) —
   say the word if you want that added later.
-- **Branch awareness.** Since this repo currently has work on a
+- **Branch awareness.** Since your repo currently has work on a
   `claude/solar-fpv-glider-setup-oq43lr` branch, double check `GITHUB_BRANCH`
   points at wherever your latest committed state actually lives before
   relying on this for edits.
-- **This app's own source lives in the same repo it edits.** `GITHUB_REPO`
-  should point at `solar-airplane` either way — the dashboard reads/writes
-  files across the whole repo (`CLAUDE.md`, `specs/`, etc.), not just its
-  own `dashboard/` folder, so nothing here is self-referential in a
-  problematic way, but it's worth being aware of.
