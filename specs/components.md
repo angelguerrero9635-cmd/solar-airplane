@@ -37,8 +37,8 @@ Last updated: 2026-07-22
 | Main Battery | 18650 Li-ion, 2600 mAh, 1S | 47.1 g | Resting voltage → SOC curve in `calculations/battery_soc.md` |
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g | Separate rail for FPV gear |
 | Solar Cells | SunPower C60 × 7 (series), Voc≈5.0V/Vmp≈4.06V theoretical, up to 2.4A each nameplate | 98 g total (14 g each) | See `specs/datasheets/sunpower_c60.md` for full electrical curve. **Updated 2026-07-22 from 6→7 cells per decisions/0001 — theoretical, pending bench confirmation (see CLAUDE.md open questions).** |
-| Ideal Diode Pair | Pololu Power ORing Ideal Diode Pair (6A) | 1.46 g | Solar/battery OR node — currently the suspected source of voltage clamping loss |
-| Ideal Diode Modules | Pololu Ideal Diode Modules (charging paths) ×2 | 0.27 g each | |
+| Ideal Diode Pair | Pololu Power ORing Ideal Diode Pair (6A) | 1.46 g | One of 3 ideal-diode paths wired in parallel directly to the panel array (see `specs/wiring_diagram.md`) — currently the suspected source of voltage clamping loss |
+| Ideal Diode Modules | Pololu Ideal Diode Modules ×2 | 0.27 g each | Wired in parallel directly to the panel array alongside the Ideal Diode Pair (3 parallel paths total) — see `specs/wiring_diagram.md` |
 | Current Sensors | SparkFun ACS723 breakouts ×3 | 1.27 g each (3.81 g total) | Used for measured current draw (avionics ≈1.5A baseline) — could support coulomb-counting SOC in place of pure voltage lookup |
 | Capacitor | Electrolytic bulk | 0.7 g | Bus smoothing |
 

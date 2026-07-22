@@ -58,9 +58,11 @@ update instead.
 
 - **SunPower C60 per-cell specs:** Voc ≈ 0.72V, Vmp ≈ 0.58V, Isc ≈ 6.0–6.3A,
   Imp ≈ 5.8–6.0A, Pmax ≈ 3.4–3.6W, 125×125mm, ~7g bare.
-- **Diode-OR voltage clamping problem:** with a simple ideal-diode OR between
-  solar array and battery bus, the array gets pulled toward bus voltage
-  (~3.9–4.2V) rather than operating at its own Vmp. Since solar cells are
+- **Diode-OR voltage clamping problem:** with the ideal-diode OR (3 diode
+  devices wired in parallel directly to the panel array — see
+  `specs/wiring_diagram.md`) between solar array and battery bus, the
+  array gets pulled toward bus voltage (~3.9–4.2V) rather than operating
+  at its own Vmp. Since solar cells are
   current sources whose output current falls steeply above Vmp (toward Voc),
   this clamps available current well below the array's real capability.
   This is why a 6-cell series string (Vmp ≈ 3.5V) delivered only ~2.5A into a
