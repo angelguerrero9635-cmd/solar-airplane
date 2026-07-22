@@ -4,6 +4,13 @@ One entry per test. Include ground/bench tests, not just flights — most of
 the early validation here (solar output, current draw) doesn't require
 flying.
 
+Note: the full **Readings** template below (voltage *and* current for
+each leg) is only fillable for `bench test`/`ground roll` entries, where
+sensors can be read directly. For `flight` entries, only the single VBAT
+voltage reading is available in the air (see `CLAUDE.md` §4 and
+`specs/wiring_diagram.md`) — leave other reading fields blank rather than
+estimating them.
+
 Template for each entry:
 
 ```

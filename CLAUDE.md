@@ -84,6 +84,14 @@ update instead.
 - **Avionics baseline draw:** ~1.5A (measured, no motor running).
 - **Estimated cruise power draw:** ~17–24W depending on drag/weight (see
   `calculations/power_budget.md`).
+- **In-flight telemetry is limited to one voltage reading.** The ATOMRC
+  F405 NAVI has no free ADC channels beyond VBAT, so none of the 4
+  current-sensing devices (see `specs/wiring_diagram.md`) can be logged
+  or telemetered in flight — they're bench-test-only. And since VBAT is
+  currently wired to the solar array (Branch A, tentative), not the main
+  battery, the one in-flight reading available is **solar array
+  voltage, not main battery voltage** — there is no in-flight main
+  battery voltage monitoring with the current wiring.
 - **"All-day" (dawn-to-dusk) flight is not currently realistic** with 6–8
   cells of this size; midday net-positive is achievable, morning/evening is
   battery-buffered only.
@@ -125,8 +133,22 @@ update instead.
       under real load, not just theoretical from datasheet)
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching
-- [ ] Log a real test flight with current-sensor data to `logs/test_flights.md`
-- [ ] Validate cruise power estimate against measured in-flight current draw
+- [ ] **Log a real bench test with current-sensor data** to
+      `logs/test_flights.md` — current-sensor readings are bench-only
+      (see Section 4); a real *test flight* will only yield the single
+      VBAT voltage reading, not current data.
+- [ ] Validate cruise power estimate against bench-measured current draw
+      at cruise throttle — in-flight current draw can't be measured with
+      this FC (no free ADC channel; see Section 4). If in-flight
+      validation is wanted later, it needs a different approach (e.g. an
+      add-on logger, or inferring from the one available voltage
+      reading's discharge rate).
+- [ ] **Decide whether Branch A should sense main battery instead of
+      solar array.** As wired, the one in-flight voltage reading (VBAT)
+      shows solar array voltage, not main battery voltage — meaning no
+      in-flight main battery monitoring exists currently. Confirm this
+      tradeoff is intended, especially since Branch A's whole wiring is
+      still tentative anyway.
 - [ ] Re-run wing loading / power budget once final AUW is weighed (not
       estimated)
 

@@ -60,6 +60,23 @@ Note: Branch B's FPV rail is fed from solar (via Branch B's diode +
 earlier documentation implied. It remains electrically separate from
 Branch C's main battery bus, though — the two branches never rejoin.
 
+## In-flight vs. bench-test instrumentation
+
+All 4 current-sensing devices (the 5A array sensor, the 5A ESC-leg
+sensor, and the 2 2A current meters) are **bench-test-only**. The
+ATOMRC F405 NAVI flight controller has no free ADC channels beyond the
+one wired to VBAT — none of these current readings can be logged or
+telemetered in flight. They're only readable on the ground (e.g. by eye,
+or with an external logger), during bench testing.
+
+**In flight, only one voltage reading is available at all** — via
+Branch A's tap into the FC's VBAT pin. Since Branch A is currently wired
+to the **solar array**, not the main battery, that one in-flight reading
+is solar array voltage, not main battery voltage. With the current
+wiring, there is no way to monitor main battery voltage in flight. This
+is worth confirming is intentional before finalizing Branch A — see
+`CLAUDE.md` open questions.
+
 ## Known unknowns / TBD
 
 - **Branch A is tentative.** Currently wired as described above, but
