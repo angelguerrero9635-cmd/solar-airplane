@@ -44,9 +44,9 @@ Last updated: 2026-07-22
 | 2A Current Meters | ×2 (one per Branch B and Branch C output) | TBD (not yet weighed) | Unspecified | **Newly documented, 2026-07-22.** May or may not overlap with the "Current Sensors" row below — see open question in `CLAUDE.md`. Not yet included in the weight totals below. |
 | Current Sensors | SparkFun ACS723 breakouts ×3 | 1.27 g each (3.81 g total) | Vcc supply rated 4.5–5.5V | The sensor IC's own supply requirement — separate from the ~3.6–4.6V branch current it measures, so it needs its own 5V-ish supply, consistent with its bench-test-only status (see `specs/wiring_diagram.md`). **Count/placement doesn't yet reconcile with the 4 current-sensing points described 2026-07-22** (2× 5A sensor + 2× 2A current meter, above) — see open question in `CLAUDE.md`. |
 | Capacitor (ESC) | Electrolytic bulk, at the ESC input | 0.7 g | Unspecified | No model/voltage rating recorded. Confirmed 2026-07-22 to be located at the ESC input (previously just "bus smoothing" with no location). Branch C's bus could see up to ~4.6–5.1V in a fault condition (main battery disconnected, array still connected) — confirm the eventual model has adequate voltage margin above that. |
-| Capacitor (Main Battery) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, near the battery terminals | TBD | ≥4.2V (battery max) with margin | **Recommendation, 2026-07-22** — see "Voltage limits & compatibility" below. Addresses observed battery-voltage collapse under current spikes, distinct from the existing ESC-side cap. |
-| Capacitor (Solar Array) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, at/near the array output before the diode split | TBD | ≥5.1V (theoretical Voc) with margin | **Recommendation, 2026-07-22** — see "Voltage limits & compatibility" below. Addresses observed current-spike instability under full sun at higher currents. |
-| Capacitor (5V Regulator output) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, at the regulator's servo-rail output | TBD | ≥5V (regulator output) with margin | **Recommendation, 2026-07-22.** Not project-specific reasoning like the other two — regulators generally need local output capacitance for stability/transient response, and the servo rail is a textbook case (bursty servo current draw). Consequence is higher than usual here since this rail also powers the Flight Controller. Check whether the unspecified regulator module already has onboard bypass caps first. |
+| Capacitor (Main Battery) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥4.2V (battery max) with margin | **Candidate confirmed 2026-07-22** — from the user's own on-hand stock (product label photo). 16V rating gives ~3.8x margin over battery max; ESR/ripple-current specs are well-suited to the observed transient issue. Polarized — verify correct polarity when installing. See "Voltage limits & compatibility" below. |
+| Capacitor (Solar Array) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5.1V (theoretical Voc) with margin | **Candidate confirmed 2026-07-22** — same part as above, from the user's on-hand stock. ~3.1x voltage margin over theoretical Voc. Polarized — verify correct polarity when installing. See "Voltage limits & compatibility" below. |
+| Capacitor (5V Regulator output) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5V (regulator output) with margin | **Candidate confirmed 2026-07-22** — same part as above. ~3.2x voltage margin. Regulator-stability reasoning still applies (see "Voltage limits & compatibility" below) — check whether the still-unspecified regulator module already has onboard bypass caps first. Polarized — verify correct polarity when installing. |
 
 ## Voltage limits & compatibility (added 2026-07-22)
 
@@ -124,6 +124,17 @@ away:
   here since the same rail powers the Flight Controller. All three are
   recommendations, not yet built — validate by re-testing whether
   brownout frequency actually improves.
+- **Candidate capacitor part confirmed (2026-07-22).** User has RLTZ
+  series DIP solid-state (polymer) capacitors on hand: 680µF, 16V rated,
+  ESR 15mΩ, rated ripple current 4.1A rms, 8×12mm, polarized. Voltage
+  margin is comfortable at all three locations above (~3.1–3.8x over
+  each location's expected max voltage), the low ESR directly addresses
+  the transient-response problem being solved, and the 8×12mm size keeps
+  weight cost low. Good fit for all three — still not yet installed at
+  any of them, and polarity must be observed when installing (unlike a
+  ceramic cap, getting a polarized part backwards is a real failure
+  mode, worth double-checking given the diode-OR context already at
+  play here).
 
 Everything still marked "Unspecified" in the tables above (telemetry
 radio, 5V regulator, 2A current meters, ESC capacitor) needs an actual

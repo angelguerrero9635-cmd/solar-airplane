@@ -202,10 +202,13 @@ update instead.
       and `specs/components.md` to address the ESC-brownout-under-battery
       and solar-current-spike findings, plus standard regulator-stability
       practice for the 5V regulator's servo rail (which also powers the
-      FC). None built yet. Re-test after adding to confirm brownout
-      frequency actually improves — the reasoning is sound but
+      FC). Candidate part confirmed 2026-07-22 (RLTZ series 680µF/16V,
+      ESR 15mΩ, from user's on-hand stock — good fit at all 3 locations),
+      but none are installed yet. Re-test after installing to confirm
+      brownout frequency actually improves — the reasoning is sound but
       unvalidated. Also check whether the regulator module already has
-      onboard bypass caps before assuming it needs more.
+      onboard bypass caps before assuming it needs more, and observe
+      correct polarity when installing (these are polarized parts).
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching
 - [ ] **Log a real bench test with current-sensor data** to

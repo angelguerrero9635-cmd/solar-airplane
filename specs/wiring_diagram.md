@@ -167,6 +167,12 @@ brownouts — see `logs/test_flights.md`):
   bypass capacitors before assuming it needs more.
 - Avoid tantalum for any of these — reverse-voltage risk given this
   diode topology.
+- **Candidate part confirmed 2026-07-22:** user has RLTZ series DIP
+  solid-state (polymer) capacitors on hand — 680µF, 16V, ESR 15mΩ, 4.1A
+  rms ripple rating, 8×12mm. Good fit for all three locations above
+  (~3.1–3.8x voltage margin at each, low ESR matches the transient-
+  response need). Polarized — verify correct polarity when installing
+  at each location. Not yet installed anywhere.
 
 ## Known unknowns / TBD
 
