@@ -21,6 +21,13 @@ The solar array feeds 3 independent ideal-diode branches. All 3 diodes
 share the same input (the solar array); their outputs are **not**
 rejoined — each branch powers something different.
 
+![Wiring diagram — solar array splits into 3 branches: a tentative
+voltage-sense tap to the flight controller's VBAT pin, the FPV rail, and
+the main battery bus, which converge again only at the shared flight
+controller box.](wiring_diagram.svg)
+
+Text version of the same diagram, for diffing/searching:
+
 ```
 Solar Array — 7x SunPower C60 (series), Voc≈5.0V Vmp≈4.06V
   -> 5A Current Sensor (measures total array output, before the 3-way
@@ -77,6 +84,52 @@ wiring, there is no way to monitor main battery voltage in flight. This
 is worth confirming is intentional before finalizing Branch A — see
 `CLAUDE.md` open questions.
 
+## Recommended physical wiring (proposed — not yet built)
+
+> ⚠️ This section is a **recommendation**, not a description of what's
+> actually built. Nothing below is confirmed — it's what to use if/when
+> the physical wiring is done. Biased toward bare-wire solder joints over
+> connectors wherever disconnect/modularity isn't essential, since every
+> connector adds weight and a resistance joint (relevant given the
+> existing diode-OR voltage clamping problem — see `CLAUDE.md` §4).
+
+**Wire gauge**, by current level (none of these legs should exceed
+~5–6A even at theoretical peak):
+
+- **26 AWG silicone wire** — signal/low-current legs: Branch A's VBAT
+  sense tap, FPV camera/VTX pigtail, GPS/receiver/telemetry UART leads,
+  servo signal wires.
+- **24 AWG silicone wire** — higher-current legs: solar array output
+  before the 3-way split, Branch C's main battery/ESC leg.
+- Silicone (not PVC) insulation throughout — stays flexible at thin
+  gauges, standard for this build class.
+
+**Connectors, by branch:**
+
+- **Solar array → all 3 diode inputs:** direct solder, no connector.
+  Permanent assembly; a connector here only adds weight and resistance.
+- **Branch A (diode → FC VBAT):** solder directly to the FC's
+  VBAT+/GND pads. Full-size FCs like the F405 NAVI typically expose these
+  as bare solder pads for exactly this kind of custom power input.
+- **Branch B (FPV rail):** match whatever connector the FPV battery
+  already ships with (PH2.0/JST-PH 2-pin is standard on 1S ~400mAh
+  packs) rather than introducing a different connector family on the
+  diode/meter side. Camera/VTX: direct solder pigtail, standard for AIO
+  cams.
+- **Branch C (main bus):** match whatever connector the main 18650 pack
+  uses (often none — solder directly if the pack ships connector-less).
+  ESC power leads: direct solder, standard for micro ESCs. 5V regulator
+  output → FC servo rail: use a spare **servo header pin** (2.54mm pitch,
+  3-pin) for +5V/GND — don't introduce a new connector type just for
+  this.
+- **GPS/Receiver/Telemetry → FC:** if not already pigtailed from the
+  factory, **JST-SH 1.0mm ("GH1.25"-style)** is the common convention for
+  UART peripherals in this size class.
+- **Bench-test current sensors:** since these are temporary by design
+  (see "In-flight vs. bench-test instrumentation" above), don't build
+  permanent connectors for them — clip leads or an undoable in-line
+  solder joint is appropriate.
+
 ## Known unknowns / TBD
 
 - **Branch A is tentative.** Currently wired as described above, but
@@ -102,14 +155,20 @@ is worth confirming is intentional before finalizing Branch A — see
   unweighed.** Not previously in `specs/components.md`'s weight table —
   their weight isn't in the ~247g listed-components total or the AUW
   estimate.
-- **No wire gauge, connector type, or physical routing captured here.**
-  This is a topology/block diagram, not a build guide.
+- **Physical wiring (gauge/connectors) is only a recommendation so far,
+  not a confirmed build.** See "Recommended physical wiring" above —
+  it's proposed, pending your decision to actually build it that way.
+  No physical routing (how wires are run through the airframe) is
+  captured here regardless.
 
 ## Source
 
 The branch topology (3 independent diode branches, their specific
 destinations, the 5V regulator, and the current-sensor placements) was
 confirmed directly, 2026-07-22. Everything else is derived from the
-component list already in `specs/components.md`. Update this file
-whenever the power path or component list changes, same as everything
-else in `specs/`.
+component list already in `specs/components.md`. The physical-wiring
+recommendation is exactly that — a recommendation, not a confirmed
+build. The visual diagram (`wiring_diagram.svg`) is a hand-drawn
+rendering of the same topology described in the text version above;
+update both together if the topology changes, same as everything else
+in `specs/`.
