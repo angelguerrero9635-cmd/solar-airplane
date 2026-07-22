@@ -46,6 +46,7 @@ Last updated: 2026-07-22
 | Capacitor (ESC) | Electrolytic bulk, at the ESC input | 0.7 g | Unspecified | No model/voltage rating recorded. Confirmed 2026-07-22 to be located at the ESC input (previously just "bus smoothing" with no location). Branch C's bus could see up to ~4.6–5.1V in a fault condition (main battery disconnected, array still connected) — confirm the eventual model has adequate voltage margin above that. |
 | Capacitor (Main Battery) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, near the battery terminals | TBD | ≥4.2V (battery max) with margin | **Recommendation, 2026-07-22** — see "Voltage limits & compatibility" below. Addresses observed battery-voltage collapse under current spikes, distinct from the existing ESC-side cap. |
 | Capacitor (Solar Array) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, at/near the array output before the diode split | TBD | ≥5.1V (theoretical Voc) with margin | **Recommendation, 2026-07-22** — see "Voltage limits & compatibility" below. Addresses observed current-spike instability under full sun at higher currents. |
+| Capacitor (5V Regulator output) — **recommended, not yet built** | Low-ESR electrolytic or polymer, ~220–470µF, at the regulator's servo-rail output | TBD | ≥5V (regulator output) with margin | **Recommendation, 2026-07-22.** Not project-specific reasoning like the other two — regulators generally need local output capacitance for stability/transient response, and the servo rail is a textbook case (bursty servo current draw). Consequence is higher than usual here since this rail also powers the Flight Controller. Check whether the unspecified regulator module already has onboard bypass caps first. |
 
 ## Voltage limits & compatibility (added 2026-07-22)
 
@@ -101,22 +102,28 @@ away:
   the 5.07g figure (and anything derived from it, like the AUW total
   below) as unconfirmed against the manufacturer spec until weighed
   again on a scale with the model now known.
-- **Recommended: capacitors at the main battery and solar array,
-  in addition to the existing ESC-side one (2026-07-22).** Bench
-  troubleshooting (see `logs/test_flights.md`) found the ESC browning
-  out more with the battery connected under shade (hypothesis: the
-  battery's own ESR causes its terminal voltage to sag under fast
-  current steps faster than its electrochemistry can respond), and
-  separately, the solar array alone struggling at higher current spikes
-  even in full sun (consistent with the diode-OR clamping behavior
-  already documented). A cap only at the ESC buffers the load side, not
-  the battery's or array's own transient response, or the wiring
-  resistance between them. Recommend adding a low-ESR electrolytic or
-  polymer capacitor (~220–470µF is a reasonable starting point given
+- **Recommended: capacitors at the main battery, solar array, and 5V
+  regulator output, in addition to the existing ESC-side one
+  (2026-07-22).** Bench troubleshooting (see `logs/test_flights.md`)
+  found the ESC browning out more with the battery connected under shade
+  (hypothesis: the battery's own ESR causes its terminal voltage to sag
+  under fast current steps faster than its electrochemistry can
+  respond), and separately, the solar array alone struggling at higher
+  current spikes even in full sun (consistent with the diode-OR clamping
+  behavior already documented). A cap only at the ESC buffers the load
+  side, not the battery's or array's own transient response, or the
+  wiring resistance between them. Recommend adding a low-ESR electrolytic
+  or polymer capacitor (~220–470µF is a reasonable starting point given
   the few-amp current levels here; not tantalum, given reverse-voltage
   risk with this diode topology) near the battery terminals and near the
-  array output. This is a recommendation, not yet built — validate by
-  re-testing whether brownout frequency actually improves.
+  array output. Separately, the 5V regulator's servo-rail output likely
+  needs one too — not for this build's specific ESR/clamping reasons,
+  but because regulators generally need local output capacitance for
+  stability and transient response, and bursty servo current draw is a
+  textbook cause of downstream brownouts. That consequence is higher
+  here since the same rail powers the Flight Controller. All three are
+  recommendations, not yet built — validate by re-testing whether
+  brownout frequency actually improves.
 
 Everything still marked "Unspecified" in the tables above (telemetry
 radio, 5V regulator, 2A current meters, ESC capacitor) needs an actual
@@ -132,9 +139,9 @@ Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-m
 
 - Listed components total: **~247 g** (updated from ~233 g for the 7th
   solar cell, +14 g). **Does not yet include** the 5V Regulator, the 2A
-  Current Meters, or the two newly-recommended battery/array capacitors
-  — none of their weights are known yet (the recommended capacitors
-  aren't even built).
+  Current Meters, or the three newly-recommended capacitors (battery,
+  array, regulator output) — none of their weights are known yet (the
+  recommended capacitors aren't even built).
 - Estimated unlisted mass (foam wing, spars, fuselage tube, mount, wiring,
   adhesives): **~90–110 g** (estimate — replace with a real scale weight
   ASAP; this predates the 2026-07-22 Clark-Y/1200×200mm wing change, and

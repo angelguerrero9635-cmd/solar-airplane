@@ -155,8 +155,18 @@ brownouts — see `logs/test_flights.md`):
   recommended, not yet built.** Addresses the array struggling with
   current spikes even in full sun, consistent with the diode-OR
   clamping behavior. Same type/value guidance as above.
-- Avoid tantalum for either — reverse-voltage risk given this diode
-  topology.
+- **At the 5V Regulator's output (servo rail) — recommended, not yet
+  built.** Regulators generally need local output capacitance for
+  stability and load-transient response; this isn't specific to this
+  build the way the battery/array reasoning is. The servo rail is a
+  textbook case for needing it — servo current draw comes in bursts
+  when they move, a well-known cause of downstream brownouts even with
+  a regulator/BEC upstream — and the consequence here is worse than
+  usual, since this same rail also powers the Flight Controller. Check
+  whether the (still-unspecified) regulator module already has onboard
+  bypass capacitors before assuming it needs more.
+- Avoid tantalum for any of these — reverse-voltage risk given this
+  diode topology.
 
 ## Known unknowns / TBD
 
@@ -183,10 +193,12 @@ brownouts — see `logs/test_flights.md`):
   unweighed.** Not previously in `specs/components.md`'s weight table —
   their weight isn't in the ~247g listed-components total or the AUW
   estimate.
-- **Recommended battery/array capacitors not yet built or validated
-  (2026-07-22).** The reasoning is sound (ESR/transient response), but
-  whether they actually fix the observed brownouts hasn't been tested —
-  see `logs/test_flights.md`'s follow-up.
+- **Recommended battery/array/regulator capacitors not yet built or
+  validated (2026-07-22).** The reasoning is sound (ESR/transient
+  response for the battery and array; standard regulator design
+  practice for the 5V regulator's servo-rail output), but whether they
+  actually fix the observed brownouts hasn't been tested — see
+  `logs/test_flights.md`'s follow-up.
 - **ESC battery-plug variant unconfirmed.** The E-Power BE001 ships with
   either a 2P plug (51005) or a 1.25mm-pitch 2P plug on the battery
   side, per its own product images — which one this specific unit has

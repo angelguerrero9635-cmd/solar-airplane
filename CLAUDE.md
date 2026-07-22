@@ -197,12 +197,15 @@ update instead.
       available as the bus sags further below Vmp) — needs voltage
       logged alongside current to resolve. Possibly related to the
       battery/array current-spike brownouts below — not established.
-- [ ] **Build and validate the recommended battery/array capacitors
-      (2026-07-22).** Recommended in `specs/wiring_diagram.md` and
-      `specs/components.md` to address the ESC-brownout-under-battery
-      and solar-current-spike findings, but not yet built. Re-test after
-      adding to confirm brownout frequency actually improves — the
-      reasoning is sound but unvalidated.
+- [ ] **Build and validate the recommended battery/array/regulator
+      capacitors (2026-07-22).** Recommended in `specs/wiring_diagram.md`
+      and `specs/components.md` to address the ESC-brownout-under-battery
+      and solar-current-spike findings, plus standard regulator-stability
+      practice for the 5V regulator's servo rail (which also powers the
+      FC). None built yet. Re-test after adding to confirm brownout
+      frequency actually improves — the reasoning is sound but
+      unvalidated. Also check whether the regulator module already has
+      onboard bypass caps before assuming it needs more.
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching
 - [ ] **Log a real bench test with current-sensor data** to
