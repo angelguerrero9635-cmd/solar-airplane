@@ -1,12 +1,12 @@
 # Component Specifications
 
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 ## Airframe
 
 | Component | Spec | Weight | Notes |
 |---|---|---|---|
-| Wing | Foam, SD7037 airfoil, 1210mm span, 150mm chord | — | Wing area ≈ 0.182 m² (18.2 dm²) |
+| Wing | Foam, Clark-Y airfoil, 1200mm span, 200mm chord | — | Wing area ≈ 0.24 m² (24.0 dm²). Updated 2026-07-22 from SD7037, 1210×150mm. |
 | Spars | Carbon fiber | — | |
 | Fuselage | Carbon fiber tube/rod | — | |
 | Motor mount | 3D printed | — | |
@@ -47,6 +47,8 @@ Last updated: 2026-07-21
 - Listed components total: **~247 g** (updated from ~233 g for the 7th
   solar cell, +14 g)
 - Estimated unlisted mass (foam wing, spars, fuselage tube, mount, wiring,
-  adhesives): **~90–110 g** (estimate — replace with a real scale weight ASAP)
+  adhesives): **~90–110 g** (estimate — replace with a real scale weight
+  ASAP; this predates the 2026-07-22 Clark-Y/1200×200mm wing change, and
+  the larger chord likely pushes it above this range)
 - **Estimated AUW: ~337–357 g** (needs confirmation — see open questions in
   `CLAUDE.md`)

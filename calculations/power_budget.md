@@ -9,27 +9,39 @@ changes — don't hand-edit the results below without re-running it.
 > through the calculator. The 6→7 cell change has not yet been physically
 > re-measured on the bench — see open questions in `CLAUDE.md`.
 
+> ⚠️ **Wing updated 2026-07-22:** Clark-Y airfoil, 1200mm span, 200mm chord
+> (was SD7037, 1210mm span, 150mm chord). The AUW estimate below has not
+> been revisited for the larger wing — see open questions in `CLAUDE.md`.
+
 ## Inputs
 
-- Wingspan: 1.21 m
-- Chord: 0.15 m → wing area ≈ 0.182 m²
+- Wingspan: 1.20 m
+- Chord: 0.20 m → wing area ≈ 0.24 m² (24.0 dm²)
 - Estimated AUW: ~337–357 g (⚠️ estimate, needs a real scale measurement;
-  midpoint 347.4 g used below, +14 g vs. the 6-cell estimate for the 7th
-  solar cell)
-- Airfoil: SD7037 (proven low-Reynolds sailplane section)
+  midpoint 347.4 g used below; predates the wing geometry change above, so
+  the unlisted airframe mass this AUW assumes may be understated for the
+  larger wing)
+- Airfoil: Clark-Y (classic flat-bottom section, widely used in RC gliders
+  and trainers)
 
 ## Wing loading
 
-347.4 g over 18.2 dm² → **~19.1 g/dm²** (range ~18.5–19.6 g/dm² across the
-337–357 g AUW estimate). Still genuine glider territory, meaning low cruise
-power requirements relative to weight — helped by the airfoil choice, hurt
-somewhat by exposed FPV/GPS/telemetry antennas adding parasitic drag versus
-a clean glider.
+347.4 g over 24.0 dm² → **~14.5 g/dm²** (range ~14.0–14.9 g/dm² across the
+337–357 g AUW estimate). Notably lower than the previous SD7037 wing
+(18.2 dm², ~19.1 g/dm²) — the larger chord (150mm → 200mm) outweighs the
+slightly shorter span (1210mm → 1200mm). Still glider territory, likely
+even lower cruise power requirements relative to weight than before, though
+that also assumes the airframe mass doesn't grow proportionally with the
+extra wing area.
 
 ## Estimated cruise power
 
 Using **50–70 W/kg** for a light glider airframe with some non-aerodynamic
-payload drag (vs. 30–50 W/kg for a clean glider):
+payload drag (vs. 30–50 W/kg for a clean glider). This range is unchanged
+from the SD7037 wing — it's not re-derived for the new wing loading, so
+it's worth revisiting once real cruise-throttle current draw is measured
+on the Clark-Y wing (a ~14.5 g/dm² wing loading is closer to the "clean
+glider" end of the range than the old ~19.1 g/dm² was):
 
 - At 0.337 kg: ~16.9–23.6 W
 - At 0.357 kg: ~17.9–25.0 W
@@ -69,7 +81,8 @@ payload drag (vs. 30–50 W/kg for a clean glider):
 
 ## To do
 
-- [ ] Replace estimated AUW with a real measured weight
+- [ ] Replace estimated AUW with a real measured weight, now that the wing
+      is a different size (Clark-Y, 1200×200mm) than the estimate assumed
 - [ ] Replace estimated cruise W/kg with a measured static current draw at
       cruise throttle (bench test with prop, no flight needed)
 - [ ] **Bench-measure the 7-cell string's actual voltage/current into the

@@ -10,8 +10,9 @@ Usage:
 """
 
 # --- Airframe geometry -------------------------------------------------
-WINGSPAN_M = 1.21
-CHORD_M = 0.15
+# Clark-Y airfoil, updated 2026-07-22 (was SD7037, 1.21m x 0.15m).
+WINGSPAN_M = 1.20
+CHORD_M = 0.20
 WING_AREA_M2 = WINGSPAN_M * CHORD_M  # simple rectangular approximation
 
 # --- Mass ----------------------------------------------------------------

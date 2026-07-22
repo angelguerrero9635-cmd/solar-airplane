@@ -7,7 +7,7 @@
 
 ## 1. Project summary
 
-A 1.21m wingspan solar-electric FPV glider. Goal: maximize sustained/extended
+A 1.2m wingspan solar-electric FPV glider. Goal: maximize sustained/extended
 flight duration using solar charging, starting as a prototyping exercise and
 evolving toward a documented, reproducible design that could eventually be
 shared, kitted, or sold.
@@ -16,12 +16,17 @@ shared, kitted, or sold.
 
 ## 2. Current airframe & power architecture
 
-- Foam wing, **SD7037** airfoil, 1210mm span, 150mm chord, carbon fiber spars
+- Foam wing, **Clark-Y** airfoil, 1200mm span, 200mm chord, carbon fiber
+  spars (updated 2026-07-22, was SD7037, 1210mm span, 150mm chord)
 - Carbon fiber tube/rod fuselage, 3D printed motor mount
-- **Wing area:** ~0.182 m² (18.2 dm²)
+- **Wing area:** ~0.24 m² (24.0 dm²)
 - **Estimated AUW:** ~337–357g (see `calculations/power_budget.md`; updated
-  for the 7-cell solar string, theoretical pending bench confirmation)
-- **Wing loading:** ~18.5–19.6 g/dm² (sailplane range)
+  for the 7-cell solar string, theoretical pending bench confirmation —
+  this estimate predates the 2026-07-22 wing change and hasn't been
+  revisited for it)
+- **Wing loading:** ~14.0–14.9 g/dm² (sailplane range; lower than the
+  previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
+  shorter span)
 - Power path: solar array → ideal-diode OR → 1S Li-ion battery bus → ESC/motor
   and avionics
 
@@ -74,6 +79,13 @@ update instead.
 
 ## 5. Open questions / next steps
 
+- [ ] **The Clark-Y / 1200×200mm wing update (2026-07-22) hasn't been
+      re-weighed.** Wing area and wing loading in this file,
+      `specs/components.md`, and `calculations/power_budget.md`/`.py` have
+      all been updated for the new geometry, but the ~90–110g unlisted
+      airframe mass estimate (and therefore the ~337–357g AUW) still
+      reflects the old SD7037/1210×150mm wing. A larger chord likely means
+      more foam and skin material — confirm real weight once built.
 - [ ] **The 6→7 cell update (2026-07-22) is theoretical only.**
       `calculations/power_budget.py`/`.md`, `specs/components.md`, and this
       file's component table have all been updated to reflect 7 cells and
@@ -108,10 +120,11 @@ update instead.
 - **Roadmap** lives in `docs/roadmap.md` — update phase status as the project
   moves from prototyping toward production.
 - The **dashboard** is a separate app/repo (`solar-airplane-dashboard`), not
-  a folder in this repo. It's a Next.js app that edits this repo's markdown
-  files via the GitHub API — a web front-end alternative to hand-editing
-  files or going through Claude Code. It does not run `calculations/*.py`;
-  those stay code-only. See that repo's own README for setup/deploy details.
+  a folder in this repo. It's a read-only Next.js app over a bundled
+  snapshot of this repo's markdown files, refreshed manually via its
+  `scripts/sync-content.sh` — not a live view. All edits still happen here,
+  through Claude Code. It does not run `calculations/*.py`; those stay
+  code-only. See that repo's own README for setup/deploy details.
 - When asked to do a calculation, prefer writing/updating a script in
   `calculations/` over doing throwaway math in chat, so the work is reusable.
 - When a component changes, update the table in this file (Section 3) in the
