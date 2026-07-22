@@ -36,6 +36,67 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-22 — 7-cell string bench measurement (branches B & C)
+
+**Type:** bench test
+**Conditions:** (fill in — sun condition/time not recorded in original
+conversation)
+**Config:** 7-cell SunPower C60 series string (added 7th cell per ADR
+0001). Main battery starting voltage 3.64V, FPV/video battery starting
+voltage 3.66V.
+
+**Readings:**
+- Solar array voltage, open circuit (no load): 4.57V
+- Solar array voltage, main + FPV battery connected (Branches B & C, no
+  camera/ESC/FC yet): 4.41V (sags 0.16V under this load)
+- FPV/video battery charge current (Branch B, battery only): ~0.5A
+- Main battery charge current (Branch C, battery only): ~0.8A
+- Branch B total draw with camera added (camera + FPV battery together):
+  ~0.5A — unchanged from battery-alone figure
+- Main battery charge current with ESC + FC added to Branch C: ~0.2A
+  (down from ~0.8A battery-alone — ESC/FC now consuming the rest of
+  Branch C's ~0.8A)
+- Motor draw: not yet tested (planned next)
+
+**Observations:**
+- Measured Voc (4.57V) is notably below the theoretical 7-cell Voc
+  (~5.0–5.1V per `specs/datasheets/sunpower_c60.md`, 7× the ~0.72–0.73V/
+  cell datasheet figure) — about 9–11% low. Per-cell implied Voc from
+  this measurement is ~0.65V vs. the ~0.72–0.73V datasheet figure.
+  Possible causes not yet investigated: cell tolerance, temperature, or
+  (given this is a bench test, possibly indoors) lower illumination than
+  the datasheet's test conditions — Voc drops measurably under reduced
+  light for photovoltaic cells. Conditions weren't recorded for this
+  entry — worth noting indoor/outdoor and light level in future entries
+  to help isolate this.
+- Array voltage sag under load (4.57V → 4.41V, ~3.5%) is much smaller
+  than the 6-cell baseline's collapse toward bus voltage (see the
+  2026-07-21 entry below) — encouraging for the diode-OR clamping fix
+  (ADR 0001), though not yet a full confirmation: this wasn't a true Vmp
+  measurement (that needs the array's actual max-power operating point,
+  not just voltage under one load), and the motor hasn't been tested yet.
+- Both Branch B (~0.5A) and Branch C (~0.8A) appear to deliver a roughly
+  fixed total current regardless of downstream load composition — e.g.
+  Branch C split ~0.6A to ESC/FC and ~0.2A to battery charging once
+  ESC/FC were added, rather than the total draw increasing. Consistent
+  with each branch being current-limited by its diode/array path, but
+  this is an observation from 2 data points per branch, not confirmed.
+
+**Deviation from prediction:** Voc measured ~9–11% below the calculated
+7-cell theoretical value. Load sag is much smaller than the 6-cell
+baseline (good sign), but this isn't the same measurement as a true Vmp
+determination — don't treat the clamping problem as resolved yet.
+
+**Follow-up:** Run the motor-load test (already planned) to get max
+current draw and see whether Branch C can sustain useful charging under
+real flight-representative load. Investigate the Voc shortfall — repeat
+with recorded test conditions (indoor/outdoor, light level) to help
+isolate cause. Consider whether the per-cell Voc estimate in
+`specs/datasheets/sunpower_c60.md` needs a caveat for non-ideal
+conditions.
+
+---
+
 ## 2026-07-21 — Baseline 6-cell string measurement
 
 **Type:** bench test

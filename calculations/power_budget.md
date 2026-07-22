@@ -78,6 +78,12 @@ glider" end of the range than the old ~19.1 g/dm² was):
   further.** Do not treat the ~24W theoretical figure as achievable until
   confirmed — see `logs/test_flights.md` for the 6-cell baseline this needs
   to be compared against.
+- **Update (2026-07-22):** first bench numbers are in (see
+  `logs/test_flights.md`) — Voc 4.57V (below theoretical) and much
+  smaller load sag than the 6-cell case. This is encouraging but still
+  not the measurement this verdict needs: no true Vmp reading, and no
+  motor-load test yet, so the ~24W figure and this verdict stay
+  unconfirmed for now.
 
 ## To do
 
@@ -85,7 +91,10 @@ glider" end of the range than the old ~19.1 g/dm² was):
       is a different size (Clark-Y, 1200×200mm) than the estimate assumed
 - [ ] Replace estimated cruise W/kg with a measured static current draw at
       cruise throttle (bench test with prop, no flight needed)
-- [ ] **Bench-measure the 7-cell string's actual voltage/current into the
-      diode-OR node** (same setup as the 6-cell baseline in
-      `logs/test_flights.md`) and log the result
+- [x] ~~Bench-measure the 7-cell string's actual voltage/current into the
+      diode-OR node~~ — done 2026-07-22 for Branches B & C under
+      battery-only and combined loads (see `logs/test_flights.md`); motor
+      load still pending.
+- [ ] Run the motor-load test for max current draw (planned next per
+      `logs/test_flights.md`'s 2026-07-22 entry)
 - [ ] Update this file's verdict once real numbers are in

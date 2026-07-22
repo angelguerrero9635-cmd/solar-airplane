@@ -25,9 +25,17 @@ For N cells in series (current stays ~constant, voltage multiplies):
 
 | N cells | Voc (approx) | Vmp (approx) |
 |---|---|---|
-| 6 (current) | ~4.3 V | ~3.5 V |
-| 7 | ~5.0 V | ~4.06 V |
+| 6 (previous) | ~4.3 V | ~3.5 V |
+| 7 (current) | ~5.0 V | ~4.06 V |
 | 8 | ~5.8 V | ~4.6 V |
+
+**Measured vs. theoretical (2026-07-22):** bench-measured Voc for the
+7-cell string was **4.57V**, ~9–11% below the ~5.0–5.1V theoretical
+above (implied per-cell Voc ~0.65V vs. the ~0.72–0.73V datasheet figure).
+Not yet root-caused — see the 2026-07-22 entry in
+`logs/test_flights.md` and open questions in `CLAUDE.md`. Treat the
+theoretical figures in this table as upper bounds, not confirmed values,
+until reconciled.
 
 ## Why this matters for this project
 

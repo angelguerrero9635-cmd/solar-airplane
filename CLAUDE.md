@@ -79,8 +79,13 @@ update instead.
 - **Fix decided, theoretical:** moved from 6 to 7 series cells (2026-07-22)
   to raise string Vmp closer to typical battery voltage (a "poor man's
   MPPT" — static rather than dynamic matching). Calculated Vmp moves from
-  ~3.48V to ~4.06V. **Not yet bench-confirmed** — see
-  `decisions/0001-cell-series-count.md` and open questions below.
+  ~3.48V to ~4.06V. **Partially bench-confirmed 2026-07-22** — measured
+  Voc 4.57V (below the ~5.0–5.1V theoretical — see
+  `logs/test_flights.md`), and sag under battery-only load is much
+  smaller than the 6-cell baseline's collapse. Not a full confirmation
+  yet: no true Vmp measurement, and the motor-load test is still
+  pending — see `decisions/0001-cell-series-count.md` and open
+  questions below.
 - **Avionics baseline draw:** ~1.5A (measured, no motor running).
 - **Estimated cruise power draw:** ~17–24W depending on drag/weight (see
   `calculations/power_budget.md`).
@@ -122,15 +127,24 @@ update instead.
       airframe mass estimate (and therefore the ~337–357g AUW) still
       reflects the old SD7037/1210×150mm wing. A larger chord likely means
       more foam and skin material — confirm real weight once built.
-- [ ] **The 6→7 cell update (2026-07-22) is theoretical only.**
-      `calculations/power_budget.py`/`.md`, `specs/components.md`, and this
-      file's component table have all been updated to reflect 7 cells and
-      the new theoretical Vmp/Pmax numbers, but nothing has been physically
-      changed or measured on the bench yet. Treat all 7-cell figures as
-      predictions pending real-world confirmation — do not treat them as
-      validated the way the 6-cell baseline in `logs/test_flights.md` is.
+- [ ] **The 6→7 cell update is partially bench-confirmed (2026-07-22),
+      not fully.** `calculations/power_budget.py`/`.md`, `specs/components.md`,
+      and this file's component table were updated to reflect 7 cells and
+      theoretical Vmp/Pmax back when the cell was added; a bench
+      measurement now exists (`logs/test_flights.md`, 2026-07-22 entry) —
+      Voc 4.57V (below the ~5.0–5.1V theoretical) and a much smaller load
+      sag than the 6-cell baseline. Still pending: a true Vmp measurement
+      and the motor-load test. Don't treat the theoretical Pmax/Vmp
+      figures as validated until those land.
+- [ ] **Voc shortfall vs. theoretical (2026-07-22).** Measured 7-cell Voc
+      (4.57V) is ~9–11% below the datasheet-derived theoretical
+      (~5.0–5.1V) — see `logs/test_flights.md`. Not yet investigated;
+      possible causes include cell tolerance, temperature, or bench-test
+      lighting conditions (not recorded for that entry). Repeat with
+      conditions logged before concluding anything.
 - [ ] Confirm actual Vmp of the array after adding the 7th cell (measured
-      under real load, not just theoretical from datasheet)
+      at the true max-power operating point, not just Voc under one load
+      — see the caveat in the 2026-07-22 `logs/test_flights.md` entry)
 - [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching
 - [ ] **Log a real bench test with current-sensor data** to

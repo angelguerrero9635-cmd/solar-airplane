@@ -58,3 +58,12 @@ unless the 7-cell result proves insufficient.
   note if it's measured on the ground first.
 - If 7 cells doesn't meaningfully close the gap, escalate to Option 1
   (MPPT/buck stage) rather than jumping straight to 8+ cells.
+
+## Post-decision update (2026-07-22)
+
+First bench measurement logged — see `logs/test_flights.md`. Voc came in
+at 4.57V, ~9–11% below the ~5.0–5.1V theoretical, and load sag was much
+smaller than the 6-cell baseline's collapse (encouraging, but not a full
+confirmation — no true Vmp measurement yet, and the motor-load test is
+still pending). Status stays "pending real-world measurement to confirm"
+until those land.
