@@ -1,11 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 700" font-family="Menlo, Consolas, monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 850" font-family="Menlo, Consolas, monospace">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5fb8d1"/>
     </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffb343"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a6b80"/>
+    </marker>
   </defs>
 
-  <rect x="0" y="0" width="1500" height="700" fill="#0f1f33"/>
+  <rect x="0" y="0" width="1560" height="850" fill="#0f1f33"/>
+
+  <!-- Legend -->
+  <rect x="1180" y="12" width="360" height="112" rx="4" fill="#13253d" stroke="#2c4a6e"/>
+  <text x="1360" y="28" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">LEGEND</text>
+  <line x1="1195" y1="45" x2="1225" y2="45" stroke="#5fb8d1" marker-end="url(#arrow)"/>
+  <text x="1233" y="49" fill="#9fb3c8" font-size="9">Positive / signal path</text>
+  <line x1="1195" y1="65" x2="1225" y2="65" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="1233" y="69" fill="#9fb3c8" font-size="9">Ground / return (confirmed, normal)</text>
+  <line x1="1195" y1="85" x2="1225" y2="85" stroke="#ffb343" stroke-width="2" marker-end="url(#arrow-orange)"/>
+  <text x="1233" y="89" fill="#9fb3c8" font-size="9">Ground / return — confirmed issue</text>
+  <line x1="1195" y1="105" x2="1225" y2="105" stroke="#ffb343" stroke-dasharray="5,4" marker-end="url(#arrow-orange)"/>
+  <text x="1233" y="109" fill="#9fb3c8" font-size="9">Planned — not yet built</text>
 
   <!-- Solar Array -->
   <rect x="600" y="12" width="300" height="55" rx="4" fill="#13253d" stroke="#2c4a6e"/>
@@ -35,7 +53,7 @@
   <rect x="30" y="35" width="210" height="46" rx="4" fill="#13253d" stroke="#ffb343" stroke-dasharray="5,4"/>
   <text x="135" y="54" fill="#ffb343" font-size="10" font-weight="bold" text-anchor="middle">MAIN BATTERY (2nd input)</text>
   <text x="135" y="68" fill="#ffb343" font-size="9" text-anchor="middle">PLANNED — not yet wired</text>
-  <line x1="135" y1="81" x2="150" y2="178" stroke="#ffb343" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+  <line x1="135" y1="81" x2="150" y2="178" stroke="#ffb343" stroke-dasharray="5,4" marker-end="url(#arrow-orange)"/>
 
   <!-- Branch A -->
   <rect x="80" y="178" width="340" height="60" rx="4" fill="#13253d" stroke="#ffb343"/>
@@ -106,6 +124,12 @@
   <text x="1377" y="390" fill="#9fb3c8" font-size="8" text-anchor="middle">T-Motor M1104 KV7500, 6x3 prop</text>
   <text x="1377" y="401" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
 
+  <!-- Capacitor planned at 5V Regulator VIN -->
+  <rect x="1060" y="413" width="150" height="34" rx="3" fill="#13253d" stroke="#ffb343" stroke-dasharray="4,3"/>
+  <text x="1135" y="426" fill="#ffb343" font-size="9" font-weight="bold" text-anchor="middle">Cap (planned) — VIN</text>
+  <text x="1135" y="438" fill="#ffb343" font-size="8" text-anchor="middle">per Pololu S7V7F5 spec</text>
+  <line x1="1210" y1="430" x2="1250" y2="448" stroke="#ffb343" stroke-dasharray="4,3" marker-end="url(#arrow-orange)"/>
+
   <rect x="1265" y="428" width="225" height="40" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="1377" y="444" fill="#e7eef4" font-size="10" font-weight="bold" text-anchor="middle">5V Regulator</text>
   <text x="1377" y="457" fill="#9fb3c8" font-size="8" text-anchor="middle">Pololu S7V7F5 (step-up/step-down)</text>
@@ -141,4 +165,38 @@
   <rect x="940" y="640" width="160" height="42" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="1020" y="659" fill="#e7eef4" font-size="10" text-anchor="middle">Servos ×4</text>
   <text x="1020" y="672" fill="#9fb3c8" font-size="8" text-anchor="middle">DM-S0020 micro</text>
+
+  <!-- ============ NEGATIVE / RETURN PATHS (added 2026-07-23) ============ -->
+
+  <!-- Negative return bus -->
+  <rect x="1140" y="770" width="390" height="42" rx="4" fill="#13253d" stroke="#8a6a4a"/>
+  <text x="1335" y="788" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">⏚ NEGATIVE RETURN BUS</text>
+  <text x="1335" y="802" fill="#9fb3c8" font-size="9" text-anchor="middle">(battery / solar array negative)</text>
+
+  <!-- 5V Regulator ground -> bus (confirmed, normal) -->
+  <line x1="1377" y1="468" x2="1377" y2="770" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="1390" y="640" fill="#5a6b80" font-size="8">GND</text>
+
+  <!-- ESC ground -> bus, routed left of the Branch C column (confirmed, normal) -->
+  <polyline points="1265,384 1225,384 1225,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="1195" y="600" fill="#5a6b80" font-size="8">GND</text>
+
+  <!-- Main Battery ground -> bus, routed right of the Branch C column (confirmed, normal) -->
+  <polyline points="1490,320 1530,320 1530,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="1505" y="600" fill="#5a6b80" font-size="8">GND</text>
+
+  <!-- FC's CURRENT ground return: routes through the ESC (confirmed 2026-07-23, flagged issue) -->
+  <polyline points="900,585 1005,585 1005,390 1265,390" fill="none" stroke="#ffb343" stroke-width="2" marker-end="url(#arrow-orange)"/>
+  <text x="1012" y="470" fill="#ffb343" font-size="8" font-weight="bold">⚠ FC's only ground</text>
+  <text x="1012" y="482" fill="#ffb343" font-size="8" font-weight="bold">return today — via ESC</text>
+  <text x="1012" y="494" fill="#ffb343" font-size="8" font-weight="bold">(confirmed 2026-07-23)</text>
+
+  <!-- FC's PLANNED direct ground return (star ground) - not yet built -->
+  <polyline points="650,615 650,705 1150,705 1150,770" fill="none" stroke="#ffb343" stroke-dasharray="5,4" marker-end="url(#arrow-orange)"/>
+  <text x="660" y="700" fill="#ffb343" font-size="8" font-weight="bold">PLANNED — independent FC</text>
+  <text x="660" y="712" fill="#ffb343" font-size="8" font-weight="bold">ground (star ground), not yet built</text>
+
+  <!-- Solar Array negative (called out, routing simplified for clarity) -->
+  <text x="905" y="40" fill="#5a6b80" font-size="8">⏚ GND (→ negative bus,</text>
+  <text x="905" y="51" fill="#5a6b80" font-size="8">routing simplified here)</text>
 </svg>

@@ -24,8 +24,13 @@ rejoined — each branch powers something different.
 ![Wiring diagram — solar array splits into 3 branches: a voltage-sense
 OR-ing tap to the flight controller's VBAT pin (planned to also take a
 second input from the main battery), the FPV rail, and the main battery
-bus, which converge again only at the shared flight controller
-box.](wiring_diagram.svg)
+bus, which converge again only at the shared flight controller box.
+Also shows negative/return paths: a negative return bus, confirmed
+ground legs (gray) from the ESC/Main Battery/5V Regulator, the FC's
+current ground return routed through the ESC (flagged, solid orange),
+and the planned independent FC ground / star-ground fix (dashed
+orange), plus a planned capacitor at the 5V regulator's
+input.](wiring_diagram.svg)
 
 Text version of the same diagram, for diffing/searching:
 
@@ -113,6 +118,23 @@ brownout re-testing (e.g. after installing the recommended capacitors),
 since without it, a re-test still can't attribute an improvement (or
 lack of one) to the ESC, the FC, or the ground path itself — see the
 open question in `CLAUDE.md`.
+
+**Confirmed plan for 2026-07-23 (tonight):** the user has confirmed
+three changes going in at once: (1) Branch A's main-battery 2nd input
+(above), (2) this independent FC ground return, and (3) the capacitor
+at the 5V Regulator's VIN (see `specs/components.md`). None of the
+three are built as of this writing — the diagram below shows all three
+as planned (dashed orange), not confirmed.
+
+**Diagram note:** `wiring_diagram.svg` now depicts this negative-path
+topology directly (see its legend) — gray solid = confirmed normal
+ground (ESC, Main Battery, 5V Regulator, each routed to a "NEGATIVE
+RETURN BUS" element), solid orange = the FC's confirmed-but-flagged
+ESC-routed path, dashed orange = anything planned/not yet built
+(Branch A's battery input, the FC's independent ground, and the VIN
+capacitor). The Solar Array's and Branch B's negative legs are called
+out with a short label rather than a fully-routed line, to keep the
+diagram legible — they aren't part of the current troubleshooting.
 
 ## In-flight vs. bench-test instrumentation
 
@@ -322,8 +344,12 @@ recommendation is exactly that — a recommendation, not a confirmed
 build. The visual diagram (`wiring_diagram.svg`) is a hand-drawn
 rendering of the same topology described in the text version above;
 update both together if the topology changes, same as everything else
-in `specs/`. **Scope note (2026-07-23):** both the text diagram and the
-SVG depict the *positive*-side branch topology only — neither currently
-shows ground/negative return routing. See "Negative/return path" above
-for the confirmed (and currently problematic) negative-side topology,
-which isn't reflected in the SVG.
+in `specs/`. **Scope note (2026-07-23, updated same day):** the SVG now
+depicts negative/return paths too (gray = confirmed normal ground, solid
+orange = confirmed but flagged issue, dashed orange = planned/not yet
+built — see the diagram's own legend), in addition to the positive-side
+branch topology. Routing for the Solar Array's and Branch B's negative
+legs is simplified/omitted for legibility (a short "GND → negative bus"
+label stands in for the full run) since they aren't part of any current
+troubleshooting; the FC/ESC/Main Battery/5V Regulator paths are drawn in
+full since those are the ones under active investigation.

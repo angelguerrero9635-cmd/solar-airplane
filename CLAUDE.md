@@ -212,13 +212,15 @@ update instead.
       solar being present — the planned battery-input OR-ing change
       (above) also means that partial-FC-power domain stays up on
       battery alone, not just on sun. See `specs/wiring_diagram.md`.
-- [ ] **Physically wire Branch A's new main-battery input (2026-07-23).**
-      Decided in concept (see above), not yet built — the second input
-      wire (main battery positive → Ideal Diode Pair's second input)
-      doesn't exist yet. Once wired, re-verify the VBAT reading actually
-      tracks battery voltage when running on battery power (and solar
-      voltage otherwise), rather than assuming the OR-ing behaves as
-      expected.
+- [ ] **Physically wire Branch A's new main-battery input (2026-07-23)
+      — confirmed planned for tonight**, alongside the FC ground
+      isolation and the 5V regulator VIN capacitor (see below). Decided
+      in concept (see above), not yet built as of this writing — the
+      second input wire (main battery positive → Ideal Diode Pair's
+      second input) doesn't exist yet. Once wired, re-verify the VBAT
+      reading actually tracks battery voltage when running on battery
+      power (and solar voltage otherwise), rather than assuming the
+      OR-ing behaves as expected.
 - [x] ~~VBAT is rated far above what it's actually fed (2026-07-22).~~
       **Resolved 2026-07-23** — the voltage sensor has been calibrated
       for this lower range; the raw VBAT reading is now trustworthy. The
@@ -312,15 +314,19 @@ update instead.
       independent of the ESC (see the new item below) *before* the next
       brownout re-test — otherwise a re-test still can't attribute a
       result to the ESC, the FC, or the shared ground path.
-- [ ] **Isolate the FC's and ESC's negative/return paths (2026-07-23).**
-      The FC currently has no independent ground wire to the battery/
-      array negative bus — its only return path is through the ESC.
-      This means the ongoing "ESC brownout" troubleshooting can't
-      actually distinguish ESC failure, FC failure, or a ground-bounce
-      artifact of the shared path. Fix: run an independent ground wire
-      from the FC directly to the negative bus (star ground). See
-      `specs/wiring_diagram.md`'s "Negative/return path" section. Do
-      this before drawing conclusions from further brownout re-testing.
+- [ ] **Isolate the FC's and ESC's negative/return paths (2026-07-23) —
+      confirmed planned for tonight, alongside Branch A's battery input
+      and the 5V regulator VIN capacitor.** The FC currently has no
+      independent ground wire to the battery/array negative bus — its
+      only return path is through the ESC. This means the ongoing "ESC
+      brownout" troubleshooting can't actually distinguish ESC failure,
+      FC failure, or a ground-bounce artifact of the shared path. Fix:
+      run an independent ground wire from the FC directly to the
+      negative bus (star ground). See `specs/wiring_diagram.md`'s
+      "Negative/return path" section (now diagrammed in
+      `wiring_diagram.svg` too). Do this before drawing conclusions from
+      further brownout re-testing. **None of the three tonight's-plan
+      items are built yet as of this writing.**
 - [x] ~~Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching.~~ **Resolved 2026-07-23 — sticking with
       static series-cell matching, no MPPT/buck stage for this design.**
