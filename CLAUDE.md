@@ -88,6 +88,14 @@ update instead.
 
 - **SunPower C60 per-cell specs:** Voc ≈ 0.72V, Vmp ≈ 0.58V, Isc ≈ 6.0–6.3A,
   Imp ≈ 5.8–6.0A, Pmax ≈ 3.4–3.6W, 125×125mm, ~7g bare.
+- **Array voltage drops measurably as the system heats up** (confirmed
+  2026-07-23 — see `logs/test_flights.md`): consistent with the
+  well-known negative temperature coefficient of silicon solar cell
+  voltage. Not yet quantified (no actual temperature logged, just a
+  "hot" vs. "cooler" comparison) — a real, confirmed factor in the
+  still-open Voc-shortfall question below, not the whole explanation.
+  Bench tests should log actual temperature at each reading going
+  forward, not just note whether things feel warm.
 - **Diode-OR voltage clamping problem:** analyzed for Branch C (solar
   array → its ideal diode → main battery bus — see
   `specs/wiring_diagram.md` for the 3-branch topology; this hasn't been
@@ -304,15 +312,22 @@ update instead.
       sag than the 6-cell baseline. Still pending: a true Vmp measurement
       and the motor-load test. Don't treat the theoretical Pmax/Vmp
       figures as validated until those land.
-- [ ] **Voc shortfall vs. theoretical (2026-07-22).** Measured 7-cell Voc
-      (4.57V) is ~9–11% below the datasheet-derived theoretical
-      (~5.0–5.1V) — see `logs/test_flights.md`. Not yet investigated;
-      possible causes include cell tolerance, temperature, or bench-test
-      lighting conditions (not recorded for that entry). Repeat with
-      conditions logged before concluding anything. Also worth checking:
-      the array's operating voltage sits close to the ideal diodes' rated
-      4V floor (see `specs/components.md`) — that's a plausible
-      contributing factor to check, not a confirmed cause.
+- [ ] **Voc shortfall vs. theoretical (2026-07-22) — temperature now
+      confirmed as a real contributing factor, still not quantified.**
+      Measured 7-cell Voc (4.57V) is ~9–11% below the datasheet-derived
+      theoretical (~5.0–5.1V) — see `logs/test_flights.md`. **Update
+      2026-07-23:** a same-day bench test directly observed array
+      voltage dropping as the system heated up (4.46V→4.43V between two
+      readings at the same load, system described as "hot" for the
+      second) — consistent with the well-known negative temperature
+      coefficient of silicon solar cell voltage. This confirms
+      temperature as a real factor, not just a hypothesized one, but no
+      actual temperature was logged (just "hot"/"cool"), so the
+      magnitude isn't quantified and this doesn't fully explain the
+      9–11% shortfall on its own. Still worth checking: cell tolerance,
+      and the array's operating voltage sitting close to the ideal
+      diodes' rated 4V floor (see `specs/components.md`). Log actual
+      temperature next time, not just a qualitative impression.
 - [ ] Confirm actual Vmp of the array after adding the 7th cell (measured
       at the true max-power operating point, not just Voc under one load
       — see the caveat in the 2026-07-22 `logs/test_flights.md` entry).

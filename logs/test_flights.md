@@ -59,7 +59,35 @@ Step 2 — camera connected:
 - Main bus voltage: 4.20V (down from 4.25V)
 - Solar (array) voltage: 4.46V (down from 4.53V)
 
+Step 3 — later same session, system now hot, everything connected, still
+no motor load:
+- Main bus voltage: 4.11V (down from 4.20V in Step 2)
+- Solar (array) voltage: 4.43V (down from 4.46V in Step 2)
+- No current reading recorded for this step.
+
 **Observations:**
+- **System heat measurably reduces array voltage — confirmed, not just
+  a suspected factor.** User's own observation: "now that the system is
+  hot the array is less effective." Step 3 (hot, everything connected,
+  no motor load) reads lower than Step 2 (same config, presumably
+  cooler) on both array voltage (4.46V→4.43V, -0.03V) and bus voltage
+  (4.20V→4.11V, -0.09V) — consistent with the well-known negative
+  temperature coefficient of silicon solar cell voltage (Voc/Vmp drop as
+  cell temperature rises). This directly bears on the still-open "Voc
+  shortfall vs. theoretical" question below — temperature is now a
+  confirmed contributing factor, not just a hypothesized one, though
+  still not quantified (no actual temperature reading was logged, just
+  "hot").
+- **The bus voltage drop (-0.09V) was 3x larger than the array voltage
+  drop (-0.03V) between Step 2 and Step 3 — not yet explained.** If only
+  the array's own Voc/Vmp shifted with temperature, and current draw
+  stayed the same, the bus should have sagged by a similar amount, not
+  three times as much. No current was logged for Step 3, so this can't
+  be resolved from this data alone — possible explanations, none
+  confirmed: current draw was also higher in Step 3 (unrecorded), the
+  diode/sensor path's own resistance is temperature-sensitive too, or
+  something else entirely. Log current at every step next time to
+  settle this.
 - **Battery "topped off," not contributing, at 4.26V — refines the
   2026-07-23 BMS-disconnect finding.** Previously documented as "BMS
   disconnects above 4.2V"; this reading (battery sitting at 4.26V,
@@ -116,6 +144,15 @@ its I-V curve rather than near true Vmp. Still not a Vmp measurement.
 - Confirm whether the battery was actually BMS-disconnected during this
   test or just at voltage equilibrium with the bus — not distinguishable
   from these readings alone (still open, lower priority now).
+- **Log actual temperature (not just "hot"/"cool") and current at every
+  step in future tests** — Step 3 confirmed heat measurably affects
+  array (and possibly bus) voltage, but without a temperature reading or
+  a current reading for that step, it can't be quantified or fully
+  explained (see the unexplained 3x bus-vs-array voltage drop above).
+  The upcoming motor-load test should track temperature at each step,
+  not just once at the start, since the array/electronics will likely
+  keep heating up as the test progresses — otherwise temperature drift
+  and current-driven sag become impossible to tell apart.
 
 ---
 
