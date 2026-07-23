@@ -36,6 +36,89 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-23 — Battery-only load test: motor amps vs. bus voltage (refines the BMS-trip finding)
+
+**Type:** bench test
+**Conditions:** not recorded (sun irrelevant — no solar connected).
+**Config:** 7-cell string **not connected** — main battery only, wired
+directly to ESC and Flight Controller. No camera or camera battery
+connected. This isolates the battery's own loaded-voltage behavior with
+no solar/diode-OR interaction at all. Battery voltage: 4.01V at start,
+3.96V at end (small drop, short test).
+
+**Readings** (motor current vs. bus voltage, measured right at the ESC):
+
+| Motor current | Bus voltage | Notes |
+|---|---|---|
+| 0A | 3.85V | Baseline sag from 4.01V resting even at zero motor current (avionics/FC quiescent draw) |
+| 0.5A | — | **Motor doesn't spin** at this commanded level |
+| 1A | 3.50V | |
+| 1.5A | 3.38V | |
+| 2A | 3.21V | |
+| 2.5A | 3.03V | |
+| 2.75A | 2.96V | |
+| 3A | — | **No power to bus** |
+
+**Observations:**
+- **This refines, and partly revises, the earlier "battery BMS
+  overcurrent protection" framing (previous entry above).** The voltage
+  sag here is smooth and consistent with simple IR (internal
+  resistance) drop under load, and the bus fails right as loaded
+  voltage crosses into the **2.9–3.0V range** — which is exactly the
+  battery's own documented low-voltage cutoff territory (~2.5–3.0V, see
+  `specs/components.md`'s Main Battery row). This looks more like an
+  **undervoltage protection (UVP) trip triggered by load-induced sag**
+  than a protection keyed purely on current. A linear fit to this data
+  (excluding the "doesn't spin" point) gives roughly **V ≈ 3.85 −
+  0.32×I** — i.e., ~0.3Ω of combined internal resistance (cell ESR +
+  wiring/connectors + ESC input, all lumped together as measured from
+  battery to ESC). That fit predicts ~2.9V right around 2.97A,
+  consistent with the observed failure at 3A.
+- **This means the "~3A limit" isn't a fixed ceiling independent of
+  battery state — it's specific to this test's starting voltage
+  (~4.01V resting).** At a higher resting voltage (e.g. freshly topped
+  off nearer 4.2V), the same current would sag to a *less* severe
+  voltage, likely allowing more current before hitting the same ~2.9V
+  UVP threshold. Conversely, as the battery depletes over the course of
+  a flight, its resting voltage drops, meaning **the same cruise
+  current that's fine early in a flight could trip this protection
+  later, even with no change in commanded throttle** — a more
+  concerning framing than a flat current cap, since "it worked at
+  takeoff" wouldn't guarantee it keeps working as the battery drains.
+  Not confirmed as UVP vs. a coincidental OCP without a repeat test at
+  a different starting SOC — see Follow-up.
+- **Motor doesn't spin at 0.5A** — there's a minimum current
+  (somewhere between 0.5A and 1A) below which the motor can't overcome
+  static friction/cogging torque to start rotating. Below that point,
+  current is being drawn without producing thrust.
+- This test used **no solar contribution at all** — in the actual
+  flight configuration, solar would offset some of the battery's share
+  of a given total current demand, likely giving somewhat more headroom
+  than shown here. This test is a useful worst-case reference (heavy
+  shade, night, or low-light conditions), not necessarily representative
+  of best-case daytime cruise.
+
+**Deviation from prediction:** N/A — direct characterization test, not
+a comparison against a specific power-budget number.
+
+**Follow-up:**
+- **Repeat this same current sweep at a different starting battery
+  voltage** (e.g., freshly topped off near 4.2V, and again at a lower
+  SOC) to test the UVP hypothesis: if the trip consistently happens
+  around the same ~2.9–3.0V loaded voltage regardless of starting SOC
+  (just at a different current each time), that confirms undervoltage
+  protection rather than a fixed-current OCP.
+- Repeat with solar reconnected to see how much headroom solar
+  contribution actually adds at a given total current demand.
+- This ~0.3Ω combined resistance estimate is rough (6 data points, one
+  test) — a repeat test would tighten it and let it feed into
+  `calculations/power_budget.md` as a real (not assumed) internal
+  resistance figure.
+- Update the high-priority cruise-power-vs-BMS-trip open question in
+  `CLAUDE.md` §5 with this SOC-dependent framing.
+
+---
+
 ## 2026-07-23 — Motor-load shutdown root-caused: battery BMS, not ESC/FC
 
 **Type:** bench test

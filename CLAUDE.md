@@ -163,26 +163,33 @@ update instead.
   the array output are recommended but not yet built — see
   `specs/wiring_diagram.md` and `specs/components.md`.
 - **RESOLVED 2026-07-23 — the "brownouts" are the main battery's BMS
-  protection tripping, not the ESC or the FC.** User has directly ruled
-  out the ESC as the cause of the system shutting off around ~3A of
-  motor draw: when it happens, the **entire main bus loses power**, and
-  the battery must be physically disconnected and reconnected before
-  anything powers back on. This is the signature of a BMS protection
-  trip (most likely overcurrent protection, given it correlates with
-  motor draw level rather than a charge state — distinct from the
-  ~4.2V overvoltage/"topped off" cutoff noted below, which is a
-  separate protection on the same BMS) that latches the battery off
-  the bus until manually reset. Since the battery is the dominant power
-  source on Branch C under real load, losing it collapses the whole
-  bus — solar alone can't sustain FC/receiver/servo power at that
-  demand. **This closes out the long-running ESC-vs-FC-vs-ground-bounce
-  ambiguity**: it was never either device failing, and the FC ground
-  isolation fix (below) was a real improvement worth having but wasn't
-  the actual fix for this failure mode. **Practically important: this
-  means motor draw above ~3A doesn't just reduce thrust — it kills
-  power to the entire aircraft, including flight controls, until
-  manually reset.** That's a flight-safety-relevant ceiling, not just a
-  performance one. See `logs/test_flights.md` and
+  protection tripping, not the ESC or the FC. Refined same day: likely
+  an undervoltage trip from load-induced sag, not a fixed current
+  ceiling.** User directly ruled out the ESC as the cause of the system
+  shutting off around ~3A of motor draw: when it happens, the **entire
+  main bus loses power**, and the battery must be physically
+  disconnected and reconnected before anything powers back on — the
+  signature of a BMS protection trip latching the battery off the bus.
+  A follow-up battery-only load test (no solar, battery→ESC/FC direct)
+  characterized this precisely: bus voltage sags smoothly with current
+  (~0.3Ω combined resistance, from a 4.01V starting battery voltage) and
+  the bus fails right as loaded voltage crosses **~2.9–3.0V** — the
+  battery's own documented low-voltage cutoff range (see
+  `specs/components.md`). **This looks like undervoltage protection
+  (UVP) triggered by load sag, not a protection keyed on current
+  directly** — meaning the "~3A" figure is specific to this test's
+  starting voltage, not a fixed ceiling. **Practical implication: as the
+  battery depletes over a flight, the same cruise current that's fine
+  early on could trip this protection later, purely from declining
+  resting voltage — not confirmed yet (needs a repeat test at different
+  starting SOC), but this is the working hypothesis.** Since the battery
+  is the dominant power source on Branch C under real load, losing it
+  collapses the whole bus — solar alone can't sustain FC/receiver/servo
+  power at that demand. **This closes out the long-running
+  ESC-vs-FC-vs-ground-bounce ambiguity**: it was never either device
+  failing, and the FC ground isolation fix (below) was a real
+  improvement worth having but wasn't the actual fix for this failure
+  mode. See `logs/test_flights.md` (two entries, 2026-07-23) and
   `specs/wiring_diagram.md`'s "Negative/return path" section.
 - **The main battery's BMS also disconnects it above ~4.2V (variable
   threshold, confirmed 2026-07-23) — a separate protection on the same
@@ -195,21 +202,28 @@ update instead.
 
 ## 5. Open questions / next steps
 
-- [ ] **⚠️ HIGH PRIORITY (2026-07-23): does cruise flight require motor
-      current above the battery BMS's overcurrent trip point?** Now
-      that the ~3A-ish motor-draw shutdown is root-caused to the
-      battery's BMS protection (see Section 4) — which kills power to
-      the *entire* aircraft, not just the motor, until manually reset —
-      this is a flight-safety question, not just a characterization
-      exercise. The estimated cruise power range (~17–24W, see
+- [ ] **⚠️ HIGH PRIORITY (2026-07-23, refined same day): will the
+      battery's undervoltage-trip headroom hold up across a full
+      flight, not just at takeoff?** The ~3A-ish motor-draw shutdown is
+      root-caused to the battery's BMS protection (see Section 4) —
+      which kills power to the *entire* aircraft, not just the motor,
+      until manually reset. A same-day battery-only load test suggests
+      this is likely an **undervoltage trip from load-induced sag**
+      (~0.3Ω combined resistance, failing around ~2.9–3.0V loaded),
+      not a fixed current ceiling — meaning the safe current margin
+      **shrinks as the battery depletes over a flight**, even at
+      constant throttle. The estimated cruise power range (~17–24W, see
       `calculations/power_budget.md`) works out to roughly 4–6.5A of
       total system current at a ~3.7–4.2V bus; with avionics drawing
       ~0.65–0.8A, the motor's share alone could plausibly sit at or
-      above the ~3A trip level during *ordinary* cruise, not just at an
-      extreme. Needs real motor-load data (voltage logged, trip current
-      characterized precisely) before treating this design as flight-
-      viable at its estimated cruise power. See `logs/test_flights.md`'s
-      2026-07-23 root-cause entry.
+      above the current level that trips this protection **at some
+      point in a discharge cycle**, even if it's fine at takeoff. Needs:
+      (1) a repeat battery-only load test at a different starting SOC
+      to confirm the UVP hypothesis (does the trip stay at ~2.9–3.0V
+      loaded regardless of starting voltage, just at a different
+      current?), and (2) real motor-load data with solar reconnected to
+      see how much headroom solar contribution restores. See
+      `logs/test_flights.md`'s two 2026-07-23 entries.
 - [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
       kept for reference, not an active task.** The current design (7
       cells, Clark-Y wing) isn't being changed to hit this now. Honest

@@ -126,8 +126,11 @@ ambiguous — but it turned out **neither** the ESC nor the FC was
 actually the cause. Direct testing since has ruled out the ESC: the
 shutdown around ~3A motor draw takes the entire bus down and needs the
 battery physically disconnected/reconnected to recover — the signature
-of the battery's own BMS protection (most likely overcurrent) latching
-off, not a device failure. See `CLAUDE.md` §4 and
+of the battery's own BMS protection latching off, not a device failure.
+A follow-up battery-only load test suggests this is likely an
+**undervoltage trip from load-induced sag** (bus fails around
+~2.9–3.0V loaded, ~0.3Ω combined resistance measured) rather than a
+fixed current threshold — see `CLAUDE.md` §4 and
 `logs/test_flights.md` for the full finding.
 
 **Also confirmed built, 2026-07-23:** the capacitor at the 5V
