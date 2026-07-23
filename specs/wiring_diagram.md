@@ -120,13 +120,15 @@ FC, independent of whatever was actually happening to the ESC.
 **Fix confirmed built, 2026-07-23:** an independent ground wire now
 runs from the FC directly to the battery/array negative bus (a proper
 star-ground point), rather than routing the FC's return current through
-the ESC's ground path. **This resolves the *mechanism* that made ESC
-vs. FC brownout attribution ambiguous going forward** — future brownout
-re-tests can now actually distinguish ESC failure from FC failure,
-since they no longer share a return path. It does **not** retroactively
-resolve which device was actually failing in the *past* brownout
-entries in `logs/test_flights.md` — those remain ambiguous as
-documented, since the fix wasn't in place when that data was collected.
+the ESC's ground path. A real improvement in its own right, and it
+resolved the *mechanism* that made ESC vs. FC brownout attribution
+ambiguous — but it turned out **neither** the ESC nor the FC was
+actually the cause. Direct testing since has ruled out the ESC: the
+shutdown around ~3A motor draw takes the entire bus down and needs the
+battery physically disconnected/reconnected to recover — the signature
+of the battery's own BMS protection (most likely overcurrent) latching
+off, not a device failure. See `CLAUDE.md` §4 and
+`logs/test_flights.md` for the full finding.
 
 **Also confirmed built, 2026-07-23:** the capacitor at the 5V
 Regulator's VIN (see `specs/components.md`'s capacitor priority list,
@@ -278,14 +280,15 @@ brownouts — see `logs/test_flights.md`):
 
 ## Known unknowns / TBD
 
-- **ESC vs. FC brownout attribution — mechanism fixed 2026-07-23, but
-  not yet re-tested.** See "Negative/return path" above — the FC's
-  ground return no longer runs through the ESC, so a *future* brownout
-  re-test can now actually distinguish ESC failure from FC failure.
-  The *past* brownout entries in `logs/test_flights.md` remain
-  ambiguous (ESC, FC, or ground-bounce artifact) — this fix doesn't
-  retroactively resolve those, only enables clean data going forward.
-  Re-test still pending.
+- ~~**ESC vs. FC brownout attribution.**~~ **Resolved 2026-07-23 —
+  neither.** User has directly ruled out the ESC: the shutdown around
+  ~3A motor draw takes down the *entire* main bus, and requires
+  physically disconnecting/reconnecting the battery to restore power —
+  the signature of the battery's own BMS protection latching off (most
+  likely overcurrent protection), not a device failure. The FC ground
+  isolation fix above was a real improvement in its own right, but
+  wasn't the actual explanation for this failure mode. See
+  `CLAUDE.md` §4 and `logs/test_flights.md`.
 - **Branch A's OR-ing plan is decided in concept, not yet physically
   built (2026-07-23).** The 2-input OR (solar array + main battery ->
   VBAT) described above is the intended final design — no longer

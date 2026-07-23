@@ -36,6 +36,74 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-23 — Motor-load shutdown root-caused: battery BMS, not ESC/FC
+
+**Type:** bench test
+**Conditions:** not recorded.
+**Config:** 7-cell SunPower C60 series string, battery connected, motor
+load test (specific readings not recorded in this entry — this logs the
+diagnostic conclusion, not a fresh set of readings).
+
+**Readings:** Not recorded numerically for this entry — see prior
+motor-load entries below for current data up to 3A. This entry captures
+a diagnostic conclusion from direct testing, not a new data sweep.
+
+**Observations:**
+- **User has directly ruled out the ESC as the cause of the system
+  shutting off around ~3A of motor draw.** When it happens, the
+  **entire main bus loses power** (not just the motor/ESC), and the
+  battery must be **physically disconnected and reconnected** before
+  anything powers back on.
+- **Root cause: the main battery's BMS protection**, not the ESC or the
+  FC. The symptom (whole-bus power loss, requiring a physical
+  disconnect/reconnect to reset) is the classic signature of a BMS
+  protection circuit latching its output FET(s) off — most likely
+  **overcurrent protection**, given it correlates with motor draw level
+  rather than a charge state. This is a **different BMS protection**
+  from the ~4.2V overvoltage/"topped off" cutoff documented in the
+  2026-07-23 entry above — same BMS chip, two separate protections.
+  Exact current trip threshold not yet characterized (only known to be
+  at or below ~3A of motor draw).
+- **This closes the long-running ESC-vs-FC-vs-ground-bounce brownout
+  mystery** first flagged in the 2026-07-22 "Brownout troubleshooting"
+  entry below. The FC ground-isolation fix (built 2026-07-23) was a
+  real improvement and is worth keeping, but it was never the actual
+  explanation for these shutdowns — see `CLAUDE.md` §4 and
+  `specs/wiring_diagram.md`'s "Negative/return path" section.
+- **⚠️ Flight-safety-relevant implication, not just a bench curiosity:**
+  since the battery is the dominant power source on Branch C under real
+  load, tripping this protection doesn't just reduce thrust — it kills
+  power to the **entire aircraft**, including the FC, receiver, and
+  servos, until manually reset. A motor demand above ~3A in flight would
+  mean total loss of flight control, not a graceful power reduction.
+  **This may conflict with the estimated cruise power range** (~17–24W,
+  see `calculations/power_budget.md`) — at a ~3.7–4.2V bus, that's
+  roughly 4–6.5A of total system current, meaning the motor's share
+  alone could plausibly sit at or above the ~3A trip level during
+  ordinary cruise, not just at an extreme. Needs real motor-load data
+  with voltage logged to confirm whether achievable cruise current
+  actually stays under the trip threshold.
+
+**Deviation from prediction:** N/A — diagnostic finding, not a
+comparison against a specific numeric prediction.
+
+**Follow-up:**
+- Characterize the actual BMS overcurrent trip threshold precisely
+  (ramp motor current slowly, in fine increments, right up to the trip
+  point, with the trip current logged).
+- Check whether the estimated cruise power range is achievable at all
+  without tripping this protection — this is now a real viability
+  question, not just a characterization exercise.
+- Consider whether a different battery/BMS with a higher overcurrent
+  threshold is needed, given how directly this constrains usable motor
+  power.
+- Re-run the planned motor-load test (voltage + current + temperature
+  logged at every 0.5A step) with this now-understood failure mode in
+  mind — expect and note the exact current at which the bus drops, not
+  just "it stopped working."
+
+---
+
 ## 2026-07-23 — Bench test: battery-connected, no motor load, before/after camera
 
 **Type:** bench test
@@ -328,9 +396,11 @@ anything in that file.
   a re-test still can't tell whether a fix (e.g. the recommended
   capacitors) actually helped the ESC, the FC, or just reduced
   ground-bounce on the shared path.
-- Determine the true max motor/current draw — this test stopped at 3A;
-  unclear if that's a real ceiling (ESC/motor limit) or just where
-  testing stopped.
+- ~~Determine the true max motor/current draw — this test stopped at
+  3A; unclear if that's a real ceiling.~~ **Answered 2026-07-23: it is a
+  real ceiling, but not an ESC/motor limit — it's the battery BMS's
+  overcurrent protection tripping** (see the 2026-07-23 root-cause entry
+  above). Precise trip threshold still not characterized.
 - Note which current sensor was read for "solar output" at each step
   (the array-total 5A sensor vs. a branch-specific 2A meter) in future
   entries, for consistency — not specified in this one.

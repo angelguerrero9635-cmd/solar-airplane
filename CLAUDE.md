@@ -162,35 +162,54 @@ update instead.
   is already at the ESC input; capacitors at the battery terminals and
   the array output are recommended but not yet built — see
   `specs/wiring_diagram.md` and `specs/components.md`.
-- **Whether it's the ESC, the FC, or both browning out in the past
-  bench data is not confirmed — but the shared-ground mechanism causing
-  that ambiguity is now fixed (2026-07-23).** The FC and ESC used to
-  share a single ground/return path — the FC had no independent ground
-  wire to the battery/array negative bus, only a path through the ESC
-  — so every "brownout" observed so far in `logs/test_flights.md` could
-  have been the ESC failing, the FC failing, or a ground-bounce
-  artifact of the shared path itself. **An independent FC ground wire
-  (star ground) is now installed**, so a *future* re-test can actually
-  distinguish these — but it doesn't retroactively resolve which one
-  was happening in the existing data. See `specs/wiring_diagram.md`'s
-  "Negative/return path" section.
-- **The main battery's BMS disconnects it above ~4.2V (variable
-  threshold, confirmed 2026-07-23) — a 4th possible confound for the
-  existing brownout data.** This is an active protective cutoff, not
-  just a voltage ceiling: whenever solar charges the pack to full while
-  still connected, the BMS opens the connection entirely. The exact
-  threshold isn't razor-precise — a same-day bench test observed the
-  battery at 4.26V, "topped off" and not contributing (see
-  `logs/test_flights.md`). None of the
-  existing brownout bench entries in `logs/test_flights.md` recorded
-  battery SOC/voltage at the time of failure, so it's not ruled out
-  that some observed "brownouts" were actually the battery silently
-  dropping out mid-test (removing its buffering right when it may have
-  been needed), rather than the ESC, the FC, or ground bounce. Log
-  battery SOC/voltage in future bench tests to rule this in or out.
+- **RESOLVED 2026-07-23 — the "brownouts" are the main battery's BMS
+  protection tripping, not the ESC or the FC.** User has directly ruled
+  out the ESC as the cause of the system shutting off around ~3A of
+  motor draw: when it happens, the **entire main bus loses power**, and
+  the battery must be physically disconnected and reconnected before
+  anything powers back on. This is the signature of a BMS protection
+  trip (most likely overcurrent protection, given it correlates with
+  motor draw level rather than a charge state — distinct from the
+  ~4.2V overvoltage/"topped off" cutoff noted below, which is a
+  separate protection on the same BMS) that latches the battery off
+  the bus until manually reset. Since the battery is the dominant power
+  source on Branch C under real load, losing it collapses the whole
+  bus — solar alone can't sustain FC/receiver/servo power at that
+  demand. **This closes out the long-running ESC-vs-FC-vs-ground-bounce
+  ambiguity**: it was never either device failing, and the FC ground
+  isolation fix (below) was a real improvement worth having but wasn't
+  the actual fix for this failure mode. **Practically important: this
+  means motor draw above ~3A doesn't just reduce thrust — it kills
+  power to the entire aircraft, including flight controls, until
+  manually reset.** That's a flight-safety-relevant ceiling, not just a
+  performance one. See `logs/test_flights.md` and
+  `specs/wiring_diagram.md`'s "Negative/return path" section.
+- **The main battery's BMS also disconnects it above ~4.2V (variable
+  threshold, confirmed 2026-07-23) — a separate protection on the same
+  BMS, not the same trip as the overcurrent one above.** This is an
+  active protective cutoff, not just a voltage ceiling: whenever solar
+  charges the pack to full while still connected, the BMS opens the
+  connection entirely. The exact threshold isn't razor-precise — a
+  same-day bench test observed the battery at 4.26V, "topped off" and
+  not contributing (see `logs/test_flights.md`).
 
 ## 5. Open questions / next steps
 
+- [ ] **⚠️ HIGH PRIORITY (2026-07-23): does cruise flight require motor
+      current above the battery BMS's overcurrent trip point?** Now
+      that the ~3A-ish motor-draw shutdown is root-caused to the
+      battery's BMS protection (see Section 4) — which kills power to
+      the *entire* aircraft, not just the motor, until manually reset —
+      this is a flight-safety question, not just a characterization
+      exercise. The estimated cruise power range (~17–24W, see
+      `calculations/power_budget.md`) works out to roughly 4–6.5A of
+      total system current at a ~3.7–4.2V bus; with avionics drawing
+      ~0.65–0.8A, the motor's share alone could plausibly sit at or
+      above the ~3A trip level during *ordinary* cruise, not just at an
+      extreme. Needs real motor-load data (voltage logged, trip current
+      characterized precisely) before treating this design as flight-
+      viable at its estimated cruise power. See `logs/test_flights.md`'s
+      2026-07-23 root-cause entry.
 - [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
       kept for reference, not an active task.** The current design (7
       cells, Clark-Y wing) isn't being changed to hit this now. Honest
@@ -369,11 +388,10 @@ update instead.
       FC directly to the battery/array negative bus (star ground),
       replacing the old ESC-routed path. See `specs/wiring_diagram.md`'s
       "Negative/return path" section (diagrammed in `wiring_diagram.svg`
-      too). **This fixes the mechanism, not the historical data** — a
-      brownout re-test still needs to happen before concluding whether
-      ESC or FC was actually failing in the existing bench entries;
-      until then, treat this as "future tests are now trustworthy," not
-      "the ESC/FC brownout question is answered."
+      too). A worthwhile fix on its own merits, though it turned out not
+      to be the actual explanation for the brownouts — see the resolved
+      item in Section 4 (it's the battery's BMS protection tripping,
+      confirmed 2026-07-23).
 - [x] ~~Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching.~~ **Resolved 2026-07-23 — sticking with
       static series-cell matching, no MPPT/buck stage for this design.**

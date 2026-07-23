@@ -205,6 +205,18 @@ glider" end of the range than the old ~19.1 g/dm² was):
   see `CLAUDE.md`) and a real finding: this system can't ride through a
   passing cloud without battery buffering. Verdict stays unconfirmed
   until voltage is logged alongside current.
+- **⚠️ Update (2026-07-23) — the ~17–24W cruise estimate may not even be
+  achievable without tripping the battery's BMS protection.** Root-cause
+  testing has confirmed the ~3A-ish motor-draw shutdown seen in past
+  tests is the battery's own overcurrent protection latching the whole
+  bus off, not the ESC or FC (see `logs/test_flights.md`). At a
+  ~3.7–4.2V bus, this 17–24W range works out to roughly 4–6.5A of total
+  system current — with avionics at ~0.65–0.8A, the motor's share alone
+  could plausibly sit at or above the ~3A trip point during *ordinary*
+  cruise. This turns the energy-balance verdict below from "is solar
+  output enough" into a prior, more basic question: **can the design
+  sustain cruise current at all without the battery cutting out?** See
+  the high-priority open question in `CLAUDE.md` §5.
 
 ## To do
 
