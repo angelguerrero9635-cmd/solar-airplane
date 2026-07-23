@@ -211,20 +211,22 @@ brownouts — see `logs/test_flights.md`):
   "tentative, may be replaced with a plain diode module" as earlier
   drafts of this doc said. What's still outstanding is purely physical:
   the second input wire (main battery -> diode pair) doesn't exist yet.
-- ~~**Branch A power vs. sense.**~~ **Resolved 2026-07-23:** the F405
-  NAVI's BAT pad is a shared power+sense pad by design — its onboard 5V
-  (servo) and 9V (VTX) BECs are meant to draw from it, alongside an
-  onboard 120A current sensor (product specs, 2026-07-23; the official
-  manual PDF itself returns 403 through this sandbox's network policy,
-  same class of block seen with Amazon links, so this relies on
-  consistent specs across multiple product listings rather than the
-  primary-source PDF). In practice, though, Branch A only feeds VBAT
-  ~4.4–4.6V — below the 12–30V those onboard BECs need, and below the
-  5V/9V they're supposed to output, which a buck regulator physically
-  cannot do. So the pad is power+sense *by design*, but **functions as
-  sense-only in this build** — real FC power comes from the separate
-  external 5V Regulator on Branch C via the servo rail (already
-  documented above), not from VBAT.
+- ~~**Branch A power vs. sense.**~~ **Resolved 2026-07-23, bench-
+  confirmed** (correcting an earlier same-day theoretical pass on this
+  same question): connecting voltage to VBAT **does power on part of
+  the flight controller** — Branch A is a real power input, not purely
+  a sense tap. It does **not** power the servo rail — that stays
+  dependent on the separate external 5V Regulator on Branch C, as
+  already documented above. (The F405 NAVI's published spec sheet lists
+  onboard 5V/servo and 9V/VTX BECs fed from a 12–30V BAT input, which
+  led to a first-pass guess that Branch A's ~4.4–4.6V would be too low
+  to power anything on the board at all — direct bench testing shows
+  that guess was wrong for at least part of the FC, even though the
+  servo-rail BEC specifically does need more voltage than Branch A
+  provides.) Practically: with Branch A currently solar-only, that
+  partial FC power depends on solar being present — one more reason the
+  planned battery-input OR-ing change above matters, since it keeps
+  that power domain up on battery alone too, not just on sun.
 - ~~Current-sensor count/type doesn't reconcile with
   `specs/components.md`.~~ **Resolved 2026-07-23:** the original 3
   SparkFun ACS723 breakouts are retired, not used at all anymore. The 4

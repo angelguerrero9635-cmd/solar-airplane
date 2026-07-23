@@ -69,20 +69,20 @@ away:
   Branch A's *one* reading actually represents is being addressed
   separately — see the planned 2-input OR-ing change in
   `specs/wiring_diagram.md`.
-- **VBAT is power+sense by design, but sense-only in practice
-  (resolved 2026-07-23).** The F405 NAVI's BAT pad is a shared
-  power+sense input architecturally — its onboard 5V/5A servo BEC and
-  9V/2A VTX BEC are meant to draw from it, alongside an onboard 120A
-  current sensor (product specs; the manual PDF itself 403s through
-  this sandbox's network policy, so this leans on consistent specs
-  across multiple listings rather than the primary source). Since
-  Branch A only feeds it ~4.4–4.6V — below the 12–30V those BECs need,
-  and below the 5V/9V they output, which a buck regulator can't do —
-  the pad can't actually deliver operating power here. This build
-  already gets FC power from the separate external 5V Regulator on
-  Branch C via the servo rail, so this doesn't change anything about
-  the physical build, just resolves the "is Branch A purely
-  instrumentation" question: yes, in this build, it is.
+- **VBAT does power part of the FC — bench-confirmed 2026-07-23,
+  correcting an earlier same-day theoretical guess.** Connecting
+  voltage to VBAT powers on part of the flight controller; it does
+  **not** power the servo rail, which stays dependent on the separate
+  external 5V Regulator on Branch C. (A first pass at this question
+  reasoned from the F405 NAVI's published spec sheet — onboard 5V/5A
+  servo BEC and 9V/2A VTX BEC fed from a 12–30V BAT input — that
+  Branch A's ~4.4–4.6V would be too low for the BAT pad to power
+  anything at all. Direct bench testing shows that was wrong for at
+  least part of the board, even though the servo-rail BEC specifically
+  does need more voltage than Branch A supplies.) Doesn't change the
+  physical build — the servo rail still needs Branch C's regulator
+  either way — but does resolve the "is Branch A purely instrumentation"
+  question: no, it also delivers real power to part of the FC.
 - **The array's operating voltage sits close to the ideal diodes' rated
   floor.** All 3 ideal-diode devices (Branches A/B/C) are Pololu parts
   rated for a **4–60V** input range. The array's measured Voc (4.57V) and

@@ -178,17 +178,22 @@ update instead.
       battery (**new — planned, not yet physically wired**), Output =
       FC VBAT pin. Gives a contextually meaningful in-flight reading —
       solar voltage when solar is dominant, battery voltage when running
-      on battery power. **Sense-vs-power question resolved 2026-07-23:**
-      the F405 NAVI's BAT pad is a shared power+sense input by design
-      (onboard 5V/5A servo BEC and 9V/2A VTX BEC both draw from it,
-      alongside an onboard 120A current sensor — product specs,
-      2026-07-23). But a buck regulator can't output more than it's
-      fed, and Branch A only feeds VBAT ~4.4–4.6V — below what those
-      onboard BECs need and below their own 5V/9V outputs. So in this
-      build, Branch A functions as **sense-only in practice** (not by
-      pad design) — real FC power comes from the separate external 5V
-      Regulator on Branch C via the servo rail, not from VBAT. See
-      `specs/wiring_diagram.md`.
+      on battery power. **Sense-vs-power question resolved 2026-07-23
+      (bench-confirmed, corrected from an earlier same-day theoretical
+      guess):** connecting voltage to VBAT **does power on part of the
+      flight controller** — Branch A is a real power input, not purely
+      instrumentation. It does **not** power the servo rail, though —
+      that stays dependent on the separate external 5V Regulator on
+      Branch C. (An earlier pass at this question theorized, from the
+      F405 NAVI's published 12–30V-input onboard BEC specs, that
+      Branch A's ~4.4–4.6V would be too low to power anything on the
+      board — direct bench testing shows that reasoning was wrong for
+      at least part of the FC, even if the servo-rail BEC specifically
+      needs more than Branch A provides.) Practical implication: with
+      Branch A currently solar-only, that partial FC power depends on
+      solar being present — the planned battery-input OR-ing change
+      (above) also means that partial-FC-power domain stays up on
+      battery alone, not just on sun. See `specs/wiring_diagram.md`.
 - [ ] **Physically wire Branch A's new main-battery input (2026-07-23).**
       Decided in concept (see above), not yet built — the second input
       wire (main battery positive → Ideal Diode Pair's second input)
