@@ -148,6 +148,30 @@ away:
   see the capacitor row in the table above. All three are
   recommendations, not yet built — validate by re-testing whether
   brownout frequency actually improves.
+- **Recommended priority order (2026-07-23), now 4 locations total:**
+  1. **5V Regulator VIN** — highest priority; this is Pololu's own
+     datasheet spec for regulator stability, closer to "required for
+     correct operation" than "nice to have," especially since Branch
+     C's bus already has other loads pulling current spikes.
+  2. **Main battery terminals** — targets an already-measured bench
+     problem (ESC browning out more with battery connected, under
+     shade).
+  3. **Solar array output** — targets a separately-measured bench
+     problem (array struggling under current spikes in full sun);
+     addresses transient response, a different problem than the
+     7-cell fix's steady-state clamping fix, so still worth doing.
+  4. **5V Regulator output (servo rail)** — standard good practice,
+     lowest priority of the four since there's no specific measured
+     failure here yet (preventive, not a fix for an observed problem).
+
+  The on-hand RLTZ part covers all four with margin either way (≥33µF
+  Pololu spec or ~220–470µF general guidance, vs. 680µF on hand) — no
+  sourcing decision needed, just an install-location one. **Weight
+  caveat:** none of these caps have a confirmed weight yet; small
+  8×12mm DIP polymer caps like this are typically well under a gram
+  each, but that's an estimate, not a sourced number for this specific
+  RLTZ part (no datasheet found) — worth weighing on a scale before
+  treating the ~5.8g remaining 250g headroom as unaffected.
 - **Candidate capacitor part confirmed (2026-07-22).** User has RLTZ
   series DIP solid-state (polymer) capacitors on hand: 680µF, 16V rated,
   ESR 15mΩ, rated ripple current 4.1A rms, 8×12mm, polarized. Voltage

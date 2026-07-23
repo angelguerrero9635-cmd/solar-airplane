@@ -281,18 +281,23 @@ update instead.
       available as the bus sags further below Vmp) — needs voltage
       logged alongside current to resolve. Possibly related to the
       battery/array current-spike brownouts below — not established.
-- [ ] **Build and validate the recommended battery/array/regulator
-      capacitors (2026-07-22).** Recommended in `specs/wiring_diagram.md`
-      and `specs/components.md` to address the ESC-brownout-under-battery
-      and solar-current-spike findings, plus standard regulator-stability
-      practice for the 5V regulator's servo rail (which also powers the
-      FC). Candidate part confirmed 2026-07-22 (RLTZ series 680µF/16V,
-      ESR 15mΩ, from user's on-hand stock — good fit at all 3 locations),
-      but none are installed yet. Re-test after installing to confirm
+- [ ] **Build and validate the recommended capacitors — now 4 locations,
+      prioritized 2026-07-23.** Candidate part confirmed 2026-07-22
+      (RLTZ series 680µF/16V, ESR 15mΩ, from user's on-hand stock — good
+      fit everywhere), but none are installed yet. Recommended priority:
+      (1) 5V Regulator VIN — Pololu's own datasheet spec for the S7V7F5,
+      closer to required-for-stability than optional; (2) main battery
+      terminals — fixes an already-measured brownout; (3) solar array
+      output — fixes a separately-measured brownout (transient
+      response, distinct from the 7-cell fix's steady-state clamping
+      fix); (4) 5V Regulator output (servo rail) — good practice, no
+      specific measured failure there yet. See `specs/components.md`
+      and `specs/wiring_diagram.md`. Re-test after installing to confirm
       brownout frequency actually improves — the reasoning is sound but
-      unvalidated. Also check whether the regulator module already has
-      onboard bypass caps before assuming it needs more, and observe
-      correct polarity when installing (these are polarized parts).
+      unvalidated. Observe correct polarity when installing (polarized
+      parts). **Weigh the actual on-hand parts** before assuming they
+      don't matter against the ~5.8g remaining 250g headroom — no
+      sourced weight found for this specific RLTZ part yet.
 - [x] ~~Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching.~~ **Resolved 2026-07-23 — sticking with
       static series-cell matching, no MPPT/buck stage for this design.**

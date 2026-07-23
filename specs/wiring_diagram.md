@@ -206,10 +206,21 @@ brownouts — see `logs/test_flights.md`):
   diode topology.
 - **Candidate part confirmed 2026-07-22:** user has RLTZ series DIP
   solid-state (polymer) capacitors on hand — 680µF, 16V, ESR 15mΩ, 4.1A
-  rms ripple rating, 8×12mm. Good fit for all three locations above
+  rms ripple rating, 8×12mm. Good fit for all locations above
   (~3.1–3.8x voltage margin at each, low ESR matches the transient-
   response need). Polarized — verify correct polarity when installing
   at each location. Not yet installed anywhere.
+- **Recommended install priority (2026-07-23), 4 locations total:**
+  (1) 5V Regulator VIN — Pololu's own datasheet spec, closer to
+  required-for-stability than optional; (2) main battery terminals —
+  fixes an already-measured brownout; (3) solar array output — fixes a
+  separately-measured brownout (transient response, distinct from the
+  7-cell fix's steady-state clamping fix); (4) 5V Regulator output
+  (servo rail) — good practice, but no specific measured failure there
+  yet. The on-hand RLTZ part covers all four with margin — no sourcing
+  decision, just install order. Weigh the actual parts before assuming
+  they don't affect the ~5.8g remaining 250g headroom — no sourced
+  weight found for this specific part yet.
 
 ## Known unknowns / TBD
 
