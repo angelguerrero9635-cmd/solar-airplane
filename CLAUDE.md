@@ -39,19 +39,22 @@ design math (kept on record for reference, not as a call to action).
   spars (updated 2026-07-22, was SD7037, 1210mm span, 150mm chord)
 - Carbon fiber tube/rod fuselage, 3D printed motor mount
 - **Wing area:** ~0.24 m² (24.0 dm²)
-- **Estimated AUW:** ~337–357g (see `calculations/power_budget.md`; updated
-  for the 7-cell solar string, theoretical pending bench confirmation —
-  this estimate predates the 2026-07-22 wing change and hasn't been
-  revisited for it)
-- **Wing loading:** ~14.0–14.9 g/dm² (sailplane range; lower than the
+- **Estimated AUW:** ~333.6–353.6g (see `calculations/power_budget.md`;
+  updated for the 7-cell solar string, theoretical pending bench
+  confirmation — this estimate predates the 2026-07-22 wing change and
+  hasn't been revisited for it; updated again 2026-07-23 to drop the
+  retired ACS723 current sensors, 3.81g, from the total)
+- **Wing loading:** ~13.9–14.7 g/dm² (sailplane range; lower than the
   previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
   shorter span)
 - Power path: solar array → 3 independent ideal-diode branches, **not
-  rejoined downstream** — Branch A (tentative) taps FC VBAT for
-  cell-voltage monitoring, Branch B feeds the FPV rail, Branch C feeds
-  the main battery bus/ESC/FC power (see `specs/wiring_diagram.md` for
-  the full diagram — corrected 2026-07-22, an earlier version of this
-  file wrongly assumed the branches rejoined at one shared bus)
+  rejoined downstream** — Branch A taps FC VBAT as a 2-input OR (solar
+  array + main battery, **planned 2026-07-23, second input not yet
+  wired**) for a contextually meaningful in-flight voltage reading,
+  Branch B feeds the FPV rail, Branch C feeds the main battery
+  bus/ESC/FC power (see `specs/wiring_diagram.md` for the full diagram —
+  corrected 2026-07-22, an earlier version of this file wrongly assumed
+  the branches rejoined at one shared bus)
 
 ## 3. Key components (see `specs/components.md` for full table + sources)
 
@@ -69,12 +72,12 @@ design math (kept on record for reference, not as a call to action).
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g |
 | Solar Cells | SunPower C60, currently 7 in series (updated from 6, 2026-07-22) | 98 g (14 g ea.) |
 | Servos | 4× DM-S0020 micro | 13 g total |
-| Ideal Diode — Branch A (tentative) | Pololu Power ORing, used as single diode, → FC VBAT | 1.46 g |
+| Ideal Diode — Branch A | Pololu Power ORing, 2-input OR (solar + main battery, 2nd input planned/not yet wired), → FC VBAT | 1.46 g |
 | Ideal Diode — Branch B | Pololu Ideal Diode Module, → FPV rail | 0.27 g |
 | Ideal Diode — Branch C | Pololu Ideal Diode Module, → main battery bus | 0.27 g |
 | 5V Regulator | Feeds FC via servo rail (Branch C) | TBD |
-| 2A Current Meters | ×2, Branch B + C outputs | TBD |
-| Current Sensors | SparkFun ACS723, ×3 (count doesn't yet reconcile — see open questions) | 1.27 g ea. |
+| 5A/2A Current Sensors (bench-only) | ×4 total (2× 5A, 2× 2A), never flown | n/a — no need to weigh |
+| Current Sensors (RETIRED) | SparkFun ACS723, ×3 — not used at all anymore (retired 2026-07-22) | excluded from totals |
 | Capacitor | Electrolytic bulk | 0.7 g |
 
 ## 4. Known constraints & hard-won lessons
@@ -109,13 +112,19 @@ update instead.
 - **Estimated cruise power draw:** ~17–24W depending on drag/weight (see
   `calculations/power_budget.md`).
 - **In-flight telemetry is limited to one voltage reading.** The ATOMRC
-  F405 NAVI has no free ADC channels beyond VBAT, so none of the 4
+  F405 NAVI has no free ADC channels beyond VBAT, so none of the
   current-sensing devices (see `specs/wiring_diagram.md`) can be logged
-  or telemetered in flight — they're bench-test-only. And since VBAT is
-  currently wired to the solar array (Branch A, tentative), not the main
-  battery, the one in-flight reading available is **solar array
-  voltage, not main battery voltage** — there is no in-flight main
-  battery voltage monitoring with the current wiring.
+  or telemetered in flight — they're all bench-test-only (the original 3
+  ACS723s are retired/not used at all; the current 4-device bench set is
+  a separate, still-in-use setup). The VBAT voltage sensor **has been
+  calibrated** (confirmed 2026-07-23), so the raw reading is trustworthy
+  — but as currently wired, VBAT is fed only from the solar array
+  (Branch A), so the one in-flight reading is **solar array voltage,
+  not main battery voltage**. **Planned fix (2026-07-23, not yet
+  built):** Branch A's Ideal Diode Pair becomes a true 2-input OR (solar
+  array + main battery → VBAT), so the single reading becomes solar
+  voltage when solar is dominant, or battery voltage when running on
+  battery power — see `specs/wiring_diagram.md`.
 - **"All-day" (dawn-to-dusk) flight is not currently realistic** with 6–8
   cells of this size; midday net-positive is achievable, morning/evening is
   battery-buffered only.
@@ -162,38 +171,46 @@ update instead.
       the *measured* Voc (4.57V) has more margin. Not confirmed as an
       actual problem, just close enough to check rather than assume
       safe — see `specs/components.md`.
-- [ ] **Branch A (VBAT voltage-sense tap) is undecided.** Currently wired
-      solar array → Ideal Diode Pair (used as a single diode) → Flight
-      Controller VBAT pin, to monitor cell voltage via FC telemetry — but
-      not finalized; may be replaced with a plain Ideal Diode Module like
-      Branches B/C. Also unconfirmed whether this VBAT connection is
-      purely a sense tap or also delivers power to the FC. See
-      `specs/wiring_diagram.md`.
-- [ ] **VBAT is rated far above what it's actually fed (2026-07-22).**
-      The ATOMRC F405 NAVI's VBAT input is manufacturer-rated 12–30V
-      (3–6S), but Branch A feeds it ~4.4–4.6V — a 1S-equivalent voltage,
-      far below spec. The FC's voltage-divider scaling is likely
-      calibrated for a 3–6S pack, so the raw reading probably needs
-      manual recalibration to mean anything. Not confirmed whether
-      under-ranging like this is safe for this specific board (usually
-      fine for a sense pin, but unverified here) — see
-      `specs/components.md`.
-- [ ] **Current-sensor count/type doesn't reconcile.** 2026-07-22 wiring
-      details describe 4 distinct current-sensing devices (2× 5A sensor,
-      2× 2A current meter), but `specs/components.md` previously listed
-      only 3 ACS723 breakouts with no rating distinction. Confirm whether
-      the 2A meters are a separate product from the ACS723s, or whether
-      the ACS723 count/rating needs correcting, before treating either as
-      final.
-- [ ] **5V Regulator and 2A Current Meters are unweighed.** Newly
-      documented 2026-07-22, not yet in the ~247g listed-components total
-      or the AUW estimate — weigh once specced/sourced.
+- [x] ~~Branch A (VBAT voltage-sense tap) is undecided.~~ **Decided in
+      concept, 2026-07-23** — not a plain Ideal Diode Module like
+      Branches B/C after all. Branch A's Ideal Diode Pair becomes a true
+      2-input OR: Input 1 = solar array (existing), Input 2 = main
+      battery (**new — planned, not yet physically wired**), Output =
+      FC VBAT pin. Gives a contextually meaningful in-flight reading —
+      solar voltage when solar is dominant, battery voltage when running
+      on battery power. Still open: whether this VBAT connection is
+      purely a sense tap or also delivers power to the FC (unaffected by
+      the 2-input change). See `specs/wiring_diagram.md`.
+- [ ] **Physically wire Branch A's new main-battery input (2026-07-23).**
+      Decided in concept (see above), not yet built — the second input
+      wire (main battery positive → Ideal Diode Pair's second input)
+      doesn't exist yet. Once wired, re-verify the VBAT reading actually
+      tracks battery voltage when running on battery power (and solar
+      voltage otherwise), rather than assuming the OR-ing behaves as
+      expected.
+- [x] ~~VBAT is rated far above what it's actually fed (2026-07-22).~~
+      **Resolved 2026-07-23** — the voltage sensor has been calibrated
+      for this lower range; the raw VBAT reading is now trustworthy. The
+      ATOMRC F405 NAVI's VBAT input remaining manufacturer-rated for
+      12–30V (3–6S) while actually fed ~4.4–4.6V is noted for
+      completeness (see `specs/components.md`) but isn't a live concern.
+- [x] ~~Current-sensor count/type doesn't reconcile.~~ **Resolved
+      2026-07-23** — the original 3 SparkFun ACS723 breakouts are
+      retired, not used at all anymore. The 4 distinct current-sensing
+      devices (2× 5A sensor, 2× 2A current meter) are a separate,
+      current bench-only setup, not the same hardware and not a
+      count/rating discrepancy.
+- [ ] **5V Regulator is unweighed.** Newly documented 2026-07-22, not yet
+      in the ~243.6g listed-components total or the AUW estimate — it's
+      a flight component (feeds the FC), so weigh once specced/sourced.
+      (The 5A/2A bench-only current sensors, by contrast, are confirmed
+      2026-07-23 to never need weighing — none of them fly.)
 - [ ] **The Clark-Y / 1200×200mm wing update (2026-07-22) hasn't been
       re-weighed — and a physics estimate suggests the AUW is probably
       too low.** Wing area and wing loading in this file,
       `specs/components.md`, and `calculations/power_budget.md`/`.py` have
       all been updated for the new geometry, but the ~90–110g unlisted
-      airframe mass estimate (and therefore the ~337–357g AUW) still
+      airframe mass estimate (and therefore the ~333.6–353.6g AUW) still
       reflects the old SD7037/1210×150mm wing. A larger chord likely means
       more foam and skin material. **Stronger evidence now (2026-07-22):**
       a foam-density-based estimate (`calculations/power_budget.md`'s
@@ -262,12 +279,12 @@ update instead.
       current data up to 3A load, but no voltage was recorded, so it
       can't yet be converted to Watts for comparison against
       `calculations/power_budget.md`'s estimate.
-- [ ] **Decide whether Branch A should sense main battery instead of
-      solar array.** As wired, the one in-flight voltage reading (VBAT)
-      shows solar array voltage, not main battery voltage — meaning no
-      in-flight main battery monitoring exists currently. Confirm this
-      tradeoff is intended, especially since Branch A's whole wiring is
-      still tentative anyway.
+- [x] ~~Decide whether Branch A should sense main battery instead of
+      solar array.~~ **Resolved 2026-07-23 — answer is "both," via
+      OR-ing, not "instead of."** See the Branch A entry above: the
+      Ideal Diode Pair becomes a 2-input OR (solar array + main battery),
+      so the one in-flight VBAT reading reflects whichever source is
+      higher, rather than trading one for the other.
 - [ ] Re-run wing loading / power budget once final AUW is weighed (not
       estimated)
 

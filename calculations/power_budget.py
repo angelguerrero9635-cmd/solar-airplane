@@ -32,15 +32,23 @@ KNOWN_COMPONENTS_G = {
     "servos": 13.0,
     "ideal_diode_pair": 1.46,
     "ideal_diode_modules": 0.27 * 2,
-    "current_sensors": 1.27 * 3,
     "capacitor": 0.7,
 }
+# The original 3 SparkFun ACS723 breakouts (1.27g each, 3.81g total) are
+# retired as of 2026-07-22 - not used at all anymore, replaced by a
+# different 4-sensor bench-only setup (2x 5A sensor, 2x 2A current meter -
+# see specs/wiring_diagram.md). None of these current-sensing devices fly,
+# so none belong in KNOWN_COMPONENTS_G at all.
 
 # Components physically removed before flight (see
 # specs/wiring_diagram.md's "In-flight vs. bench-test instrumentation") -
 # excluded from flight-configuration weight, since the FAA's 250g rule is
-# takeoff weight: everything attached at the moment of flight.
-BENCH_ONLY_COMPONENTS = {"current_sensors"}
+# takeoff weight: everything attached at the moment of flight. Currently
+# empty: the only past bench-only entry (current_sensors) was removed
+# from KNOWN_COMPONENTS_G entirely rather than kept and excluded, since
+# it's retired, not just non-flying. Kept as a mechanism for any future
+# component that's weighed but never flown.
+BENCH_ONLY_COMPONENTS = set()
 
 # Estimate for airframe structure not individually weighed yet.
 # Replace with a real scale measurement ASAP.

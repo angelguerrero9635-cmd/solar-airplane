@@ -27,23 +27,29 @@
   <line x1="1250" y1="158" x2="1250" y2="178" stroke="#5fb8d1" marker-end="url(#arrow)"/>
 
   <!-- Branch labels -->
-  <text x="250" y="172" fill="#ffb343" font-size="11" font-weight="bold" text-anchor="middle">BRANCH A — TENTATIVE</text>
+  <text x="250" y="172" fill="#ffb343" font-size="11" font-weight="bold" text-anchor="middle">BRANCH A — VBAT OR-ING TAP</text>
   <text x="750" y="172" fill="#7fd4e8" font-size="11" font-weight="bold" text-anchor="middle">BRANCH B — FPV RAIL</text>
   <text x="1250" y="172" fill="#7fd4e8" font-size="11" font-weight="bold" text-anchor="middle">BRANCH C — MAIN BUS</text>
+
+  <!-- Branch A, 2nd input (planned, not yet wired) -->
+  <rect x="30" y="35" width="210" height="46" rx="4" fill="#13253d" stroke="#ffb343" stroke-dasharray="5,4"/>
+  <text x="135" y="54" fill="#ffb343" font-size="10" font-weight="bold" text-anchor="middle">MAIN BATTERY (2nd input)</text>
+  <text x="135" y="68" fill="#ffb343" font-size="9" text-anchor="middle">PLANNED — not yet wired</text>
+  <line x1="135" y1="81" x2="150" y2="178" stroke="#ffb343" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
 
   <!-- Branch A -->
   <rect x="80" y="178" width="340" height="60" rx="4" fill="#13253d" stroke="#ffb343"/>
   <text x="250" y="199" fill="#e7eef4" font-size="12" font-weight="bold" text-anchor="middle">Ideal Diode Pair</text>
-  <text x="250" y="213" fill="#9fb3c8" font-size="9" text-anchor="middle">(used as a single diode,</text>
-  <text x="250" y="225" fill="#9fb3c8" font-size="9" text-anchor="middle">not a 2-input OR)</text>
+  <text x="250" y="213" fill="#9fb3c8" font-size="9" text-anchor="middle">used as a true 2-input OR:</text>
+  <text x="250" y="225" fill="#9fb3c8" font-size="9" text-anchor="middle">solar array + main battery</text>
   <line x1="250" y1="238" x2="250" y2="256" stroke="#5fb8d1" marker-end="url(#arrow)"/>
 
   <rect x="80" y="256" width="340" height="78" rx="4" fill="#13253d" stroke="#ffb343"/>
   <text x="250" y="276" fill="#e7eef4" font-size="12" font-weight="bold" text-anchor="middle">Flight Controller VBAT pin</text>
-  <text x="250" y="290" fill="#9fb3c8" font-size="9" text-anchor="middle">FC's voltage-sense ADC —</text>
-  <text x="250" y="302" fill="#9fb3c8" font-size="9" text-anchor="middle">monitors solar array voltage</text>
-  <text x="250" y="320" fill="#ffb343" font-size="9" font-weight="bold" text-anchor="middle">⚠ tentative — may be replaced</text>
-  <text x="250" y="331" fill="#ffb343" font-size="9" font-weight="bold" text-anchor="middle">with a plain diode module</text>
+  <text x="250" y="290" fill="#9fb3c8" font-size="9" text-anchor="middle">FC's voltage-sense ADC — reads</text>
+  <text x="250" y="302" fill="#9fb3c8" font-size="9" text-anchor="middle">whichever input is higher</text>
+  <text x="250" y="320" fill="#ffb343" font-size="9" font-weight="bold" text-anchor="middle">⚠ 2nd input (battery) planned,</text>
+  <text x="250" y="331" fill="#ffb343" font-size="9" font-weight="bold" text-anchor="middle">not yet physically wired</text>
 
   <!-- Branch A -> FC (shared box) diagonal -->
   <line x1="330" y1="334" x2="640" y2="560" stroke="#5fb8d1" marker-end="url(#arrow)"/>

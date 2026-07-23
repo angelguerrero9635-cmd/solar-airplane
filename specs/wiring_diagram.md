@@ -1,6 +1,6 @@
 # Wiring Diagram — Block/System Level
 
-Last updated: 2026-07-22
+Last updated: 2026-07-23
 
 > This is a **block-level power and signal diagram**, built from the
 > documented component list plus the diode/branch topology below, which
@@ -21,10 +21,11 @@ The solar array feeds 3 independent ideal-diode branches. All 3 diodes
 share the same input (the solar array); their outputs are **not**
 rejoined — each branch powers something different.
 
-![Wiring diagram — solar array splits into 3 branches: a tentative
-voltage-sense tap to the flight controller's VBAT pin, the FPV rail, and
-the main battery bus, which converge again only at the shared flight
-controller box.](wiring_diagram.svg)
+![Wiring diagram — solar array splits into 3 branches: a voltage-sense
+OR-ing tap to the flight controller's VBAT pin (planned to also take a
+second input from the main battery), the FPV rail, and the main battery
+bus, which converge again only at the shared flight controller
+box.](wiring_diagram.svg)
 
 Text version of the same diagram, for diffing/searching:
 
@@ -34,14 +35,22 @@ Solar Array — 7x SunPower C60 (series), Voc≈5.0V Vmp≈4.06V
      split below)
   -> splits into 3 independent branches:
 
-BRANCH A — voltage-sense tap (TENTATIVE, still being decided)
-  Ideal Diode Pair (Pololu Power ORing, 6A) — used as a single diode,
-  not as a 2-input OR
-    -> Flight Controller VBAT pin (the pin wired to the FC's onboard
-       voltage-sense ADC) — used to monitor solar array/cell voltage via
-       FC telemetry
-    -> Undecided whether this stays, or gets replaced with a plain Ideal
-       Diode Module like Branches B/C (see Known unknowns below)
+BRANCH A — VBAT OR-ing tap (PLANNED CHANGE, 2026-07-23 — decided in
+concept, not yet physically built)
+  Ideal Diode Pair (Pololu Power ORing, 6A) — used as a true 2-input OR
+    Input 1: Solar Array (existing, confirmed)
+    Input 2: Main Battery (NEW — planned, not yet wired)
+    -> Output -> Flight Controller VBAT pin (the pin wired to the FC's
+       onboard voltage-sense ADC)
+    Purpose: a contextually meaningful in-flight voltage reading.
+       Whichever input is higher wins (ideal-diode OR-ing behavior; each
+       diode only conducts when its own input exceeds the shared output,
+       so the two inputs never back-feed each other) — solar array
+       voltage when solar exceeds battery voltage, main battery voltage
+       when running on battery power (e.g. at night, in shade, or if
+       solar output sags). This replaces the previous single-diode,
+       solar-only tap and directly resolves the "no in-flight battery
+       monitoring" gap flagged below.
 
 BRANCH B — FPV rail
   Ideal Diode Module #1 (Pololu Ideal Diode Module)
@@ -76,20 +85,36 @@ servo rail, rather than relying on ESC-supplied power — see
 
 ## In-flight vs. bench-test instrumentation
 
-All 4 current-sensing devices (the 5A array sensor, the 5A ESC-leg
-sensor, and the 2 2A current meters) are **bench-test-only**. The
-ATOMRC F405 NAVI flight controller has no free ADC channels beyond the
-one wired to VBAT — none of these current readings can be logged or
-telemetered in flight. They're only readable on the ground (e.g. by eye,
-or with an external logger), during bench testing.
+None of the current-sensing devices shown in this diagram are used in
+flight, or fly at all — every one of them is **bench-test-only** gear,
+confirmed 2026-07-23. Two generations of this gear exist:
+
+- **Retired (2026-07-22), not used at all anymore:** the original 3
+  SparkFun ACS723 breakouts. Removed from the weight totals entirely —
+  see `specs/components.md` and `calculations/power_budget.py`.
+- **Current bench-only set, still shown in this diagram for now:** the
+  4 devices depicted above (2× 5A current sensor, 2× 2A current meter).
+  None of these are physically present at takeoff and none need to be
+  weighed for flight-configuration purposes, but they're kept in this
+  diagram since bench testing is still ongoing.
+
+Separately, the ATOMRC F405 NAVI flight controller has no free ADC
+channels beyond the one wired to VBAT — none of these current readings
+could be logged or telemetered in flight even if they did fly. They're
+only readable on the ground (e.g. by eye, or with an external logger),
+during bench testing.
 
 **In flight, only one voltage reading is available at all** — via
-Branch A's tap into the FC's VBAT pin. Since Branch A is currently wired
-to the **solar array**, not the main battery, that one in-flight reading
-is solar array voltage, not main battery voltage. With the current
-wiring, there is no way to monitor main battery voltage in flight. This
-is worth confirming is intentional before finalizing Branch A — see
-`CLAUDE.md` open questions.
+Branch A's tap into the FC's VBAT pin. The voltage sensor feeding this
+reading **has been calibrated** (confirmed 2026-07-23 — see
+`CLAUDE.md` open questions, resolved). The remaining limitation isn't
+calibration, it's *what* that one reading represents: fed only from the
+solar array, it can't reflect battery condition. **Branch A's planned
+2-input OR-ing change (above) is the fix for this** — once the new
+battery input line is physically built, the single VBAT reading becomes
+solar voltage when solar is dominant, or battery voltage when running on
+battery power, instead of solar-only. Until that line is actually wired,
+the in-flight reading is still solar-array-only as before.
 
 ## Recommended physical wiring (proposed — not yet built)
 
@@ -118,6 +143,10 @@ is worth confirming is intentional before finalizing Branch A — see
 - **Branch A (diode → FC VBAT):** solder directly to the FC's
   VBAT+/GND pads. Full-size FCs like the F405 NAVI typically expose these
   as bare solder pads for exactly this kind of custom power input.
+  **New second input (planned, not yet wired):** a tap from the main
+  battery's positive terminal into the Ideal Diode Pair's second input —
+  26 AWG is plenty, since this is a sense tap (negligible current), not
+  a power leg.
 - **Branch B (FPV rail):** match whatever connector the FPV battery
   already ships with (PH2.0/JST-PH 2-pin is standard on 1S ~400mAh
   packs) rather than introducing a different connector family on the
@@ -176,29 +205,29 @@ brownouts — see `logs/test_flights.md`):
 
 ## Known unknowns / TBD
 
-- **Branch A is tentative.** Currently wired as described above, but
-  still being decided — may be replaced with a plain Ideal Diode Module
-  like Branches B/C. Don't treat Branch A as final.
+- **Branch A's OR-ing plan is decided in concept, not yet physically
+  built (2026-07-23).** The 2-input OR (solar array + main battery ->
+  VBAT) described above is the intended final design — no longer
+  "tentative, may be replaced with a plain diode module" as earlier
+  drafts of this doc said. What's still outstanding is purely physical:
+  the second input wire (main battery -> diode pair) doesn't exist yet.
 - **Branch A power vs. sense.** Not confirmed whether the FC's VBAT pin,
   in this wiring, only feeds the FC's voltage-sense ADC, or also
   supplies the FC's operating power (VBAT pads are dual-purpose power +
   sense on many flight controllers). If it's also a power path, Branch A
-  isn't purely instrumentation.
-- **Current-sensor count/type doesn't reconcile with `specs/components.md`.**
-  This session describes 4 distinct current-sensing devices: a 5A sensor
-  between the array and the 3-way split, a 5A sensor between Branch C's
-  node and the ESC, and a 2A current meter on each of Branch B's and
-  Branch C's outputs. `specs/components.md` previously listed only
-  "SparkFun ACS723 breakouts ×3" as the current-sensing hardware, with no
-  distinction between 2A and 5A ratings. Are the "2A current meters" a
-  different, previously undocumented product from the ACS723 breakouts?
-  Is the ACS723 count/rating wrong? Needs reconciling before either count
-  is treated as correct — see `specs/components.md` and `CLAUDE.md` open
-  questions.
-- **5V Regulator and 2A Current Meters are newly documented and
-  unweighed.** Not previously in `specs/components.md`'s weight table —
-  their weight isn't in the ~247g listed-components total or the AUW
-  estimate.
+  isn't purely instrumentation. Unaffected by the 2-input OR change —
+  still open either way.
+- ~~Current-sensor count/type doesn't reconcile with
+  `specs/components.md`.~~ **Resolved 2026-07-23:** the original 3
+  SparkFun ACS723 breakouts are retired, not used at all anymore. The 4
+  distinct current-sensing devices this doc describes (2× 5A sensor, 2×
+  2A current meter) are a separate, current bench-only setup — not the
+  same hardware as the retired ACS723s, and not a count/rating
+  discrepancy to reconcile.
+- **5V Regulator is still unweighed.** Not yet in `specs/components.md`'s
+  weight table or the AUW estimate — it's a flight component (feeds the
+  FC), so it does need weighing once specced/sourced, unlike the bench-
+  only current sensors above.
 - **Recommended battery/array/regulator capacitors not yet built or
   validated (2026-07-22).** The reasoning is sound (ESR/transient
   response for the battery and array; standard regulator design
