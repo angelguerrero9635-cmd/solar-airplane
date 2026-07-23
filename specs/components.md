@@ -47,7 +47,7 @@ Last updated: 2026-07-23
 | Capacitor (ESC) | Electrolytic bulk, at the ESC input | 0.7 g | Unspecified | No model/voltage rating recorded. Confirmed 2026-07-22 to be located at the ESC input (previously just "bus smoothing" with no location). Branch C's bus could see up to ~4.6–5.1V in a fault condition (main battery disconnected, array still connected) — confirm the eventual model has adequate voltage margin above that. |
 | Capacitor (Main Battery) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥4.2V (battery max) with margin | **Candidate confirmed 2026-07-22** — from the user's own on-hand stock (product label photo). 16V rating gives ~3.8x margin over battery max; ESR/ripple-current specs are well-suited to the observed transient issue. Polarized — verify correct polarity when installing. See "Voltage limits & compatibility" below. |
 | Capacitor (Solar Array) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5.1V (theoretical Voc) with margin | **Candidate confirmed 2026-07-22** — same part as above, from the user's on-hand stock. ~3.1x voltage margin over theoretical Voc. Polarized — verify correct polarity when installing. See "Voltage limits & compatibility" below. |
-| Capacitor (5V Regulator) — **candidate part identified, not yet installed; location updated 2026-07-23** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5V, easily covers the regulator's own spec | **Location changed 2026-07-23:** now that the regulator is identified as a Pololu S7V7F5, its own datasheet recommends a ≥33µF electrolytic (≥16V) at **VIN, not the output**, for stability — a different concern from the general servo-rail-output-transient reasoning originally used to justify this capacitor (see "Voltage limits & compatibility" below). The already-selected 680µF/16V part exceeds Pololu's 33µF minimum with room to spare, so it's still a good fit — **just confirm before installing whether you want it at VIN (per Pololu spec), at the output (original servo-transient reasoning), or both**, since these address different failure modes and the weight budget is tight. Polarized — verify correct polarity when installing. |
+| Capacitor (5V Regulator VIN) — **installed 2026-07-23** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5V, easily covers the regulator's own spec | **Confirmed installed 2026-07-23**, at VIN specifically — the regulator (Pololu S7V7F5) datasheet recommends a ≥33µF electrolytic (≥16V) here for stability; the 680µF part exceeds that with room to spare. **A separate, still-undecided capacitor at the regulator's *output*** (servo rail) addresses a different concern (transient response for bursty servo current) — not yet built or decided, see "Voltage limits & compatibility" below. |
 
 ## Voltage limits & compatibility (added 2026-07-22)
 
@@ -147,39 +147,46 @@ away:
   2026-07-23, now that the regulator is identified as a Pololu S7V7F5:**
   its own datasheet actually calls for a ≥33µF/16V+ capacitor at its
   *input* (VIN), for regulator stability — a different concern from the
-  output-side servo-transient reasoning above. Both may be worth doing;
-  see the capacitor row in the table above. All three are
-  recommendations, not yet built — validate by re-testing whether
-  brownout frequency actually improves.
-- **Recommended priority order (2026-07-23), now 4 locations total:**
-  1. **5V Regulator VIN** — highest priority; this is Pololu's own
-     datasheet spec for regulator stability, closer to "required for
+  output-side servo-transient reasoning above. **The VIN capacitor is
+  now confirmed installed (2026-07-23)**; the output-side one is still
+  a separate, undecided recommendation — see the capacitor row in the
+  table above. Battery terminals, array output, and the regulator
+  output are still recommendations, not yet built — validate by
+  re-testing whether brownout frequency actually improves once they
+  are.
+- **Recommended priority order (2026-07-23), 1 of 4 locations done:**
+  1. **5V Regulator VIN — confirmed installed, 2026-07-23.** Pololu's
+     own datasheet spec for regulator stability, closer to "required for
      correct operation" than "nice to have," especially since Branch
      C's bus already has other loads pulling current spikes.
-  2. **Main battery terminals** — targets an already-measured bench
-     problem (system browning out more with battery connected, under
-     shade — ESC vs. FC attribution not yet confirmed, see
+  2. **Main battery terminals — not yet built.** Targets an
+     already-measured bench problem (system browning out more with
+     battery connected, under shade — ESC vs. FC attribution not
+     confirmed for that past data, though the ground-path mechanism
+     causing that ambiguity is now fixed, see
      `specs/wiring_diagram.md`).
-  3. **Solar array output** — targets a separately-measured bench
-     problem (array struggling under current spikes in full sun);
-     addresses transient response, a different problem than the
-     7-cell fix's steady-state clamping fix, so still worth doing.
-  4. **5V Regulator output (servo rail)** — standard good practice,
-     lowest priority of the four since there's no specific measured
-     failure here yet (preventive, not a fix for an observed problem).
+  3. **Solar array output — not yet built.** Targets a
+     separately-measured bench problem (array struggling under current
+     spikes in full sun); addresses transient response, a different
+     problem than the 7-cell fix's steady-state clamping fix, so still
+     worth doing.
+  4. **5V Regulator output (servo rail) — not yet built, not yet
+     decided.** Standard good practice, lowest priority of the four
+     since there's no specific measured failure here yet (preventive,
+     not a fix for an observed problem).
 
   The on-hand RLTZ part covers all four with margin either way (≥33µF
   Pololu spec or ~220–470µF general guidance, vs. 680µF on hand) — no
   sourcing decision needed, just an install-location one. **Sequencing
-  note (2026-07-23):** isolate the FC's ground return from the ESC's
-  (see `specs/wiring_diagram.md`) before the next brownout re-test, so
-  results can be attributed to a specific device rather than "the
-  system." **Weight caveat:** none of these caps have a confirmed
-  weight yet; small 8×12mm DIP polymer caps like this are typically
-  well under a gram each, but that's an estimate, not a sourced number
-  for this specific RLTZ part (no datasheet found) — worth weighing on
-  a scale before
-  treating the ~5.8g remaining 250g headroom as unaffected.
+  update (2026-07-23):** the FC's ground return is now independent of
+  the ESC's (see `specs/wiring_diagram.md`), so the next brownout
+  re-test — after installing the remaining 3 capacitors — will actually
+  be able to attribute results to a specific device. **Weight caveat:**
+  none of these caps have a confirmed weight yet; small 8×12mm DIP
+  polymer caps like this are typically well under a gram each, but
+  that's an estimate, not a sourced number for this specific RLTZ part
+  (no datasheet found) — worth weighing on a scale before treating the
+  ~5.8g remaining 250g headroom as unaffected.
 - **Candidate capacitor part confirmed (2026-07-22).** User has RLTZ
   series DIP solid-state (polymer) capacitors on hand: 680µF, 16V rated,
   ESR 15mΩ, rated ripple current 4.1A rms, 8×12mm, polarized. Voltage

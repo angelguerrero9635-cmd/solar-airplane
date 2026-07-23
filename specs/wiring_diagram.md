@@ -25,12 +25,12 @@ rejoined — each branch powers something different.
 OR-ing tap to the flight controller's VBAT pin (planned to also take a
 second input from the main battery), the FPV rail, and the main battery
 bus, which converge again only at the shared flight controller box.
-Also shows negative/return paths: a negative return bus, confirmed
-ground legs (gray) from the ESC/Main Battery/5V Regulator, the FC's
-current ground return routed through the ESC (flagged, solid orange),
-and the planned independent FC ground / star-ground fix (dashed
-orange), plus a planned capacitor at the 5V regulator's
-input.](wiring_diagram.svg)
+Also shows negative/return paths: a negative return bus, with confirmed
+ground legs (gray) from the ESC, Main Battery, 5V Regulator, and — as
+of 2026-07-23 — the FC's own independent ground (star ground, no longer
+routed through the ESC), plus the now-installed capacitor at the 5V
+regulator's input. Branch A's planned main-battery input is still shown
+dashed (not yet built).](wiring_diagram.svg)
 
 Text version of the same diagram, for diffing/searching:
 
@@ -89,52 +89,54 @@ build has a separate 5V Regulator on Branch C to power the FC via the
 servo rail, rather than relying on ESC-supplied power — see
 `specs/components.md`.
 
-## Negative/return path (confirmed 2026-07-23 — a real build issue, not planned)
+## Negative/return path
 
 Everything above describes the positive-side branch topology. The
-negative/ground return side has a real, currently-confirmed problem:
-**the FC's only negative/return path right now is *through* the ESC**
-— there is no independent ground wire from the FC directly to the
-battery/array negative bus. This applies whenever the FC is powered via
-battery or solar (i.e., essentially always in this build).
+negative/ground return side had a real, confirmed problem as of
+2026-07-23: **the FC's only negative/return path was *through* the
+ESC** — no independent ground wire ran from the FC directly to the
+battery/array negative bus, whenever the FC was powered via battery or
+solar (i.e., essentially always).
 
-**Why this matters:** the ongoing "ESC brownout" troubleshooting (see
-`logs/test_flights.md`) has observed the ESC and FC shutting down
-*together*, and it's genuinely unclear whether that's (a) the ESC
+**Why this mattered:** the ongoing "ESC brownout" troubleshooting (see
+`logs/test_flights.md`) had observed the ESC and FC shutting down
+*together*, and it was genuinely unclear whether that was (a) the ESC
 failing, (b) the FC failing, or (c) a **ground-bounce artifact of the
 shared return path** — a large current pulse through the ESC's ground
-segment has some resistance/inductance, and if that segment sits
+segment has some resistance/inductance, and if that segment sat
 between the FC's ground reference and the true system ground (battery/
-array negative), the FC's ground reference shifts during that pulse
-even if the FC's own 5V supply (from the Branch C regulator) is
+array negative), the FC's ground reference would shift during that
+pulse even if the FC's own 5V supply (from the Branch C regulator) was
 otherwise fine. That alone could look exactly like a brownout to the
-FC, independent of whatever is actually happening to the ESC.
+FC, independent of whatever was actually happening to the ESC.
 
-**Recommended fix, not yet built:** run an independent ground wire from
-the FC directly to the battery/array negative bus (a proper star-ground
-point), rather than letting the FC's return current flow through the
-ESC's ground path. This is worth doing **before** the next round of
-brownout re-testing (e.g. after installing the recommended capacitors),
-since without it, a re-test still can't attribute an improvement (or
-lack of one) to the ESC, the FC, or the ground path itself — see the
-open question in `CLAUDE.md`.
+**Fix confirmed built, 2026-07-23:** an independent ground wire now
+runs from the FC directly to the battery/array negative bus (a proper
+star-ground point), rather than routing the FC's return current through
+the ESC's ground path. **This resolves the *mechanism* that made ESC
+vs. FC brownout attribution ambiguous going forward** — future brownout
+re-tests can now actually distinguish ESC failure from FC failure,
+since they no longer share a return path. It does **not** retroactively
+resolve which device was actually failing in the *past* brownout
+entries in `logs/test_flights.md` — those remain ambiguous as
+documented, since the fix wasn't in place when that data was collected.
 
-**Confirmed plan for 2026-07-23 (tonight):** the user has confirmed
-three changes going in at once: (1) Branch A's main-battery 2nd input
-(above), (2) this independent FC ground return, and (3) the capacitor
-at the 5V Regulator's VIN (see `specs/components.md`). None of the
-three are built as of this writing — the diagram below shows all three
-as planned (dashed orange), not confirmed.
+**Also confirmed built, 2026-07-23:** the capacitor at the 5V
+Regulator's VIN (see `specs/components.md`'s capacitor priority list,
+item 1 of 4) — the first of the recommended capacitors to be
+installed.
 
-**Diagram note:** `wiring_diagram.svg` now depicts this negative-path
-topology directly (see its legend) — gray solid = confirmed normal
-ground (ESC, Main Battery, 5V Regulator, each routed to a "NEGATIVE
-RETURN BUS" element), solid orange = the FC's confirmed-but-flagged
-ESC-routed path, dashed orange = anything planned/not yet built
-(Branch A's battery input, the FC's independent ground, and the VIN
-capacitor). The Solar Array's and Branch B's negative legs are called
-out with a short label rather than a fully-routed line, to keep the
-diagram legible — they aren't part of the current troubleshooting.
+**Still planned, not yet built:** Branch A's main-battery 2nd input
+(above) — this was part of the same evening's plan but is not done yet.
+
+**Diagram note:** `wiring_diagram.svg` depicts the negative-path
+topology (see its legend) — gray solid = confirmed normal ground (ESC,
+Main Battery, 5V Regulator, and now the FC too, each routed to a
+"NEGATIVE RETURN BUS" element), dashed orange = anything still
+planned/not yet built (currently just Branch A's battery input). The
+Solar Array's and Branch B's negative legs are called out with a short
+label rather than a fully-routed line, to keep the diagram legible —
+they aren't part of the current troubleshooting.
 
 ## In-flight vs. bench-test instrumentation
 
@@ -237,23 +239,16 @@ brownouts — see `logs/test_flights.md`):
   recommended, not yet built.** Addresses the array struggling with
   current spikes even in full sun, consistent with the diode-OR
   clamping behavior. Same type/value guidance as above.
-- **At the 5V Regulator (Pololu S7V7F5) — recommended, not yet built,
-  location updated 2026-07-23.** Two distinct reasons for a cap here,
-  now that the regulator is identified:
-  - **At the output (servo rail)** — the original reasoning: regulators
-    generally need local output capacitance for load-transient
-    response, and servo current draw comes in bursts when they move, a
-    well-known cause of downstream brownouts. The consequence here is
-    worse than usual, since this same rail also powers the Flight
-    Controller.
-  - **At the input (VIN)** — Pololu's own datasheet for the S7V7F5
-    calls for a ≥33µF electrolytic (≥16V) here for regulator stability,
-    a separate concern from the output-side reasoning above.
-  The already-selected RLTZ 680µF/16V candidate part comfortably covers
-  either location's requirement — decide whether to install it at VIN,
-  at the output, or both (weight budget is tight, so this is worth a
-  deliberate choice rather than doing both by default). See
-  `specs/components.md`.
+- **At the 5V Regulator (Pololu S7V7F5) VIN — confirmed installed,
+  2026-07-23.** Pololu's own datasheet for the S7V7F5 calls for a
+  ≥33µF electrolytic (≥16V) at VIN for regulator stability — this is
+  now built, using the on-hand RLTZ 680µF/16V candidate part. Still
+  open: whether to also add one at the **output** (servo rail) —
+  separate reasoning (regulators generally need local output
+  capacitance for load-transient response, and servo current draw
+  comes in bursts, a well-known brownout cause; the consequence is
+  worse here since this same rail also powers the FC). Not yet decided
+  or built — see `specs/components.md`.
 - Avoid tantalum for any of these — reverse-voltage risk given this
   diode topology.
 - **Candidate part confirmed 2026-07-22:** user has RLTZ series DIP
@@ -276,12 +271,14 @@ brownouts — see `logs/test_flights.md`):
 
 ## Known unknowns / TBD
 
-- **ESC vs. FC brownout attribution (confirmed 2026-07-23, not yet
-  resolved).** See "Negative/return path" above — the FC's ground
-  return currently runs through the ESC, so it's unconfirmed whether
-  the observed "brownouts" are the ESC, the FC, or a shared-ground-path
-  artifact. Needs the negative paths physically separated before this
-  can be answered.
+- **ESC vs. FC brownout attribution — mechanism fixed 2026-07-23, but
+  not yet re-tested.** See "Negative/return path" above — the FC's
+  ground return no longer runs through the ESC, so a *future* brownout
+  re-test can now actually distinguish ESC failure from FC failure.
+  The *past* brownout entries in `logs/test_flights.md` remain
+  ambiguous (ESC, FC, or ground-bounce artifact) — this fix doesn't
+  retroactively resolve those, only enables clean data going forward.
+  Re-test still pending.
 - **Branch A's OR-ing plan is decided in concept, not yet physically
   built (2026-07-23).** The 2-input OR (solar array + main battery ->
   VBAT) described above is the intended final design — no longer

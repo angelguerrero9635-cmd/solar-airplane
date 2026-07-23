@@ -146,16 +146,18 @@ update instead.
   is already at the ESC input; capacitors at the battery terminals and
   the array output are recommended but not yet built — see
   `specs/wiring_diagram.md` and `specs/components.md`.
-- **Whether it's the ESC, the FC, or both browning out is not actually
-  confirmed (2026-07-23).** The FC and ESC currently share a single
-  ground/return path — the FC has no independent ground wire to the
-  battery/array negative bus, only a path through the ESC. So every
-  "brownout" observed so far could be the ESC failing, the FC failing,
-  or a ground-bounce artifact of the shared path itself (a current
-  pulse through the ESC's ground segment could shift the FC's ground
-  reference even with a fine 5V supply). See `specs/wiring_diagram.md`'s
-  "Negative/return path" section for the full reasoning and the
-  recommended fix (an independent FC ground return).
+- **Whether it's the ESC, the FC, or both browning out in the past
+  bench data is not confirmed — but the shared-ground mechanism causing
+  that ambiguity is now fixed (2026-07-23).** The FC and ESC used to
+  share a single ground/return path — the FC had no independent ground
+  wire to the battery/array negative bus, only a path through the ESC
+  — so every "brownout" observed so far in `logs/test_flights.md` could
+  have been the ESC failing, the FC failing, or a ground-bounce
+  artifact of the shared path itself. **An independent FC ground wire
+  (star ground) is now installed**, so a *future* re-test can actually
+  distinguish these — but it doesn't retroactively resolve which one
+  was happening in the existing data. See `specs/wiring_diagram.md`'s
+  "Negative/return path" section.
 
 ## 5. Open questions / next steps
 
@@ -212,15 +214,15 @@ update instead.
       solar being present — the planned battery-input OR-ing change
       (above) also means that partial-FC-power domain stays up on
       battery alone, not just on sun. See `specs/wiring_diagram.md`.
-- [ ] **Physically wire Branch A's new main-battery input (2026-07-23)
-      — confirmed planned for tonight**, alongside the FC ground
-      isolation and the 5V regulator VIN capacitor (see below). Decided
-      in concept (see above), not yet built as of this writing — the
-      second input wire (main battery positive → Ideal Diode Pair's
-      second input) doesn't exist yet. Once wired, re-verify the VBAT
-      reading actually tracks battery voltage when running on battery
-      power (and solar voltage otherwise), rather than assuming the
-      OR-ing behaves as expected.
+- [ ] **Physically wire Branch A's new main-battery input (2026-07-23).**
+      Decided in concept (see above), not yet built as of this writing —
+      the second input wire (main battery positive → Ideal Diode Pair's
+      second input) doesn't exist yet, unlike the FC ground isolation
+      and 5V regulator VIN capacitor from the same evening's plan, both
+      of which are now confirmed built (see resolved items above). Once
+      wired, re-verify the VBAT reading actually tracks battery voltage
+      when running on battery power (and solar voltage otherwise),
+      rather than assuming the OR-ing behaves as expected.
 - [x] ~~VBAT is rated far above what it's actually fed (2026-07-22).~~
       **Resolved 2026-07-23** — the voltage sensor has been calibrated
       for this lower range; the raw VBAT reading is now trustworthy. The
@@ -293,40 +295,38 @@ update instead.
       available as the bus sags further below Vmp) — needs voltage
       logged alongside current to resolve. Possibly related to the
       battery/array current-spike brownouts below — not established.
-- [ ] **Build and validate the recommended capacitors — now 4 locations,
-      prioritized 2026-07-23.** Candidate part confirmed 2026-07-22
+- [ ] **Build and validate the recommended capacitors — 1 of 4 locations
+      done, prioritized 2026-07-23.** Candidate part confirmed 2026-07-22
       (RLTZ series 680µF/16V, ESR 15mΩ, from user's on-hand stock — good
-      fit everywhere), but none are installed yet. Recommended priority:
-      (1) 5V Regulator VIN — Pololu's own datasheet spec for the S7V7F5,
-      closer to required-for-stability than optional; (2) main battery
-      terminals — fixes an already-measured brownout; (3) solar array
-      output — fixes a separately-measured brownout (transient
-      response, distinct from the 7-cell fix's steady-state clamping
-      fix); (4) 5V Regulator output (servo rail) — good practice, no
-      specific measured failure there yet. See `specs/components.md`
-      and `specs/wiring_diagram.md`. Re-test after installing to confirm
-      brownout frequency actually improves — the reasoning is sound but
-      unvalidated. Observe correct polarity when installing (polarized
-      parts). **Weigh the actual on-hand parts** before assuming they
-      don't matter against the ~5.8g remaining 250g headroom — no
-      sourced weight found for this specific RLTZ part yet. **Sequencing
-      note (2026-07-23):** rewire the FC's ground return to be
-      independent of the ESC (see the new item below) *before* the next
-      brownout re-test — otherwise a re-test still can't attribute a
-      result to the ESC, the FC, or the shared ground path.
-- [ ] **Isolate the FC's and ESC's negative/return paths (2026-07-23) —
-      confirmed planned for tonight, alongside Branch A's battery input
-      and the 5V regulator VIN capacitor.** The FC currently has no
-      independent ground wire to the battery/array negative bus — its
-      only return path is through the ESC. This means the ongoing "ESC
-      brownout" troubleshooting can't actually distinguish ESC failure,
-      FC failure, or a ground-bounce artifact of the shared path. Fix:
-      run an independent ground wire from the FC directly to the
-      negative bus (star ground). See `specs/wiring_diagram.md`'s
-      "Negative/return path" section (now diagrammed in
-      `wiring_diagram.svg` too). Do this before drawing conclusions from
-      further brownout re-testing. **None of the three tonight's-plan
-      items are built yet as of this writing.**
+      fit everywhere). Priority order and status:
+      1. **5V Regulator VIN — confirmed installed, 2026-07-23.** Pololu's
+         own datasheet spec for the S7V7F5, closer to
+         required-for-stability than optional.
+      2. Main battery terminals — not yet built. Fixes an
+         already-measured brownout.
+      3. Solar array output — not yet built. Fixes a separately-measured
+         brownout (transient response, distinct from the 7-cell fix's
+         steady-state clamping fix).
+      4. 5V Regulator output (servo rail) — not yet built, not yet
+         decided. Good practice, no specific measured failure there yet.
+      See `specs/components.md` and `specs/wiring_diagram.md`. The FC's
+      ground return is now independent of the ESC (see the resolved item
+      above), so a re-test after installing the remaining 3 capacitors
+      will actually be able to attribute results to a specific cause.
+      Observe correct polarity when installing (polarized parts).
+      **Weigh the actual on-hand parts** before assuming they don't
+      matter against the ~5.8g remaining 250g headroom — no sourced
+      weight found for this specific RLTZ part yet.
+- [x] ~~Isolate the FC's and ESC's negative/return paths.~~ **Confirmed
+      built 2026-07-23** — an independent ground wire now runs from the
+      FC directly to the battery/array negative bus (star ground),
+      replacing the old ESC-routed path. See `specs/wiring_diagram.md`'s
+      "Negative/return path" section (diagrammed in `wiring_diagram.svg`
+      too). **This fixes the mechanism, not the historical data** — a
+      brownout re-test still needs to happen before concluding whether
+      ESC or FC was actually failing in the existing bench entries;
+      until then, treat this as "future tests are now trustworthy," not
+      "the ESC/FC brownout question is answered."
 - [x] ~~Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching.~~ **Resolved 2026-07-23 — sticking with
       static series-cell matching, no MPPT/buck stage for this design.**

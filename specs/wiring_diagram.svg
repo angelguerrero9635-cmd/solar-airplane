@@ -124,11 +124,11 @@
   <text x="1377" y="390" fill="#9fb3c8" font-size="8" text-anchor="middle">T-Motor M1104 KV7500, 6x3 prop</text>
   <text x="1377" y="401" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
 
-  <!-- Capacitor planned at 5V Regulator VIN -->
-  <rect x="1060" y="413" width="150" height="34" rx="3" fill="#13253d" stroke="#ffb343" stroke-dasharray="4,3"/>
-  <text x="1135" y="426" fill="#ffb343" font-size="9" font-weight="bold" text-anchor="middle">Cap (planned) — VIN</text>
-  <text x="1135" y="438" fill="#ffb343" font-size="8" text-anchor="middle">per Pololu S7V7F5 spec</text>
-  <line x1="1210" y1="430" x2="1250" y2="448" stroke="#ffb343" stroke-dasharray="4,3" marker-end="url(#arrow-orange)"/>
+  <!-- Capacitor at 5V Regulator VIN - confirmed installed 2026-07-23 -->
+  <rect x="1060" y="413" width="150" height="34" rx="3" fill="#13253d" stroke="#2c4a6e"/>
+  <text x="1135" y="426" fill="#e7eef4" font-size="9" font-weight="bold" text-anchor="middle">Capacitor — VIN</text>
+  <text x="1135" y="438" fill="#9fb3c8" font-size="8" text-anchor="middle">installed 2026-07-23</text>
+  <line x1="1210" y1="430" x2="1250" y2="448" stroke="#5fb8d1" marker-end="url(#arrow)"/>
 
   <rect x="1265" y="428" width="225" height="40" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="1377" y="444" fill="#e7eef4" font-size="10" font-weight="bold" text-anchor="middle">5V Regulator</text>
@@ -185,16 +185,12 @@
   <polyline points="1490,320 1530,320 1530,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
   <text x="1505" y="600" fill="#5a6b80" font-size="8">GND</text>
 
-  <!-- FC's CURRENT ground return: routes through the ESC (confirmed 2026-07-23, flagged issue) -->
-  <polyline points="900,585 1005,585 1005,390 1265,390" fill="none" stroke="#ffb343" stroke-width="2" marker-end="url(#arrow-orange)"/>
-  <text x="1012" y="470" fill="#ffb343" font-size="8" font-weight="bold">⚠ FC's only ground</text>
-  <text x="1012" y="482" fill="#ffb343" font-size="8" font-weight="bold">return today — via ESC</text>
-  <text x="1012" y="494" fill="#ffb343" font-size="8" font-weight="bold">(confirmed 2026-07-23)</text>
-
-  <!-- FC's PLANNED direct ground return (star ground) - not yet built -->
-  <polyline points="650,615 650,705 1150,705 1150,770" fill="none" stroke="#ffb343" stroke-dasharray="5,4" marker-end="url(#arrow-orange)"/>
-  <text x="660" y="700" fill="#ffb343" font-size="8" font-weight="bold">PLANNED — independent FC</text>
-  <text x="660" y="712" fill="#ffb343" font-size="8" font-weight="bold">ground (star ground), not yet built</text>
+  <!-- FC's independent ground return (star ground) - confirmed built 2026-07-23,
+       replacing the old ESC-routed path (removed from this diagram - see
+       specs/wiring_diagram.md's dated history for the prior state) -->
+  <polyline points="650,615 650,705 1150,705 1150,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="660" y="700" fill="#5a6b80" font-size="8">GND — independent FC ground</text>
+  <text x="660" y="712" fill="#5a6b80" font-size="8">(star ground), confirmed 2026-07-23</text>
 
   <!-- Solar Array negative (called out, routing simplified for clarity) -->
   <text x="905" y="40" fill="#5a6b80" font-size="8">⏚ GND (→ negative bus,</text>
