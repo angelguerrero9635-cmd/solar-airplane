@@ -26,17 +26,18 @@ changes — don't hand-edit the results below without re-running it.
 
 ## Weight budget vs. the 250g target (added 2026-07-22)
 
-**This is now a hard design goal** — see `CLAUDE.md` Section 1 for why
-(US FAA recreational registration exemption for takeoff weight under
-250g). Script output (`flight_listed_mass_g()`, `weight_budget_headroom_g()`):
+**A long-term goal, not a requirement for the current design** — see
+`CLAUDE.md` Section 1. Kept here as a reference point for future
+component/design decisions, not a call to change the current build.
+Script output (`flight_listed_mass_g()`, `weight_budget_headroom_g()`):
 
 ```
 Flight-config listed mass (excl. bench-only gear): 243.6 g
 Headroom under 250g target, before ANY airframe structure: 6.4 g
 ```
 
-**The honest read: this is not a trim-the-airframe problem, it's a
-reduce-the-component-list problem.** Flight-configuration listed
+**If this is pursued later, it'll mean reducing the component list,
+not just building the airframe lighter.** Flight-configuration listed
 components (247.4g, minus the 3.81g of current-sensing hardware
 already documented as bench-test-only — see
 `specs/wiring_diagram.md`) leave only ~6.4g of headroom before adding
@@ -49,17 +50,15 @@ spars, fuselage, mount, wiring, or adhesives are added.
 The two largest single line items in the component list — Solar Cells
 (98g) and Main Battery (47.1g) — are also the two most central to this
 project's actual mission (solar charging, energy storage), so cutting
-either is a real tradeoff against the project's core purpose, not a
-free win. This needs a deliberate decision about what to cut/substitute
-— see open questions in `CLAUDE.md`.
+either would be a real tradeoff against the project's core purpose,
+not a free win.
 
-Also worth noting: recent decisions were made for other reasons that
-added weight in tension with this goal — the Clark-Y wing enlargement
-(chosen to lower wing loading) and the 7th solar cell (chosen to fix
-the diode-OR clamping problem) both moved weight in the wrong direction
-for a 250g target that wasn't a known constraint at the time. Not
-necessarily wrong calls, but worth re-examining together now that this
-target is explicit.
+Worth keeping in mind: the Clark-Y wing enlargement (chosen to lower
+wing loading) and the 7th solar cell (chosen to fix the diode-OR
+clamping problem) both moved weight in the wrong direction for this
+target — good calls for the problems they solved, not being revisited
+now, but worth factoring in alongside performance/reliability for
+future changes.
 
 ## Wing loading
 

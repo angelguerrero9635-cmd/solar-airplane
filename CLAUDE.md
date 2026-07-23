@@ -12,18 +12,24 @@ flight duration using solar charging, starting as a prototyping exercise and
 evolving toward a documented, reproducible design that could eventually be
 shared, kitted, or sold.
 
-**Weight target: ≤250g takeoff weight (2026-07-22).** This is a real,
-hard design goal, not just a nice-to-have — in the US, aircraft under
+**Weight target: eventually ≤250g takeoff weight (2026-07-22, not a
+requirement for the current design).** In the US, aircraft under
 0.55lb/250g flown recreationally are exempt from FAA registration
 (still need the free TRUST test), per 14 CFR / the FAA's recreational
 exception. The rule is based on **takeoff weight — everything attached
 at the moment of flight** — confirmed current as of this search,
 2026-07-22 (Sources below). Worth double-checking current requirements
 before relying on this, since rules can change and this isn't legal
-advice. **This is currently a big gap, not a small trim** — see Section
-5 for the honest math; it also creates real tension with recent
-decisions made for other reasons (the wing enlargement, the 7th solar
-cell) that added weight to solve other problems.
+advice.
+
+**The current design (7 cells, Clark-Y wing) is not being redone to
+hit this now** — those were good decisions for the problems they
+solved (diode-OR clamping, wing loading) and stand as-is. But **weight
+is a significant, ongoing factor going forward**: future component
+choices, wing/geometry iterations, and anything added to the build
+should be weighed partly against this target, not decided on
+performance/reliability alone. See Section 5 for the honest current-
+design math (kept on record for reference, not as a call to action).
 
 **Current phase:** Prototyping (see `docs/roadmap.md` for phase definitions).
 
@@ -133,31 +139,17 @@ update instead.
 
 ## 5. Open questions / next steps
 
-- [ ] **Decide what to cut/substitute to reach the 250g target
-      (2026-07-22).** See `calculations/power_budget.md`'s "Weight
-      budget vs. the 250g target" — flight-configuration listed
-      components alone leave only ~6.4g of headroom before any airframe
-      structure, spar, or fuselage weight is added at all. Hitting 250g
-      requires reducing the component list itself, not just building the
-      airframe lighter. The two biggest levers (Solar Cells, 98g; Main
-      Battery, 47.1g) are also the two most central to the project's
-      mission — this is a real prioritization decision, not something to
-      resolve unilaterally.
-- [ ] **Reconcile the Clark-Y wing enlargement with the 250g goal
-      (2026-07-22).** The wing was enlarged (SD7037→Clark-Y,
-      1210×150mm→1200×200mm) specifically to lower wing loading — a
-      reasonable goal on its own, but it added weight in the wrong
-      direction now that 250g is an explicit target. Worth revisiting
-      together: the "Wing loading vs. span" analysis in
-      `calculations/power_budget.md` may need to be re-run optimizing
-      for minimum weight (e.g. near the 900mm cell-fit floor) rather
-      than minimum wing loading, if 250g is the dominant priority.
-- [ ] **Reconcile the 7th solar cell with the 250g goal (2026-07-22).**
-      Added to fix the diode-OR clamping problem (ADR 0001), each cell
-      is 14g — 98g total for 7 cells is the single largest line item in
-      the component list. Removing a cell would reopen the clamping
-      problem this was meant to fix; keeping 7 makes the 250g target
-      harder. Real tension, not yet resolved either direction.
+- [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
+      kept for reference, not an active task.** The current design (7
+      cells, Clark-Y wing) isn't being changed to hit this now. Honest
+      math is in `calculations/power_budget.md`'s "Weight budget vs. the
+      250g target": flight-configuration listed components alone leave
+      only ~6.4g of headroom before any airframe structure is added, and
+      the two biggest levers (Solar Cells 98g, Main Battery 47.1g) are
+      also the two most central to the project's mission. Relevant
+      whenever future components or design changes are being weighed —
+      factor this target in alongside performance/reliability, without
+      treating it as something that needs resolving today.
 - [ ] **ESC weight discrepancy (2026-07-22).** Now identified as E-Power
       BE001 (from its own spec sheet) — mfr. spec says 7.3g, but this
       file/`specs/components.md` already had 5.07g recorded before the
