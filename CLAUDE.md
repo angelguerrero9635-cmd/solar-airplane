@@ -109,7 +109,13 @@ update instead.
   yet: no true Vmp measurement, and the motor-load test is still
   pending — see `decisions/0001-cell-series-count.md` and open
   questions below.
-- **Avionics baseline draw:** ~1.5A (measured, no motor running).
+- **Avionics baseline draw:** ~1.5A (measured, no motor running, from
+  the 2026-07-21 **6-cell** baseline test at ~73% battery SOC — see
+  `logs/test_flights.md`). **⚠️ Possibly stale for the current 7-cell
+  config:** a 2026-07-23 bench test with the battery topped off showed
+  only 0.65–0.8A total draw with the battery not visibly contributing —
+  see that entry's flagged discrepancy before treating either number as
+  authoritative.
 - **Estimated cruise power draw:** ~17–24W depending on drag/weight (see
   `calculations/power_budget.md`).
 - **In-flight telemetry is limited to one voltage reading.** The ATOMRC
@@ -158,11 +164,14 @@ update instead.
   distinguish these — but it doesn't retroactively resolve which one
   was happening in the existing data. See `specs/wiring_diagram.md`'s
   "Negative/return path" section.
-- **The main battery's BMS disconnects it above 4.2V (confirmed
-  2026-07-23) — a 4th possible confound for the existing brownout
-  data.** This is an active protective cutoff, not just a voltage
-  ceiling: whenever solar charges the pack to full while still
-  connected, the BMS opens the connection entirely. None of the
+- **The main battery's BMS disconnects it above ~4.2V (variable
+  threshold, confirmed 2026-07-23) — a 4th possible confound for the
+  existing brownout data.** This is an active protective cutoff, not
+  just a voltage ceiling: whenever solar charges the pack to full while
+  still connected, the BMS opens the connection entirely. The exact
+  threshold isn't razor-precise — a same-day bench test observed the
+  battery at 4.26V, "topped off" and not contributing (see
+  `logs/test_flights.md`). None of the
   existing brownout bench entries in `logs/test_flights.md` recorded
   battery SOC/voltage at the time of failure, so it's not ruled out
   that some observed "brownouts" were actually the battery silently
@@ -206,7 +215,12 @@ update instead.
       voltage than the "sub-4V under load" assumption pictured. Measured
       Voc (4.57V) still has ~0.4V margin below 5V even unloaded, so the
       conclusion may still hold — but re-confirm rather than treat this
-      as settled. See `specs/components.md`.
+      as settled. **Partial, inconclusive data point (2026-07-23):** a
+      bench test with the battery topped off (not contributing) and no
+      motor load showed array voltage at 4.46–4.53V — comfortably under
+      5V — but this wasn't the specific scenario in question (motor idle
+      + battery genuinely BMS-disconnected simultaneously); see
+      `logs/test_flights.md`. See `specs/components.md`.
 - [x] ~~Branch A (VBAT voltage-sense tap) is undecided.~~ **Decided in
       concept, 2026-07-23** — not a plain Ideal Diode Module like
       Branches B/C after all. Branch A's Ideal Diode Pair becomes a true

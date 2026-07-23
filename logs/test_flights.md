@@ -36,6 +36,94 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-23 — Bench test: battery-connected, no motor load, before/after camera
+
+**Type:** bench test
+**Conditions:** not recorded (sun level, temperature).
+**Config:** 7-cell SunPower C60 series string. Both batteries (Main +
+FPV) connected. No motor load. Two sub-steps: (1) camera not connected,
+(2) camera connected.
+
+**Readings:**
+
+Step 1 — no camera:
+- Solar (array) voltage: 4.53V
+- Main bus voltage (Branch C, post-diode): 4.25V
+- Main battery voltage: 4.26V
+- Solar current: 0.65A
+- Battery: not visibly contributing — described as "topped off"
+
+Step 2 — camera connected:
+- Solar current: 0.8A (up from 0.65A)
+- Camera/FPV battery voltage: 4.21V
+- Main bus voltage: 4.20V (down from 4.25V)
+- Solar (array) voltage: 4.46V (down from 4.53V)
+
+**Observations:**
+- **Battery "topped off," not contributing, at 4.26V — refines the
+  2026-07-23 BMS-disconnect finding.** Previously documented as "BMS
+  disconnects above 4.2V"; this reading (battery sitting at 4.26V,
+  matching/exceeding bus voltage, not sourcing or sinking current) is
+  consistent with that, but confirms the actual threshold is **variable
+  around 4.2V, not razor-precise at exactly 4.20V** (user's own words:
+  "BMS cap is variable"). Whether the battery is actually
+  BMS-disconnected right now vs. simply at rest with no voltage
+  difference to drive current isn't distinguished by this reading alone
+  — both would look the same from the outside (no net current).
+- **Connecting the camera pulled down both array and bus voltage
+  slightly** (array 4.53V→4.46V, bus 4.25V→4.20V) while solar current
+  rose (0.65A→0.8A) — consistent with the array being a current source
+  whose operating voltage sags as more total current is drawn across
+  all branches (Branch B's camera add pulls down the shared array
+  voltage upstream of the 3-way split, which also nudges Branch C's
+  post-diode voltage down with it). Coherent with the diode-OR
+  clamping behavior already documented, not a new phenomenon.
+- **Array voltage stayed well clear of the ESC's 5V max** in both
+  steps (4.46–4.53V), even with the battery not contributing — a
+  reassuring data point for the reopened "ESC 5V max vs. array Voc"
+  question in `CLAUDE.md`, though **not conclusive**: this test had no
+  motor load, so it doesn't cover the specific scenario flagged there
+  (motor idle + battery BMS-disconnected simultaneously).
+- **⚠️ Possible inconsistency with the documented "~1.5A avionics
+  baseline draw" (`CLAUDE.md` §4) — flagging, not reconciling.** That
+  figure comes from the 2026-07-21 6-cell baseline entry below, at
+  3.93V battery resting voltage (~73% SOC) — a different cell count
+  and a significantly lower battery SOC than this test's 7-cell,
+  topped-off-battery condition. Total draw here (solar 0.65–0.8A, with
+  the battery not visibly contributing) is well under that 1.5A figure.
+  Plausible explanations, none confirmed: (a) the old figure is stale
+  for the current 7-cell/full-battery condition, since a higher bus
+  voltage (from a full battery) lets the array supply more current
+  before clamping, changing how load splits between array and battery
+  without necessarily changing total draw; (b) the device set actually
+  drawing current differs between the two tests (unclear what exactly
+  "avionics-only" included in the older entry); (c) genuine draw
+  variability (e.g. GPS acquisition state). Don't treat either number
+  as more authoritative than the other without a controlled re-test.
+
+**Deviation from prediction:** N/A — this is characterization data, not
+a comparison against a specific `calculations/power_budget.md` estimate.
+The array voltages here (4.46–4.53V) sit between the previously
+measured Voc (4.57V, near-zero current) and the theoretical Vmp
+(~4.06V) — consistent with light loading (0.65–0.8A, well under the
+array's ~5.9A Imp) keeping the array on the flatter, near-Voc part of
+its I-V curve rather than near true Vmp. Still not a Vmp measurement.
+
+**Follow-up:**
+- Reconcile the avionics-baseline-draw discrepancy flagged above —
+  ideally with a controlled re-test logging battery SOC/voltage
+  explicitly (per the BMS-disconnect confound already flagged for past
+  brownout entries).
+- This still isn't the motor-load-plus-battery-topped-off scenario the
+  reopened ESC-Voc question needs — a real test would combine motor
+  load with a fully-charged (or BMS-disconnected) battery to see if
+  array voltage rises further than observed here.
+- Confirm whether the battery was actually BMS-disconnected during this
+  test or just at voltage equilibrium with the bus — not distinguishable
+  from these readings alone.
+
+---
+
 ## 2026-07-22 — Brownout troubleshooting: battery collapse + solar current spikes
 
 **Type:** bench test

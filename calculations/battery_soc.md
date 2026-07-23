@@ -21,8 +21,10 @@ Last updated: 2026-07-23. Companion script: `battery_soc.py`.
 - Must be measured at rest (no load for a few minutes) — under load, internal
   resistance sag makes the pack read lower than true SOC.
 - **The 4.20V/100% row is an active cutoff, not a soft ceiling (confirmed
-  2026-07-23):** the pack's BMS actively disconnects the battery above 4.2V.
-  Under solar charging, once the pack reaches full, it doesn't just stop
+  2026-07-23):** the pack's BMS actively disconnects the battery above
+  ~4.2V — the exact threshold is variable, not razor-precise (observed
+  4.26V, battery "topped off," in a same-day bench test — see
+  `logs/test_flights.md`). Under solar charging, once the pack reaches full, it doesn't just stop
   accepting charge — it drops off the bus entirely until voltage falls back
   under the BMS's reconnect threshold (not yet characterized). Any SOC
   logic (voltage-lookup or coulomb-counting) needs to account for the
