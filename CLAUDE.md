@@ -109,13 +109,15 @@ update instead.
   yet: no true Vmp measurement, and the motor-load test is still
   pending — see `decisions/0001-cell-series-count.md` and open
   questions below.
-- **Avionics baseline draw:** ~1.5A (measured, no motor running, from
-  the 2026-07-21 **6-cell** baseline test at ~73% battery SOC — see
-  `logs/test_flights.md`). **⚠️ Possibly stale for the current 7-cell
-  config:** a 2026-07-23 bench test with the battery topped off showed
-  only 0.65–0.8A total draw with the battery not visibly contributing —
-  see that entry's flagged discrepancy before treating either number as
-  authoritative.
+- **Avionics baseline draw (current, 7-cell config):** ~0.65–0.8A
+  (measured 2026-07-23, battery topped off/not contributing — see
+  `logs/test_flights.md`). **Explained, not a live discrepancy
+  (2026-07-23):** the older ~1.5A figure was measured at a lower bus
+  voltage (2026-07-21, 6-cell string, ~73% battery SOC, 3.93V) — the
+  avionics needed 1.5A at that lower voltage to draw roughly the same
+  power. Since the design is sticking with 7 cells for now, that older
+  reading isn't the relevant baseline going forward and doesn't need
+  further reconciling.
 - **Estimated cruise power draw:** ~17–24W depending on drag/weight (see
   `calculations/power_budget.md`).
 - **In-flight telemetry is limited to one voltage reading.** The ATOMRC

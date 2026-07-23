@@ -84,22 +84,16 @@ Step 2 — camera connected:
   question in `CLAUDE.md`, though **not conclusive**: this test had no
   motor load, so it doesn't cover the specific scenario flagged there
   (motor idle + battery BMS-disconnected simultaneously).
-- **⚠️ Possible inconsistency with the documented "~1.5A avionics
-  baseline draw" (`CLAUDE.md` §4) — flagging, not reconciling.** That
-  figure comes from the 2026-07-21 6-cell baseline entry below, at
-  3.93V battery resting voltage (~73% SOC) — a different cell count
-  and a significantly lower battery SOC than this test's 7-cell,
-  topped-off-battery condition. Total draw here (solar 0.65–0.8A, with
-  the battery not visibly contributing) is well under that 1.5A figure.
-  Plausible explanations, none confirmed: (a) the old figure is stale
-  for the current 7-cell/full-battery condition, since a higher bus
-  voltage (from a full battery) lets the array supply more current
-  before clamping, changing how load splits between array and battery
-  without necessarily changing total draw; (b) the device set actually
-  drawing current differs between the two tests (unclear what exactly
-  "avionics-only" included in the older entry); (c) genuine draw
-  variability (e.g. GPS acquisition state). Don't treat either number
-  as more authoritative than the other without a controlled re-test.
+- **Discrepancy with the documented "~1.5A avionics baseline draw"
+  (`CLAUDE.md` §4) — explained 2026-07-23, closed.** That figure comes
+  from the 2026-07-21 6-cell baseline entry below, at 3.93V battery
+  resting voltage (~73% SOC) — a lower bus voltage than this test's
+  7-cell, topped-off-battery condition (4.20–4.25V). The avionics needed
+  1.5A at that lower voltage to draw roughly the same power; at this
+  test's higher voltage, less current does the same job. Since the
+  design is sticking with 7 cells for now, the older 6-cell figure isn't
+  the relevant baseline and doesn't need further reconciling — this
+  test's ~0.65–0.8A is the current baseline going forward.
 
 **Deviation from prediction:** N/A — this is characterization data, not
 a comparison against a specific `calculations/power_budget.md` estimate.
@@ -110,17 +104,18 @@ array's ~5.9A Imp) keeping the array on the flatter, near-Voc part of
 its I-V curve rather than near true Vmp. Still not a Vmp measurement.
 
 **Follow-up:**
-- Reconcile the avionics-baseline-draw discrepancy flagged above —
-  ideally with a controlled re-test logging battery SOC/voltage
-  explicitly (per the BMS-disconnect confound already flagged for past
-  brownout entries).
-- This still isn't the motor-load-plus-battery-topped-off scenario the
-  reopened ESC-Voc question needs — a real test would combine motor
-  load with a fully-charged (or BMS-disconnected) battery to see if
-  array voltage rises further than observed here.
+- ~~Reconcile the avionics-baseline-draw discrepancy~~ — done, see
+  Observations above (explained by the voltage difference between the
+  6-cell and 7-cell tests; moot anyway since the design is sticking
+  with 7 cells).
+- ~~Combine motor load with a topped-off/BMS-disconnected battery for
+  the ESC-Voc question~~ — no longer needed: the ESC-Voc question is
+  resolved on corrected topology grounds (the ESC sees bus voltage, not
+  panel voltage, and motor load only widens that gap) — see `CLAUDE.md`
+  and `specs/components.md`, 2026-07-23.
 - Confirm whether the battery was actually BMS-disconnected during this
   test or just at voltage equilibrium with the bus — not distinguishable
-  from these readings alone.
+  from these readings alone (still open, lower priority now).
 
 ---
 
