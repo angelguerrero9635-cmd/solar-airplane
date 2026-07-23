@@ -163,34 +163,38 @@ update instead.
   the array output are recommended but not yet built — see
   `specs/wiring_diagram.md` and `specs/components.md`.
 - **RESOLVED 2026-07-23 — the "brownouts" are the main battery's BMS
-  protection tripping, not the ESC or the FC. Refined same day: likely
-  an undervoltage trip from load-induced sag, not a fixed current
-  ceiling.** User directly ruled out the ESC as the cause of the system
-  shutting off around ~3A of motor draw: when it happens, the **entire
-  main bus loses power**, and the battery must be physically
-  disconnected and reconnected before anything powers back on — the
-  signature of a BMS protection trip latching the battery off the bus.
-  A follow-up battery-only load test (no solar, battery→ESC/FC direct)
-  characterized this precisely: bus voltage sags smoothly with current
-  (~0.3Ω combined resistance, from a 4.01V starting battery voltage) and
-  the bus fails right as loaded voltage crosses **~2.9–3.0V** — the
-  battery's own documented low-voltage cutoff range (see
-  `specs/components.md`). **This looks like undervoltage protection
-  (UVP) triggered by load sag, not a protection keyed on current
-  directly** — meaning the "~3A" figure is specific to this test's
-  starting voltage, not a fixed ceiling. **Practical implication: as the
-  battery depletes over a flight, the same cruise current that's fine
-  early on could trip this protection later, purely from declining
-  resting voltage — not confirmed yet (needs a repeat test at different
-  starting SOC), but this is the working hypothesis.** Since the battery
-  is the dominant power source on Branch C under real load, losing it
-  collapses the whole bus — solar alone can't sustain FC/receiver/servo
-  power at that demand. **This closes out the long-running
-  ESC-vs-FC-vs-ground-bounce ambiguity**: it was never either device
-  failing, and the FC ground isolation fix (below) was a real
-  improvement worth having but wasn't the actual fix for this failure
-  mode. See `logs/test_flights.md` (two entries, 2026-07-23) and
-  `specs/wiring_diagram.md`'s "Negative/return path" section.
+  protection tripping, not the ESC or the FC. A same-day hypothesis
+  that this was undervoltage-triggered was tested and overturned — the
+  evidence points to a current-triggered protection (OCP) instead.**
+  User directly ruled out the ESC as the cause of the system shutting
+  off around ~2.9–3A of motor draw: when it happens, the **entire main
+  bus loses power**, and the battery must be physically disconnected
+  and reconnected before anything powers back on — the signature of a
+  BMS protection trip latching the battery off the bus. Two follow-up
+  battery-only load tests (no solar, battery→ESC/FC direct) at
+  different starting voltages (4.01V and 3.88V resting) both show
+  ~0.3Ω combined sag resistance, but the **trip current stayed the same
+  (~2.9–3A) despite the 0.13V difference in starting voltage** — if the
+  trip were voltage-triggered, the lower-starting test should have
+  failed at a lower current, but instead it kept working down to a
+  *lower* bus voltage (2.76V) than where the first test had already
+  failed (~2.9V), before finally cutting out at a similar current. **The
+  simplest explanation consistent with both tests is a genuine
+  overcurrent protection around ~2.9–3A, largely independent of battery
+  SOC within the range tested** — not the SOC-dependent undervoltage
+  mechanism first proposed. Since the battery is the dominant power
+  source on Branch C under real load, losing it collapses the whole
+  bus — solar alone can't sustain FC/receiver/servo power at that
+  demand. **This closes out the long-running ESC-vs-FC-vs-ground-bounce
+  ambiguity**: it was never either device failing, and the FC ground
+  isolation fix (below) was a real improvement worth having but wasn't
+  the actual fix for this failure mode. **Practically important: this
+  reads as a fixed ~2.9–3A ceiling present throughout the flight, not
+  just something that emerges as the battery depletes** — arguably a
+  more serious constraint for the cruise-power estimate than the
+  earlier SOC-dependent framing suggested. See `logs/test_flights.md`
+  (three entries, 2026-07-23) and `specs/wiring_diagram.md`'s
+  "Negative/return path" section.
 - **The main battery's BMS also disconnects it above ~4.2V (variable
   threshold, confirmed 2026-07-23) — a separate protection on the same
   BMS, not the same trip as the overcurrent one above.** This is an
@@ -202,28 +206,33 @@ update instead.
 
 ## 5. Open questions / next steps
 
-- [ ] **⚠️ HIGH PRIORITY (2026-07-23, refined same day): will the
-      battery's undervoltage-trip headroom hold up across a full
-      flight, not just at takeoff?** The ~3A-ish motor-draw shutdown is
-      root-caused to the battery's BMS protection (see Section 4) —
-      which kills power to the *entire* aircraft, not just the motor,
-      until manually reset. A same-day battery-only load test suggests
-      this is likely an **undervoltage trip from load-induced sag**
-      (~0.3Ω combined resistance, failing around ~2.9–3.0V loaded),
-      not a fixed current ceiling — meaning the safe current margin
-      **shrinks as the battery depletes over a flight**, even at
-      constant throttle. The estimated cruise power range (~17–24W, see
+- [ ] **⚠️ HIGH PRIORITY (2026-07-23, updated same day): does cruise
+      flight require motor current above the battery's ~2.9–3A
+      overcurrent trip?** The motor-draw shutdown is root-caused to the
+      battery's BMS protection (see Section 4) — which kills power to
+      the *entire* aircraft, not just the motor, until manually reset.
+      An initial hypothesis that this was SOC-dependent (undervoltage
+      trip, shrinking margin as the battery depletes) was tested and
+      **overturned**: two battery-only load tests at different starting
+      voltages (4.01V and 3.88V) both tripped at essentially the same
+      current (~2.9–3A), not at the same voltage — consistent with a
+      **fixed overcurrent threshold, not a SOC-dependent one**. That
+      makes this a simpler but more immediate constraint: the ceiling
+      applies from takeoff, not just late in a discharge cycle. The
+      estimated cruise power range (~17–24W, see
       `calculations/power_budget.md`) works out to roughly 4–6.5A of
       total system current at a ~3.7–4.2V bus; with avionics drawing
-      ~0.65–0.8A, the motor's share alone could plausibly sit at or
-      above the current level that trips this protection **at some
-      point in a discharge cycle**, even if it's fine at takeoff. Needs:
-      (1) a repeat battery-only load test at a different starting SOC
-      to confirm the UVP hypothesis (does the trip stay at ~2.9–3.0V
-      loaded regardless of starting voltage, just at a different
-      current?), and (2) real motor-load data with solar reconnected to
-      see how much headroom solar contribution restores. See
-      `logs/test_flights.md`'s two 2026-07-23 entries.
+      ~0.65–0.8A, the motor's share alone could plausibly exceed
+      ~2.9–3A during *ordinary* cruise, not just at an extreme. Needs:
+      (1) a third battery-only test at a still-lower starting voltage
+      (e.g. ~3.5V) to confirm the ~2.9–3A trip current holds across the
+      whole usable SOC range, and (2) real motor-load data with solar
+      reconnected to see how much headroom solar contribution adds. If
+      confirmed as a hard, SOC-independent ceiling, this becomes a
+      design constraint to solve (ESC current limiting, a lower-draw
+      prop/motor combination, or a battery/BMS with a higher OCP
+      threshold), not just something to monitor via SOC in flight. See
+      `logs/test_flights.md`'s three 2026-07-23 entries.
 - [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
       kept for reference, not an active task.** The current design (7
       cells, Clark-Y wing) isn't being changed to hit this now. Honest

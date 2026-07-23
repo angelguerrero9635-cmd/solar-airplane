@@ -36,7 +36,93 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-23 — Battery-only load test #2, lower starting SOC (overturns the UVP hypothesis)
+
+**Type:** bench test
+**Conditions:** not recorded (no solar involved).
+**Config:** Same as the test below — main battery only, no solar, no
+camera/camera battery. This test specifically repeats that same sweep
+at a **lower starting voltage** (3.88V vs. the earlier test's 4.01V) to
+test whether the trip is voltage-triggered (UVP) or current-triggered
+(OCP) — see that entry's Follow-up. Battery voltage: 3.88V at start,
+3.85V at end.
+
+**Readings** (motor current vs. bus voltage, measured at the ESC):
+
+| Motor current | Bus voltage |
+|---|---|
+| 0A | 3.78V |
+| 0.5A | 3.57V |
+| 1A | 3.40V |
+| 1.5A | 3.23V |
+| 2A | 3.10V |
+| 2.5A | 2.94V |
+| 2.75A | 2.87V |
+| 2.9A | 2.76V |
+| — | **Cutout shortly after reaching 2.9A** |
+
+**Observations:**
+- **This overturns the undervoltage (UVP) hypothesis from the test
+  below — the evidence now points to a current-triggered protection
+  (OCP) instead.** A linear fit to this run gives **V ≈ 3.75 − 0.33×I**
+  (~0.33Ω combined resistance) — consistent with the earlier test's
+  ~0.32Ω, which is a good sanity check on the measurement itself. But
+  the **trip behavior doesn't match what UVP would predict**:
+  - If the trip were a fixed *loaded voltage* threshold (~2.9–3.0V, as
+    the first test's failure point suggested), this test — starting
+    0.13V lower — should have failed at a **lower current** than the
+    first test, since less headroom was available. Instead, it kept
+    working down to **2.76V at 2.9A**, well below where the first test
+    already failed (~2.89–2.96V), and only cut out **after** reaching
+    2.9A.
+  - The **trip current** was essentially the same in both tests
+    (~2.75–3A in the first, ~2.9A+ in this one) **despite the 0.13V
+    difference in starting voltage.** That's the signature of a
+    current-triggered protection (OCP), not a voltage-triggered one —
+    if voltage mattered, the trip current should have shifted with
+    starting SOC; it didn't.
+  - **Conclusion: within the 3.88–4.01V range tested, this looks like a
+    genuine overcurrent protection tripping around ~2.9–3A of motor
+    current, largely independent of battery SOC/resting voltage** — the
+    original, simpler framing from the first root-cause finding, not
+    the SOC-dependent undervoltage refinement proposed after the first
+    test alone. A UVP protection may still exist on this BMS as a
+    separate safeguard, but it isn't what's limiting behavior in either
+    of these tests, since the current-based trip happens first.
+- **This changes the flight-safety framing:** rather than "margin
+  shrinks as the battery depletes," the more supported picture now is a
+  **fixed ~2.9–3A motor-current ceiling that applies throughout the
+  usable SOC range** — arguably a *more* serious constraint for the
+  current cruise-power estimate, since it means the ceiling is present
+  from takeoff, not just something that emerges late in a flight.
+
+**Deviation from prediction:** N/A — this test's purpose was to
+distinguish between two hypotheses from the prior entry, not to compare
+against a `power_budget.md` figure.
+
+**Follow-up:**
+- A third data point at a still-lower starting voltage (e.g., ~3.5V)
+  would strengthen confidence that the ~2.9–3A trip current holds across
+  the *whole* usable range, not just the 3.88–4.01V window tested so far.
+- Update `CLAUDE.md`'s high-priority open question and
+  `calculations/power_budget.md`'s energy-balance verdict — both
+  currently describe the SOC-dependent (UVP) framing, which this test
+  doesn't support.
+- The ~2.9–3A ceiling now looks like a hard design constraint to
+  resolve (current-limiting the ESC, choosing a lower-current-draw
+  prop/motor combination, or a different battery/BMS with a higher OCP
+  threshold), not something that can be managed by just watching SOC
+  during flight.
+
+---
+
 ## 2026-07-23 — Battery-only load test: motor amps vs. bus voltage (refines the BMS-trip finding)
+
+> ⚠️ **Superseded by the follow-up test above:** the UVP hypothesis
+> proposed in this entry didn't hold up against a second test at a
+> different starting voltage — see the entry above for the correction
+> (evidence now points to a current-triggered protection instead).
+> Kept here for the record of how the hypothesis was reached.
 
 **Type:** bench test
 **Conditions:** not recorded (sun irrelevant — no solar connected).

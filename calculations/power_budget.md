@@ -206,24 +206,25 @@ glider" end of the range than the old ~19.1 g/dm² was):
   passing cloud without battery buffering. Verdict stays unconfirmed
   until voltage is logged alongside current.
 - **⚠️ Update (2026-07-23) — the ~17–24W cruise estimate may not even be
-  achievable without tripping the battery's BMS protection, and the
-  margin likely shrinks as the flight goes on.** Root-cause testing has
-  confirmed the ~3A-ish motor-draw shutdown seen in past tests is the
-  battery's own BMS protection latching the whole bus off, not the ESC
-  or FC (see `logs/test_flights.md`). A follow-up battery-only test
-  suggests this is likely an **undervoltage trip from load-induced
-  sag** (~0.3Ω combined resistance, failing around ~2.9–3.0V loaded)
-  rather than a fixed current ceiling — meaning the safe current margin
-  depends on the battery's resting voltage/SOC at the time, and gets
-  tighter as the pack discharges over a flight, even at constant
-  throttle. At a ~3.7–4.2V bus, this 17–24W range works out to roughly
-  4–6.5A of total system current — with avionics at ~0.65–0.8A, the
-  motor's share alone could plausibly sit at or above the current level
-  that trips this protection **at some point in a discharge cycle**,
-  even if fine at takeoff. This turns the energy-balance verdict below
-  from "is solar output enough" into a prior, more basic question:
-  **can the design sustain cruise current for a full flight without the
-  battery cutting out as it depletes?** See the high-priority open
+  achievable without tripping the battery's BMS protection, and it
+  looks like a fixed ceiling present from takeoff, not just late in a
+  flight.** Root-cause testing has confirmed the ~2.9–3A-ish motor-draw
+  shutdown seen in past tests is the battery's own BMS protection
+  latching the whole bus off, not the ESC or FC (see
+  `logs/test_flights.md`). An initial hypothesis that this was an
+  undervoltage trip (with margin shrinking as the battery depletes) was
+  tested at a second starting voltage and **overturned** — two
+  battery-only tests (4.01V and 3.88V starting) tripped at essentially
+  the same *current* (~2.9–3A), not the same voltage, pointing to a
+  genuine overcurrent protection largely independent of SOC. At a
+  ~3.7–4.2V bus, this 17–24W range works out to roughly 4–6.5A of total
+  system current — with avionics at ~0.65–0.8A, the motor's share alone
+  could plausibly exceed ~2.9–3A during *ordinary* cruise, not just at
+  an extreme, **and this would apply throughout the flight, not only
+  once the battery is depleted.** This turns the energy-balance verdict
+  below from "is solar output enough" into a prior, more basic question:
+  **can the design sustain cruise current at all without tripping the
+  battery's overcurrent protection?** See the high-priority open
   question in `CLAUDE.md` §5.
 
 ## To do
