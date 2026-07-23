@@ -17,7 +17,7 @@ Last updated: 2026-07-23
 |---|---|---|---|---|
 | Motor | T-Motor M1104 KV7500 | 5.61 g | Rated 2–4S (~7.4–16.8V) | High KV, small brushless outrunner. **Runs at 1S (~3.6–4.2V) in this build** — see "Voltage limits & compatibility" below. |
 | Propeller | 6×3 | 14.52 g | n/a | |
-| ESC | E-Power 1S 5A ESC (A), model BE001 | 5.07 g (mfr. spec sheet says 7.3g — **discrepancy not reconciled**, see below) | 1S, 5V max (per mfr. spec — see below) | Identified 2026-07-22 from the product's own spec sheet/packaging. Continuous 5A, burst 7A for 30–45s. Size 15×20mm, servo wire 250mm. **No BEC included — receiver/servo rail gets power directly from the battery, not from the ESC**, which is exactly why this build's separate 5V Regulator (Branch C) exists. Connectors: 2P battery plug (51005) or 1.25mm-pitch 2P battery plug (unclear which this unit uses), 2.54mm-pitch 3P plug, 1.00mm-pitch 3P servo plug — see `specs/wiring_diagram.md`. |
+| ESC | E-Power 1S 5A ESC (A), model BE001 | 5.07 g (measured — authoritative; mfr. spec sheet says 7.3g, see below) | 1S, 5V max (per mfr. spec — see below) | Identified 2026-07-22 from the product's own spec sheet/packaging. Continuous 5A, burst 7A for 30–45s. Size 15×20mm, servo wire 250mm. **No BEC included — receiver/servo rail gets power directly from the battery, not from the ESC**, which is exactly why this build's separate 5V Regulator (Branch C) exists. Connectors: 2P battery plug (51005) or 1.25mm-pitch 2P battery plug (unclear which this unit uses), 2.54mm-pitch 3P plug, 1.00mm-pitch 3P servo plug — see `specs/wiring_diagram.md`. |
 
 ## Avionics
 
@@ -115,13 +115,12 @@ away:
   that high; the main bus is expected to run **sub-4V under load**,
   comfortably below the ESC's max. No clamp/TVS protection planned;
   revisit only if a real overvoltage event is observed.
-- **ESC weight discrepancy (2026-07-22).** The E-Power BE001 spec sheet
-  states 7.3g, but this table's existing figure (5.07g) was already
-  recorded before the exact model was identified — unclear which is the
-  real weight of the unit actually in this build. Not reconciled; treat
-  the 5.07g figure (and anything derived from it, like the AUW total
-  below) as unconfirmed against the manufacturer spec until weighed
-  again on a scale with the model now known.
+- **ESC weight discrepancy — resolved 2026-07-23, measured weight is
+  authoritative.** The E-Power BE001 spec sheet states 7.3g, but that's
+  the manufacturer's nominal figure, not a weighing of the actual unit
+  in this build. The 5.07g already recorded in this table and in
+  `calculations/power_budget.py` was a real scale measurement and
+  stands as correct — no change to the AUW total.
 - **Recommended: capacitors at the main battery, solar array, and 5V
   regulator output, in addition to the existing ESC-side one
   (2026-07-22).** Bench troubleshooting (see `logs/test_flights.md`)

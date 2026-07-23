@@ -62,7 +62,7 @@ design math (kept on record for reference, not as a call to action).
 |---|---|---|
 | Motor | T-Motor M1104 KV7500 | 5.61 g |
 | Propeller | 6×3 | 14.52 g |
-| ESC | E-Power 1S 5A ESC (BE001), no BEC | 5.07 g (mfr. spec says 7.3g, unreconciled) |
+| ESC | E-Power 1S 5A ESC (BE001), no BEC | 5.07 g (measured; mfr. spec sheet says 7.3g) |
 | Flight Controller | ATOMRC F405 NAVI (full size) | 10.79 g |
 | GPS | BN-880 | 13.23 g |
 | Receiver | Happymodel EP1 ELRS | 1.50 g |
@@ -159,11 +159,15 @@ update instead.
       whenever future components or design changes are being weighed —
       factor this target in alongside performance/reliability, without
       treating it as something that needs resolving today.
-- [ ] **ESC weight discrepancy (2026-07-22).** Now identified as E-Power
-      BE001 (from its own spec sheet) — mfr. spec says 7.3g, but this
-      file/`specs/components.md` already had 5.07g recorded before the
-      model was known. Not reconciled — reweigh the actual unit to
-      confirm which figure is real before trusting the AUW total.
+- [x] ~~ESC weight discrepancy (2026-07-22).~~ **Resolved 2026-07-23 —
+      the measured weight (5.07g) is authoritative.** The E-Power BE001's
+      own spec sheet says 7.3g, but that's the manufacturer's stated
+      figure, not a measurement of the actual unit in this build — the
+      5.07g figure already in `specs/components.md` and
+      `calculations/power_budget.py` was a real scale weighing and
+      stands. No change needed to the AUW total; the two figures simply
+      aren't the same kind of number (spec-sheet nominal vs. this unit's
+      actual scale weight).
 - [x] ~~ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).~~
       **Resolved 2026-07-23 — accepted as-is, no protection added.**
       Decision: the array would need improved cell efficiency to reach
