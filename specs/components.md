@@ -124,7 +124,10 @@ away:
 - **Recommended: capacitors at the main battery, solar array, and 5V
   regulator output, in addition to the existing ESC-side one
   (2026-07-22).** Bench troubleshooting (see `logs/test_flights.md`)
-  found the ESC browning out more with the battery connected under shade
+  found the system browning out more with the battery connected under
+  shade (**not confirmed whether it's the ESC or the FC specifically —
+  they currently share a single ground/return path, see
+  `specs/wiring_diagram.md`'s "Negative/return path" section, 2026-07-23**)
   (hypothesis: the battery's own ESR causes its terminal voltage to sag
   under fast current steps faster than its electrochemistry can
   respond), and separately, the solar array alone struggling at higher
@@ -154,8 +157,9 @@ away:
      correct operation" than "nice to have," especially since Branch
      C's bus already has other loads pulling current spikes.
   2. **Main battery terminals** — targets an already-measured bench
-     problem (ESC browning out more with battery connected, under
-     shade).
+     problem (system browning out more with battery connected, under
+     shade — ESC vs. FC attribution not yet confirmed, see
+     `specs/wiring_diagram.md`).
   3. **Solar array output** — targets a separately-measured bench
      problem (array struggling under current spikes in full sun);
      addresses transient response, a different problem than the
@@ -166,11 +170,15 @@ away:
 
   The on-hand RLTZ part covers all four with margin either way (≥33µF
   Pololu spec or ~220–470µF general guidance, vs. 680µF on hand) — no
-  sourcing decision needed, just an install-location one. **Weight
-  caveat:** none of these caps have a confirmed weight yet; small
-  8×12mm DIP polymer caps like this are typically well under a gram
-  each, but that's an estimate, not a sourced number for this specific
-  RLTZ part (no datasheet found) — worth weighing on a scale before
+  sourcing decision needed, just an install-location one. **Sequencing
+  note (2026-07-23):** isolate the FC's ground return from the ESC's
+  (see `specs/wiring_diagram.md`) before the next brownout re-test, so
+  results can be attributed to a specific device rather than "the
+  system." **Weight caveat:** none of these caps have a confirmed
+  weight yet; small 8×12mm DIP polymer caps like this are typically
+  well under a gram each, but that's an estimate, not a sourced number
+  for this specific RLTZ part (no datasheet found) — worth weighing on
+  a scale before
   treating the ~5.8g remaining 250g headroom as unaffected.
 - **Candidate capacitor part confirmed (2026-07-22).** User has RLTZ
   series DIP solid-state (polymer) capacitors on hand: 680µF, 16V rated,

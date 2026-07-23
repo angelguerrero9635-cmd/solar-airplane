@@ -93,6 +93,23 @@ power_budget.md`.
   oscilloscope or fast-logging meter if available) — this entry is
   qualitative only, which limits how precisely the fix can be verified.
 
+**Update (2026-07-23):** it's **not actually confirmed whether this is
+the ESC or the FC (or both) shutting down** — both shut down together
+in these events, and it turns out the FC currently has no independent
+ground/negative return: **the only negative path for the FC right now
+is through the ESC**, whenever it's connected to battery or solar. That
+shared return path means "ESC browns out" above isn't a confirmed
+ESC-specific diagnosis — it could be the ESC, the FC, or a ground-bounce
+artifact of the shared path itself (a large current pulse through the
+ESC's ground segment could shift the FC's ground reference even if the
+FC's own 5V supply is otherwise fine). Distinguishing these needs the
+negative paths physically separated (an independent FC ground return
+direct to the battery/array negative bus, not routed through the ESC)
+— see `specs/wiring_diagram.md` and the new open question in
+`CLAUDE.md`. Until that's done, read every "ESC browned out" /
+"brownout" reference in this file as "the system (ESC and/or FC,
+indistinguishable) shut down," not a confirmed ESC-specific failure.
+
 ---
 
 ## 2026-07-22 — Motor-load test, solar-only (no batteries)
@@ -114,7 +131,7 @@ buffer at all. This isolates solar-only behavior under motor load.
 | 1A | 1.5A | 0.5A |
 | 1.5A | 2.5A | **1.0A** |
 | 2A | 3A | 1.0A |
-| *(cloud passed overhead — ESC browned out / shut down here)* | | |
+| *(cloud passed overhead — system browned out / shut down here; ESC vs. FC not yet distinguishable, see 2026-07-23 note above)* | | |
 | 2.5A | 3.5A | 1.0A |
 | 3A | 4A | 1.0A |
 
@@ -145,8 +162,11 @@ No bus voltage was logged at any step — only currents.
     alongside current at each step next time.
 - **The system cannot ride through a passing cloud without battery
   buffering.** With no batteries connected, a brief shading event
-  dropped solar output enough to brown out the ESC mid-test (motor
-  stopped, presumably FC reset or lost power too). This is expected
+  dropped solar output enough to brown out the system mid-test (motor
+  stopped, and the FC likely reset or lost power too — see the
+  2026-07-23 update on the entry above: the ESC and FC currently share
+  a single ground/return path, so this can't yet be attributed to one
+  device specifically). This is expected
   given the test intentionally removed all battery buffering to isolate
   solar-only behavior — it validates why the actual flight
   configuration keeps the Main Battery on Branch C rather than running
@@ -170,6 +190,11 @@ anything in that file.
 - Repeat with batteries connected (the actual flight configuration) to
   see whether battery buffering prevents the cloud-brownout failure mode
   seen here.
+- **Rewire the FC's ground return to be independent of the ESC before
+  the next brownout re-test** (see 2026-07-23 update above) — otherwise
+  a re-test still can't tell whether a fix (e.g. the recommended
+  capacitors) actually helped the ESC, the FC, or just reduced
+  ground-bounce on the shared path.
 - Determine the true max motor/current draw — this test stopped at 3A;
   unclear if that's a real ceiling (ESC/motor limit) or just where
   testing stopped.

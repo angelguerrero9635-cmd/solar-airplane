@@ -84,6 +84,36 @@ build has a separate 5V Regulator on Branch C to power the FC via the
 servo rail, rather than relying on ESC-supplied power — see
 `specs/components.md`.
 
+## Negative/return path (confirmed 2026-07-23 — a real build issue, not planned)
+
+Everything above describes the positive-side branch topology. The
+negative/ground return side has a real, currently-confirmed problem:
+**the FC's only negative/return path right now is *through* the ESC**
+— there is no independent ground wire from the FC directly to the
+battery/array negative bus. This applies whenever the FC is powered via
+battery or solar (i.e., essentially always in this build).
+
+**Why this matters:** the ongoing "ESC brownout" troubleshooting (see
+`logs/test_flights.md`) has observed the ESC and FC shutting down
+*together*, and it's genuinely unclear whether that's (a) the ESC
+failing, (b) the FC failing, or (c) a **ground-bounce artifact of the
+shared return path** — a large current pulse through the ESC's ground
+segment has some resistance/inductance, and if that segment sits
+between the FC's ground reference and the true system ground (battery/
+array negative), the FC's ground reference shifts during that pulse
+even if the FC's own 5V supply (from the Branch C regulator) is
+otherwise fine. That alone could look exactly like a brownout to the
+FC, independent of whatever is actually happening to the ESC.
+
+**Recommended fix, not yet built:** run an independent ground wire from
+the FC directly to the battery/array negative bus (a proper star-ground
+point), rather than letting the FC's return current flow through the
+ESC's ground path. This is worth doing **before** the next round of
+brownout re-testing (e.g. after installing the recommended capacitors),
+since without it, a re-test still can't attribute an improvement (or
+lack of one) to the ESC, the FC, or the ground path itself — see the
+open question in `CLAUDE.md`.
+
 ## In-flight vs. bench-test instrumentation
 
 None of the current-sensing devices shown in this diagram are used in
@@ -224,6 +254,12 @@ brownouts — see `logs/test_flights.md`):
 
 ## Known unknowns / TBD
 
+- **ESC vs. FC brownout attribution (confirmed 2026-07-23, not yet
+  resolved).** See "Negative/return path" above — the FC's ground
+  return currently runs through the ESC, so it's unconfirmed whether
+  the observed "brownouts" are the ESC, the FC, or a shared-ground-path
+  artifact. Needs the negative paths physically separated before this
+  can be answered.
 - **Branch A's OR-ing plan is decided in concept, not yet physically
   built (2026-07-23).** The 2-input OR (solar array + main battery ->
   VBAT) described above is the intended final design — no longer
@@ -286,4 +322,8 @@ recommendation is exactly that — a recommendation, not a confirmed
 build. The visual diagram (`wiring_diagram.svg`) is a hand-drawn
 rendering of the same topology described in the text version above;
 update both together if the topology changes, same as everything else
-in `specs/`.
+in `specs/`. **Scope note (2026-07-23):** both the text diagram and the
+SVG depict the *positive*-side branch topology only — neither currently
+shows ground/negative return routing. See "Negative/return path" above
+for the confirmed (and currently problematic) negative-side topology,
+which isn't reflected in the SVG.

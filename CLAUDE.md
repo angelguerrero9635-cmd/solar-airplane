@@ -138,7 +138,7 @@ update instead.
   mode, since that hasn't been separately tested.
 - **Brownouts happen even with the battery connected, under current
   spikes.** Bench-observed 2026-07-22 (see `logs/test_flights.md`): with
-  battery connected but solar barely supporting (shade), ESC brownouts
+  battery connected but solar barely supporting (shade), brownouts
   got *more* frequent, not less — hypothesized as the battery's own ESR
   causing terminal voltage to sag under fast current steps. Separately,
   the solar array alone (full sun) struggles at higher current spikes
@@ -146,6 +146,16 @@ update instead.
   is already at the ESC input; capacitors at the battery terminals and
   the array output are recommended but not yet built — see
   `specs/wiring_diagram.md` and `specs/components.md`.
+- **Whether it's the ESC, the FC, or both browning out is not actually
+  confirmed (2026-07-23).** The FC and ESC currently share a single
+  ground/return path — the FC has no independent ground wire to the
+  battery/array negative bus, only a path through the ESC. So every
+  "brownout" observed so far could be the ESC failing, the FC failing,
+  or a ground-bounce artifact of the shared path itself (a current
+  pulse through the ESC's ground segment could shift the FC's ground
+  reference even with a fine 5V supply). See `specs/wiring_diagram.md`'s
+  "Negative/return path" section for the full reasoning and the
+  recommended fix (an independent FC ground return).
 
 ## 5. Open questions / next steps
 
@@ -297,7 +307,20 @@ update instead.
       unvalidated. Observe correct polarity when installing (polarized
       parts). **Weigh the actual on-hand parts** before assuming they
       don't matter against the ~5.8g remaining 250g headroom — no
-      sourced weight found for this specific RLTZ part yet.
+      sourced weight found for this specific RLTZ part yet. **Sequencing
+      note (2026-07-23):** rewire the FC's ground return to be
+      independent of the ESC (see the new item below) *before* the next
+      brownout re-test — otherwise a re-test still can't attribute a
+      result to the ESC, the FC, or the shared ground path.
+- [ ] **Isolate the FC's and ESC's negative/return paths (2026-07-23).**
+      The FC currently has no independent ground wire to the battery/
+      array negative bus — its only return path is through the ESC.
+      This means the ongoing "ESC brownout" troubleshooting can't
+      actually distinguish ESC failure, FC failure, or a ground-bounce
+      artifact of the shared path. Fix: run an independent ground wire
+      from the FC directly to the negative bus (star ground). See
+      `specs/wiring_diagram.md`'s "Negative/return path" section. Do
+      this before drawing conclusions from further brownout re-testing.
 - [x] ~~Decide whether an MPPT/buck stage is needed long-term vs. static
       series-cell matching.~~ **Resolved 2026-07-23 — sticking with
       static series-cell matching, no MPPT/buck stage for this design.**
