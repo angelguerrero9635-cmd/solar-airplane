@@ -33,6 +33,7 @@ KNOWN_COMPONENTS_G = {
     "ideal_diode_pair": 1.46,
     "ideal_diode_modules": 0.27 * 2,
     "capacitor": 0.7,
+    "regulator_5v": 0.6,  # Pololu S7V7F5 step-up/step-down, mfr. spec, no header pins
 }
 # The original 3 SparkFun ACS723 breakouts (1.27g each, 3.81g total) are
 # retired as of 2026-07-22 - not used at all anymore, replaced by a

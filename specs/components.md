@@ -40,14 +40,14 @@ Last updated: 2026-07-23
 | Ideal Diode — Branch A | Pololu Power ORing Ideal Diode Pair (6A), used as a true 2-input OR | 1.46 g | Rated 4–60V input | Input 1: solar array (existing). Input 2: main battery (**planned 2026-07-23, not yet wired**). Output → Flight Controller VBAT pin. Gives a contextually meaningful in-flight voltage reading — solar voltage when solar is dominant, battery voltage when running on battery power. See `specs/wiring_diagram.md`. |
 | Ideal Diode — Branch B | Pololu Ideal Diode Module | 0.27 g | Rated 4–60V input | Solar array → 2A current meter → FPV Camera/VTX + FPV Battery (parallel). See `specs/wiring_diagram.md`. |
 | Ideal Diode — Branch C | Pololu Ideal Diode Module | 0.27 g | Rated 4–60V input | Solar array → 2A current meter → Main Battery + ESC (via 5A sensor) + 5V Regulator (parallel). **Array's measured operating voltage sits close to this diode family's 4V floor** — see "Voltage limits & compatibility" below. See `specs/wiring_diagram.md`. |
-| 5V Regulator | Unspecified model — feeds Flight Controller via the servo rail | TBD (not yet weighed) | Unspecified | **Newly documented, 2026-07-22 — not previously in this table.** On Branch C. Flies (feeds the FC), so it still needs weighing once specced/sourced — not yet included in the weight totals below. |
+| 5V Regulator | Pololu S7V7F5 (5V Step-Up/Step-Down Voltage Regulator) — feeds Flight Controller via the servo rail | 0.6 g (mfr. spec, no header pins) | Input 2.7–11.8V | **Identified 2026-07-23.** On Branch C. Buck-**boost** topology — able to regulate up to 5V even when its input dips below 5V, which is exactly the situation on Branch C's bus (~3.6–4.6V, below what a buck-only regulator's 5V output would need). Up to 1A step-down / ~500mA step-up, >90% typical efficiency. Now included in the weight totals below. |
 | 5A Current Sensors (bench-only) | ×2 (array-total sensor + Branch C ESC-leg sensor) | n/a — never flown, no need to weigh | Unspecified | **Clarified 2026-07-23:** these are the "5A sensor" devices in `specs/wiring_diagram.md`, distinct from the retired ACS723s below. Bench-test-only, confirmed 2026-07-23 — none of these current-sensing devices are used in flight, so none need weighing for flight-configuration purposes. |
 | 2A Current Meters | ×2 (one per Branch B and Branch C output) | n/a — never flown, no need to weigh | Unspecified | **Clarified 2026-07-23:** bench-test-only, confirmed never used in flight. Together with the 2 5A sensors above, these are "the 4 new sensors" — a separate bench-only setup from the retired ACS723s below, not an overlapping/duplicate count. |
 | Current Sensors (RETIRED) | SparkFun ACS723 breakouts ×3 | 1.27 g each (3.81 g total) — **removed from weight totals entirely, 2026-07-23** | Vcc supply rated 4.5–5.5V | **Retired 2026-07-23 — not used at all anymore**, replaced by the separate 4-sensor bench-only setup above (2× 5A sensor + 2× 2A current meter). Kept here only as a historical record; excluded from `calculations/power_budget.py`'s `KNOWN_COMPONENTS_G`. |
 | Capacitor (ESC) | Electrolytic bulk, at the ESC input | 0.7 g | Unspecified | No model/voltage rating recorded. Confirmed 2026-07-22 to be located at the ESC input (previously just "bus smoothing" with no location). Branch C's bus could see up to ~4.6–5.1V in a fault condition (main battery disconnected, array still connected) — confirm the eventual model has adequate voltage margin above that. |
 | Capacitor (Main Battery) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥4.2V (battery max) with margin | **Candidate confirmed 2026-07-22** — from the user's own on-hand stock (product label photo). 16V rating gives ~3.8x margin over battery max; ESR/ripple-current specs are well-suited to the observed transient issue. Polarized — verify correct polarity when installing. See "Voltage limits & compatibility" below. |
 | Capacitor (Solar Array) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5.1V (theoretical Voc) with margin | **Candidate confirmed 2026-07-22** — same part as above, from the user's on-hand stock. ~3.1x voltage margin over theoretical Voc. Polarized — verify correct polarity when installing. See "Voltage limits & compatibility" below. |
-| Capacitor (5V Regulator output) — **candidate part identified, not yet installed** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5V (regulator output) with margin | **Candidate confirmed 2026-07-22** — same part as above. ~3.2x voltage margin. Regulator-stability reasoning still applies (see "Voltage limits & compatibility" below) — check whether the still-unspecified regulator module already has onboard bypass caps first. Polarized — verify correct polarity when installing. |
+| Capacitor (5V Regulator) — **candidate part identified, not yet installed; location updated 2026-07-23** | RLTZ series DIP solid-state (polymer) capacitor, 680µF/16V, ESR 15mΩ, 8×12mm | TBD (small, not yet weighed) | ≥5V, easily covers the regulator's own spec | **Location changed 2026-07-23:** now that the regulator is identified as a Pololu S7V7F5, its own datasheet recommends a ≥33µF electrolytic (≥16V) at **VIN, not the output**, for stability — a different concern from the general servo-rail-output-transient reasoning originally used to justify this capacitor (see "Voltage limits & compatibility" below). The already-selected 680µF/16V part exceeds Pololu's 33µF minimum with room to spare, so it's still a good fit — **just confirm before installing whether you want it at VIN (per Pololu spec), at the output (original servo-transient reasoning), or both**, since these address different failure modes and the weight budget is tight. Polarized — verify correct polarity when installing. |
 
 ## Voltage limits & compatibility (added 2026-07-22)
 
@@ -140,7 +140,12 @@ away:
   but because regulators generally need local output capacitance for
   stability and transient response, and bursty servo current draw is a
   textbook cause of downstream brownouts. That consequence is higher
-  here since the same rail powers the Flight Controller. All three are
+  here since the same rail powers the Flight Controller. **Update
+  2026-07-23, now that the regulator is identified as a Pololu S7V7F5:**
+  its own datasheet actually calls for a ≥33µF/16V+ capacitor at its
+  *input* (VIN), for regulator stability — a different concern from the
+  output-side servo-transient reasoning above. Both may be worth doing;
+  see the capacitor row in the table above. All three are
   recommendations, not yet built — validate by re-testing whether
   brownout frequency actually improves.
 - **Candidate capacitor part confirmed (2026-07-22).** User has RLTZ
@@ -156,32 +161,32 @@ away:
   play here).
 
 Everything still marked "Unspecified" in the tables above (telemetry
-radio, 5V regulator, 2A current meters, ESC capacitor) needs an actual
-model number before a voltage range can be looked up rather than
-guessed. The ESC is now fully identified (E-Power BE001, from its own
-spec sheet/packaging, 2026-07-22). The two recommended capacitors
-(battery, array) are marked "TBD" rather than "Unspecified" since
-they're not built yet at all, not just missing a model number.
+radio, 2A current meters, ESC capacitor) needs an actual model number
+before a voltage range can be looked up rather than guessed. The ESC is
+now fully identified (E-Power BE001, from its own spec sheet/packaging,
+2026-07-22), and the 5V Regulator is now fully identified (Pololu
+S7V7F5, 2026-07-23). The recommended capacitors (battery, array, 5V
+regulator) are marked "TBD" rather than "Unspecified" since they're not
+built yet at all, not just missing a model number.
 
-Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650), E-Power 1S 5A ESC (BE001) product spec sheet/packaging photo (2026-07-22), F405 NAVI BEC/current-sensor specs (12–30V input, 120A current sensor, 5V/5A + 9V/2A onboard BECs) via [ATOMRC product listing](https://atomrc.com/products/atomrc-fixed-wing-flight-controller-f405-navi) and [SkyZoneFPV listing](https://www.skyzonefpv.com/products/atomrc-fixed-wing-flight-controller-f405-navi) — searched 2026-07-23; the manual PDF itself returned HTTP 403 through this sandbox's network policy.
+Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650), E-Power 1S 5A ESC (BE001) product spec sheet/packaging photo (2026-07-22), F405 NAVI BEC/current-sensor specs (12–30V input, 120A current sensor, 5V/5A + 9V/2A onboard BECs) via [ATOMRC product listing](https://atomrc.com/products/atomrc-fixed-wing-flight-controller-f405-navi) and [SkyZoneFPV listing](https://www.skyzonefpv.com/products/atomrc-fixed-wing-flight-controller-f405-navi) — searched 2026-07-23; the manual PDF itself returned HTTP 403 through this sandbox's network policy. [Pololu S7V7F5 5V Step-Up/Step-Down Voltage Regulator](https://www.pololu.com/product/2119) — weight (0.6g, no headers), input range (2.7–11.8V), output current (1A step-down/~500mA step-up), efficiency (>90%), and the VIN capacitor recommendation (≥33µF, ≥16V) — searched 2026-07-23; direct fetch of pololu.com and robotshop.com both returned HTTP 403 through this sandbox's network policy, so these numbers rely on consistent search-result snippets rather than a directly-read primary source — worth a spot-check against the datasheet when convenient.
 
 ## Weight summary
 
-- Listed components total: **~243.6 g** (updated 2026-07-23: the 3
-  retired ACS723 current sensors, 3.81g, are removed from this total
-  entirely, not just excluded as bench-only — they're not used at all
-  anymore). **Does not yet include** the 5V Regulator, the 5A/2A
-  bench-only current sensors, or the three newly-recommended capacitors
-  (battery, array, regulator output) — none of their weights are known
-  yet (the recommended capacitors aren't even built, and the bench-only
-  sensors never need weighing since none of them fly).
+- Listed components total: **~244.2 g** (updated 2026-07-23: the 5V
+  Regulator, now identified as a Pololu S7V7F5 at 0.6g, is added in;
+  the 3 retired ACS723 current sensors, 3.81g, remain removed entirely,
+  not just excluded as bench-only — they're not used at all anymore).
+  **Does not yet include** the 5A/2A bench-only current sensors or the
+  three newly-recommended capacitors (battery, array, regulator) — the
+  bench-only sensors never need weighing since none of them fly, and
+  the capacitors aren't built yet.
 - Estimated unlisted mass (foam wing, spars, fuselage tube, mount, wiring,
   adhesives): **~90–110 g** (estimate — replace with a real scale weight
   ASAP; this predates the 2026-07-22 Clark-Y/1200×200mm wing change, and
   the larger chord likely pushes it above this range)
-- **Estimated AUW: ~333.6–353.6 g** (needs confirmation — see open
-  questions in `CLAUDE.md`; also doesn't yet account for the 5V
-  regulator, still to be weighed)
+- **Estimated AUW: ~334.2–354.2 g** (needs confirmation — see open
+  questions in `CLAUDE.md`)
 
 ### Weight budget vs. the 250g target (added 2026-07-22)
 
@@ -190,21 +195,21 @@ Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-m
 point for future component/design decisions, not a call to change
 anything now:
 
-- Listed components total is **~243.6g** of flight-configuration listed
-  weight — updated 2026-07-23 now that the retired ACS723 current
-  sensors (bench-test-only, and no longer used at all) are removed from
+- Listed components total is **~244.2g** of flight-configuration listed
+  weight — updated 2026-07-23 to include the now-identified and now-
+  weighed 5V Regulator (Pololu S7V7F5, 0.6g). The retired ACS723 current
+  sensors (bench-test-only, no longer used at all) stay removed from
   the total entirely, rather than carried in the total and separately
   excluded. None of the current-sensing hardware shown in
   `specs/wiring_diagram.md` (retired or current bench-only set) is
   attached at takeoff, consistent with the FAA's 250g rule being a
   takeoff-weight rule.
-- That leaves only **~6.4g** of headroom under 250g for the 5V
-  regulator, the 3 recommended capacitors, *and all airframe structure*
-  (wing, spars, fuselage tube, motor mount, wiring, adhesives)
-  combined.
+- That leaves only **~5.8g** of headroom under 250g for the 3
+  recommended capacitors *and all airframe structure* (wing, spars,
+  fuselage tube, motor mount, wiring, adhesives) combined.
 - The wing mass model in `calculations/power_budget.md` puts the foam
   wing **alone** at a minimum of ~59g (900mm span, lowest typical RC
-  foam density) — already ~53g over that ~6.4g of remaining headroom,
+  foam density) — already ~53g over that ~5.8g of remaining headroom,
   before any spar, fuselage, mount, wiring, or adhesive weight is added
   at all.
 - **If this target is pursued later, it'll mean reducing the component

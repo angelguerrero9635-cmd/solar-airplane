@@ -107,8 +107,9 @@
   <text x="1377" y="401" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
 
   <rect x="1265" y="428" width="225" height="40" rx="4" fill="#13253d" stroke="#2c4a6e"/>
-  <text x="1377" y="446" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">5V Regulator</text>
-  <text x="1377" y="460" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
+  <text x="1377" y="444" fill="#e7eef4" font-size="10" font-weight="bold" text-anchor="middle">5V Regulator</text>
+  <text x="1377" y="457" fill="#9fb3c8" font-size="8" text-anchor="middle">Pololu S7V7F5 (step-up/step-down)</text>
+  <text x="1377" y="468" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
 
   <!-- 5V Regulator -> shared FC -->
   <line x1="1310" y1="468" x2="895" y2="558" stroke="#5fb8d1" marker-end="url(#arrow)"/>

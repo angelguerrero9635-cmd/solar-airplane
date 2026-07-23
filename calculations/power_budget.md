@@ -17,8 +17,8 @@ changes — don't hand-edit the results below without re-running it.
 
 - Wingspan: 1.20 m
 - Chord: 0.20 m → wing area ≈ 0.24 m² (24.0 dm²)
-- Estimated AUW: ~333.6–353.6 g (⚠️ estimate, needs a real scale
-  measurement; midpoint 343.6 g used below; predates the wing geometry
+- Estimated AUW: ~334.2–354.2 g (⚠️ estimate, needs a real scale
+  measurement; midpoint 344.2 g used below; predates the wing geometry
   change above, so the unlisted airframe mass this AUW assumes may be
   understated for the larger wing)
 - Airfoil: Clark-Y (classic flat-bottom section, widely used in RC gliders
@@ -32,6 +32,14 @@ changes — don't hand-edit the results below without re-running it.
 > does **not** change `flight_listed_mass_g()` or the 250g headroom
 > below — those already excluded the ACS723s as bench-only gear. See
 > `specs/wiring_diagram.md` and `specs/components.md`.
+>
+> **Update (2026-07-23, later same day):** the 5V Regulator is now
+> identified (Pololu S7V7F5) and weighed (0.6g mfr. spec), and is added
+> to `KNOWN_COMPONENTS_G`. This raises the total/AUW estimate by 0.6g
+> (343.6g → 344.2g midpoint) and **does** change
+> `flight_listed_mass_g()` and the 250g headroom below (243.6g → 244.2g,
+> 6.4g → 5.8g headroom) — unlike the ACS723 removal above, the 5V
+> regulator is a real flight component, not bench-only gear.
 
 ## Weight budget vs. the 250g target (added 2026-07-22)
 
@@ -41,18 +49,19 @@ component/design decisions, not a call to change the current build.
 Script output (`flight_listed_mass_g()`, `weight_budget_headroom_g()`):
 
 ```
-Flight-config listed mass (excl. bench-only gear): 243.6 g
-Headroom under 250g target, before ANY airframe structure: 6.4 g
+Flight-config listed mass (excl. bench-only gear): 244.2 g
+Headroom under 250g target, before ANY airframe structure: 5.8 g
 ```
 
 **If this is pursued later, it'll mean reducing the component list,
 not just building the airframe lighter.** Flight-configuration listed
-components (243.6g — the retired ACS723 current sensors are no longer
-counted at all, see the 2026-07-23 update above) leave only ~6.4g of
-headroom before adding the 5V regulator, the 3 recommended capacitors,
-or *any* airframe structure at all. The "Wing loading vs. span" section below estimates
+components (244.2g — the retired ACS723 current sensors are no longer
+counted at all, and the now-identified/weighed 5V Regulator, 0.6g, is
+now included — see the 2026-07-23 updates above) leave only ~5.8g of
+headroom before adding the 3 recommended capacitors, or *any* airframe
+structure at all. The "Wing loading vs. span" section below estimates
 the foam wing **alone** at a minimum of ~59g (900mm span, lowest
-typical RC foam density) — already ~53g over that 6.4g headroom before
+typical RC foam density) — already ~53g over that 5.8g headroom before
 spars, fuselage, mount, wiring, or adhesives are added.
 
 The two largest single line items in the component list — Solar Cells
@@ -70,8 +79,8 @@ future changes.
 
 ## Wing loading
 
-343.6 g over 24.0 dm² → **~14.3 g/dm²** (range ~13.9–14.7 g/dm² across the
-333.6–353.6 g AUW estimate). Notably lower than the previous SD7037 wing
+344.2 g over 24.0 dm² → **~14.3 g/dm²** (range ~13.9–14.8 g/dm² across the
+334.2–354.2 g AUW estimate). Notably lower than the previous SD7037 wing
 (18.2 dm², ~19.1 g/dm²) — the larger chord (150mm → 200mm) outweighs the
 slightly shorter span (1210mm → 1200mm). Still glider territory, likely
 even lower cruise power requirements relative to weight than before, though
@@ -93,7 +102,7 @@ section (cross-section ≈ 0.7 × thickness × chord — a standard
 engineering rule-of-thumb for airfoil area, not Clark-Y-specific) ×
 foam density × span. "Everything else" (listed components, spars,
 fuselage, mount, wiring, adhesives) is netted out from the current
-343.6g AUW estimate at the current 1200mm span, so the model reproduces
+344.2g AUW estimate at the current 1200mm span, so the model reproduces
 that figure exactly at 1200mm and only the wing-foam portion scales for
 other spans.
 
@@ -107,11 +116,11 @@ treat it as approximate.
 | Span | Area | Wing mass (foam only) | Wing loading |
 |---|---|---|---|
 | 900mm (7-cell floor) | 18.0 dm² | 59–89g | ~17.5–18.0 g/dm² |
-| 1000mm | 20.0 dm² | 66–98g | ~16.2–16.5 g/dm² |
+| 1000mm | 20.0 dm² | 66–98g | ~16.2–16.6 g/dm² |
 | 1100mm | 22.0 dm² | 72–108g | ~15.2–15.3 g/dm² |
 | **1200mm (current)** | **24.0 dm²** | **79–118g** | **~14.3 g/dm²** |
 | 1300mm | 26.0 dm² | 85–128g | ~13.5–13.6 g/dm² |
-| 1500mm | 30.0 dm² | 98–147g | ~12.1–12.4 g/dm² |
+| 1500mm | 30.0 dm² | 98–147g | ~12.1–12.5 g/dm² |
 
 **Corrected conclusion:** a bigger span still gives lower wing loading
 within this realistic foam-density range — the trend from the earlier
@@ -150,7 +159,7 @@ glider" end of the range than the old ~19.1 g/dm² was):
 - At 0.3536 kg: ~17.7–24.8 W
 
 **Working estimate: ~17–24 W to sustain level cruise** (script output at the
-343.6 g midpoint: 17.2–24.1 W).
+344.2 g midpoint: 17.2–24.1 W).
 
 ## Solar output estimate (7-cell string, theoretical)
 

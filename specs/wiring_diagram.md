@@ -64,7 +64,8 @@ BRANCH C — main battery bus
          -> Main Battery — 18650 Li-ion, 2600 mAh, 1S               -- parallel
          -> 5A Current Sensor -> ESC -> Motor (T-Motor M1104 KV7500,
             6x3 prop)                                                -- parallel
-         -> 5V Regulator -> Flight Controller, via the servo rail     -- parallel
+         -> 5V Regulator (Pololu S7V7F5) -> Flight Controller, via the
+            servo rail                                                -- parallel
               -> GPS — BN-880
               -> Receiver — Happymodel EP1 ELRS
               -> Telemetry Radio — 915 MHz
@@ -184,16 +185,23 @@ brownouts — see `logs/test_flights.md`):
   recommended, not yet built.** Addresses the array struggling with
   current spikes even in full sun, consistent with the diode-OR
   clamping behavior. Same type/value guidance as above.
-- **At the 5V Regulator's output (servo rail) — recommended, not yet
-  built.** Regulators generally need local output capacitance for
-  stability and load-transient response; this isn't specific to this
-  build the way the battery/array reasoning is. The servo rail is a
-  textbook case for needing it — servo current draw comes in bursts
-  when they move, a well-known cause of downstream brownouts even with
-  a regulator/BEC upstream — and the consequence here is worse than
-  usual, since this same rail also powers the Flight Controller. Check
-  whether the (still-unspecified) regulator module already has onboard
-  bypass capacitors before assuming it needs more.
+- **At the 5V Regulator (Pololu S7V7F5) — recommended, not yet built,
+  location updated 2026-07-23.** Two distinct reasons for a cap here,
+  now that the regulator is identified:
+  - **At the output (servo rail)** — the original reasoning: regulators
+    generally need local output capacitance for load-transient
+    response, and servo current draw comes in bursts when they move, a
+    well-known cause of downstream brownouts. The consequence here is
+    worse than usual, since this same rail also powers the Flight
+    Controller.
+  - **At the input (VIN)** — Pololu's own datasheet for the S7V7F5
+    calls for a ≥33µF electrolytic (≥16V) here for regulator stability,
+    a separate concern from the output-side reasoning above.
+  The already-selected RLTZ 680µF/16V candidate part comfortably covers
+  either location's requirement — decide whether to install it at VIN,
+  at the output, or both (weight budget is tight, so this is worth a
+  deliberate choice rather than doing both by default). See
+  `specs/components.md`.
 - Avoid tantalum for any of these — reverse-voltage risk given this
   diode topology.
 - **Candidate part confirmed 2026-07-22:** user has RLTZ series DIP
@@ -234,10 +242,12 @@ brownouts — see `logs/test_flights.md`):
   2A current meter) are a separate, current bench-only setup — not the
   same hardware as the retired ACS723s, and not a count/rating
   discrepancy to reconcile.
-- **5V Regulator is still unweighed.** Not yet in `specs/components.md`'s
-  weight table or the AUW estimate — it's a flight component (feeds the
-  FC), so it does need weighing once specced/sourced, unlike the bench-
-  only current sensors above.
+- ~~5V Regulator is still unweighed.~~ **Resolved 2026-07-23** —
+  identified as a Pololu S7V7F5 (5V Step-Up/Step-Down Voltage
+  Regulator), 0.6g mfr. spec, now in `specs/components.md`'s weight
+  table and the AUW estimate. Its buck-**boost** topology (input
+  2.7–11.8V) is why it can hold a 5V output even on Branch C's sub-5V
+  bus, where a buck-only regulator's output would collapse.
 - **Recommended battery/array/regulator capacitors not yet built or
   validated (2026-07-22).** The reasoning is sound (ESR/transient
   response for the battery and array; standard regulator design

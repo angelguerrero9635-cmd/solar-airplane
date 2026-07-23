@@ -39,12 +39,13 @@ design math (kept on record for reference, not as a call to action).
   spars (updated 2026-07-22, was SD7037, 1210mm span, 150mm chord)
 - Carbon fiber tube/rod fuselage, 3D printed motor mount
 - **Wing area:** ~0.24 m² (24.0 dm²)
-- **Estimated AUW:** ~333.6–353.6g (see `calculations/power_budget.md`;
+- **Estimated AUW:** ~334.2–354.2g (see `calculations/power_budget.md`;
   updated for the 7-cell solar string, theoretical pending bench
   confirmation — this estimate predates the 2026-07-22 wing change and
-  hasn't been revisited for it; updated again 2026-07-23 to drop the
-  retired ACS723 current sensors, 3.81g, from the total)
-- **Wing loading:** ~13.9–14.7 g/dm² (sailplane range; lower than the
+  hasn't been revisited for it; updated 2026-07-23 to drop the retired
+  ACS723 current sensors, 3.81g, and again 2026-07-23 to add the
+  now-identified/weighed 5V Regulator, 0.6g)
+- **Wing loading:** ~13.9–14.8 g/dm² (sailplane range; lower than the
   previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
   shorter span)
 - Power path: solar array → 3 independent ideal-diode branches, **not
@@ -75,7 +76,7 @@ design math (kept on record for reference, not as a call to action).
 | Ideal Diode — Branch A | Pololu Power ORing, 2-input OR (solar + main battery, 2nd input planned/not yet wired), → FC VBAT | 1.46 g |
 | Ideal Diode — Branch B | Pololu Ideal Diode Module, → FPV rail | 0.27 g |
 | Ideal Diode — Branch C | Pololu Ideal Diode Module, → main battery bus | 0.27 g |
-| 5V Regulator | Feeds FC via servo rail (Branch C) | TBD |
+| 5V Regulator | Pololu S7V7F5 (step-up/step-down), feeds FC via servo rail (Branch C) | 0.6 g |
 | 5A/2A Current Sensors (bench-only) | ×4 total (2× 5A, 2× 2A), never flown | n/a — no need to weigh |
 | Current Sensors (RETIRED) | SparkFun ACS723, ×3 — not used at all anymore (retired 2026-07-22) | excluded from totals |
 | Capacitor | Electrolytic bulk | 0.7 g |
@@ -153,7 +154,7 @@ update instead.
       cells, Clark-Y wing) isn't being changed to hit this now. Honest
       math is in `calculations/power_budget.md`'s "Weight budget vs. the
       250g target": flight-configuration listed components alone leave
-      only ~6.4g of headroom before any airframe structure is added, and
+      only ~5.8g of headroom before any airframe structure is added, and
       the two biggest levers (Solar Cells 98g, Main Battery 47.1g) are
       also the two most central to the project's mission. Relevant
       whenever future components or design changes are being weighed —
@@ -220,17 +221,25 @@ update instead.
       devices (2× 5A sensor, 2× 2A current meter) are a separate,
       current bench-only setup, not the same hardware and not a
       count/rating discrepancy.
-- [ ] **5V Regulator is unweighed.** Newly documented 2026-07-22, not yet
-      in the ~243.6g listed-components total or the AUW estimate — it's
-      a flight component (feeds the FC), so weigh once specced/sourced.
-      (The 5A/2A bench-only current sensors, by contrast, are confirmed
-      2026-07-23 to never need weighing — none of them fly.)
+- [x] ~~5V Regulator is unweighed.~~ **Resolved 2026-07-23 — identified
+      as a Pololu S7V7F5 (5V Step-Up/Step-Down Voltage Regulator),
+      0.6g mfr. spec (no header pins), now in the ~244.2g
+      listed-components total and the AUW estimate.** Input range
+      2.7–11.8V comfortably covers Branch C's bus (~3.6–4.6V) — its
+      buck-**boost** topology is exactly why it works on a bus that dips
+      below 5V, where a buck-only regulator's output wouldn't hold. One
+      new item this surfaced: Pololu's own spec calls for a ≥33µF/16V+
+      capacitor at the regulator's *input* for stability, distinct from
+      the servo-rail-output capacitor already recommended for transient
+      response — see `specs/components.md` for both. (The 5A/2A
+      bench-only current sensors, by contrast, are confirmed 2026-07-23
+      to never need weighing — none of them fly.)
 - [ ] **The Clark-Y / 1200×200mm wing update (2026-07-22) hasn't been
       re-weighed — and a physics estimate suggests the AUW is probably
       too low.** Wing area and wing loading in this file,
       `specs/components.md`, and `calculations/power_budget.md`/`.py` have
       all been updated for the new geometry, but the ~90–110g unlisted
-      airframe mass estimate (and therefore the ~333.6–353.6g AUW) still
+      airframe mass estimate (and therefore the ~334.2–354.2g AUW) still
       reflects the old SD7037/1210×150mm wing. A larger chord likely means
       more foam and skin material. **Stronger evidence now (2026-07-22):**
       a foam-density-based estimate (`calculations/power_budget.md`'s
