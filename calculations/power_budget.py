@@ -36,9 +36,20 @@ KNOWN_COMPONENTS_G = {
     "capacitor": 0.7,
 }
 
+# Components physically removed before flight (see
+# specs/wiring_diagram.md's "In-flight vs. bench-test instrumentation") -
+# excluded from flight-configuration weight, since the FAA's 250g rule is
+# takeoff weight: everything attached at the moment of flight.
+BENCH_ONLY_COMPONENTS = {"current_sensors"}
+
 # Estimate for airframe structure not individually weighed yet.
 # Replace with a real scale measurement ASAP.
 ESTIMATED_UNLISTED_G = 100.0  # midpoint of 90-110g estimate
+
+# 2026-07-22: hard design goal, not just a nice-to-have - see CLAUDE.md
+# Section 1. US FAA recreational registration exemption for aircraft
+# under this takeoff weight.
+WEIGHT_TARGET_G = 250.0
 
 # --- Cruise power assumptions -------------------------------------------
 W_PER_KG_LOW = 50   # light glider, some parasitic drag from payload
@@ -101,6 +112,24 @@ def total_mass_g():
     return sum(KNOWN_COMPONENTS_G.values()) + ESTIMATED_UNLISTED_G
 
 
+def flight_listed_mass_g():
+    """Listed components minus bench-only gear (see BENCH_ONLY_COMPONENTS) -
+    the portion of the listed-components weight that's actually on the
+    aircraft at takeoff. Excludes airframe structure (wing/spars/fuselage/
+    mount/wiring/adhesives) entirely - see wing_foam_mass_g() for that."""
+    return sum(
+        g
+        for name, g in KNOWN_COMPONENTS_G.items()
+        if name not in BENCH_ONLY_COMPONENTS
+    )
+
+
+def weight_budget_headroom_g():
+    """Grams remaining under WEIGHT_TARGET_G after flight-configuration
+    listed components, before any airframe structure is added at all."""
+    return WEIGHT_TARGET_G - flight_listed_mass_g()
+
+
 def wing_loading_g_dm2(mass_g):
     wing_area_dm2 = WING_AREA_M2 * 100  # 1 m^2 = 100 dm^2
     return mass_g / wing_area_dm2
@@ -123,6 +152,17 @@ def solar_theoretical_power_w(n_cells):
 def main():
     mass_g = total_mass_g()
     print(f"Total estimated mass: {mass_g:.1f} g")
+
+    flight_mass = flight_listed_mass_g()
+    headroom = weight_budget_headroom_g()
+    print(
+        f"Flight-config listed mass (excl. bench-only gear): "
+        f"{flight_mass:.1f} g"
+    )
+    print(
+        f"Headroom under {WEIGHT_TARGET_G:.0f}g target, before ANY "
+        f"airframe structure: {headroom:.1f} g"
+    )
 
     wl = wing_loading_g_dm2(mass_g)
     print(f"Wing loading: {wl:.1f} g/dm^2")

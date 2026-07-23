@@ -160,3 +160,36 @@ Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-m
 - **Estimated AUW: ~337–357 g** (needs confirmation — see open questions in
   `CLAUDE.md`; also doesn't yet account for the newly documented 5V
   regulator / current meters above)
+
+### Weight budget vs. the 250g target (added 2026-07-22)
+
+See `CLAUDE.md` Section 1 for why 250g matters. The honest math:
+
+- Listed components total (247.40g) **minus** the current-sensing
+  hardware that's already documented as bench-test-only (ACS723 ×3,
+  3.81g — see `specs/wiring_diagram.md`) = **~243.6g** of flight-
+  configuration listed weight, *if* that instrumentation is physically
+  removed before flight (the FAA's 250g rule is takeoff weight —
+  everything attached at the moment of flight — so bench-only gear
+  genuinely doesn't count if it's not on the plane).
+- That leaves only **~6.4g** of headroom under 250g for the 5V
+  regulator, the 3 recommended capacitors, *and all airframe structure*
+  (wing, spars, fuselage tube, motor mount, wiring, adhesives)
+  combined.
+- The wing mass model in `calculations/power_budget.md` puts the foam
+  wing **alone** at a minimum of ~59g (900mm span, lowest typical RC
+  foam density) — already ~53g over that ~6.4g of remaining headroom,
+  before any spar, fuselage, mount, wiring, or adhesive weight is added
+  at all.
+- **Conclusion: hitting 250g isn't a trim-the-airframe problem, it's a
+  reduce-the-component-list problem.** The current listed components
+  alone, even excluding bench-only gear, leave no realistic room for a
+  flyable airframe under this target. The two largest single line
+  items — Solar Cells (98g) and Main Battery (47.1g) — are also the
+  two most central to the project's actual mission (solar charging,
+  energy storage), so any reduction there is a real tradeoff, not a
+  free win. This needs a deliberate decision about what to cut or
+  substitute, not just tighter construction — see open questions in
+  `CLAUDE.md`.
+
+Sources: [FAA Recreational Flyers & Community-Based Organizations](https://www.faa.gov/uas/recreational_flyers), [Sub 250g Regulations — FPV Freedom Coalition](https://fpvfc.org/sub-250g-regulations), search conducted 2026-07-22.
