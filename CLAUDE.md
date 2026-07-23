@@ -201,26 +201,26 @@ update instead.
       stands. No change needed to the AUW total; the two figures simply
       aren't the same kind of number (spec-sheet nominal vs. this unit's
       actual scale weight).
-- [ ] ~~ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).~~
-      **Re-opened 2026-07-23 — not reversed, but the premise behind
-      "accepted as-is" needs a second look.** Original resolution:
-      accept as-is, since reaching ~5V would need improved array
-      efficiency at open circuit, and the "main battery disconnected"
-      fault scenario was assumed rare. **New info undermines that
-      premise:** the battery's own BMS disconnects it automatically
-      every time it hits 4.2V (full charge) while solar is still
-      charging it — a normal, recurring event on a sunny day, not a
-      rare fault. If the motor happens to be idle at that instant (light
-      avionics-only load), the array runs closer to its lightly-loaded
-      voltage than the "sub-4V under load" assumption pictured. Measured
-      Voc (4.57V) still has ~0.4V margin below 5V even unloaded, so the
-      conclusion may still hold — but re-confirm rather than treat this
-      as settled. **Partial, inconclusive data point (2026-07-23):** a
-      bench test with the battery topped off (not contributing) and no
-      motor load showed array voltage at 4.46–4.53V — comfortably under
-      5V — but this wasn't the specific scenario in question (motor idle
-      + battery genuinely BMS-disconnected simultaneously); see
-      `logs/test_flights.md`. See `specs/components.md`.
+- [x] ~~ESC's 5V max rating vs. array's theoretical Voc.~~ **Re-resolved
+      2026-07-23 — accepted as-is, corrected topology understanding.**
+      An earlier pass reopened this over the BMS-disconnect finding,
+      worrying that with the battery disconnected the ESC would see the
+      array's own voltage (up near Voc) directly. **That premise was
+      wrong: the ESC sits on the bus side of Branch C's diode module,
+      never the raw panel side, battery connected or not.** Bench data
+      (`logs/test_flights.md`, 2026-07-23) already shows a real gap
+      between panel and bus voltage even under light, no-motor load
+      (panel 4.53V vs. bus 4.25V; panel 4.46V vs. bus 4.20V) — and that
+      gap grows larger under motor load, not smaller. So the ESC's
+      actual exposure has more margin below 5V than the array's own Voc
+      figures suggested, in every load condition, not just the "any
+      load connected" case the original reasoning pictured. **Decision:
+      not a concern for the current 7-cell design.** Revisit only if
+      array efficiency improves (closing the 4.57V measured vs.
+      ~5.0–5.1V theoretical Voc gap) or cell count goes to 8
+      (theoretical Voc ~5.76V) — both would raise panel (and
+      correspondingly bus) voltage closer to the ESC's ceiling. See
+      `specs/components.md`.
 - [x] ~~Branch A (VBAT voltage-sense tap) is undecided.~~ **Decided in
       concept, 2026-07-23** — not a plain Ideal Diode Module like
       Branches B/C after all. Branch A's Ideal Diode Pair becomes a true
