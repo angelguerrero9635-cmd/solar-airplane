@@ -57,6 +57,13 @@ concept, not yet physically built)
        solar-only tap and directly resolves the "no in-flight battery
        monitoring" gap flagged below.
 
+       Note (2026-07-23): the main battery's BMS actively disconnects it
+       above 4.2V (see `specs/components.md`). When that happens, this
+       input simply goes open — the OR-ing correctly falls back to
+       whatever solar provides, with no special handling needed. Worth
+       knowing so a sudden VBAT reading change right at a BMS disconnect
+       isn't mistaken for a wiring fault.
+
 BRANCH B — FPV rail
   Ideal Diode Module #1 (Pololu Ideal Diode Module)
     -> 2A Current Meter

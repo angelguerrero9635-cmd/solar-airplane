@@ -110,6 +110,19 @@ direct to the battery/array negative bus, not routed through the ESC)
 "brownout" reference in this file as "the system (ESC and/or FC,
 indistinguishable) shut down," not a confirmed ESC-specific failure.
 
+**Update (2026-07-23, later):** the FC ground isolation fix described
+above is now **built** — the FC has its own independent ground return,
+no longer routed through the ESC — so a *future* re-test of this
+brownout scenario can distinguish ESC vs. FC. It doesn't retroactively
+explain what happened in this entry, though, and there's now a
+**4th possible confound for this entry specifically**: the main
+battery's BMS disconnects it automatically above 4.2V (confirmed
+2026-07-23), and this entry didn't record battery SOC/voltage at the
+start. If the pack was near full charge during this test, the BMS may
+have silently dropped it out mid-test, removing its buffering right
+when it may have been needed — indistinguishable, after the fact, from
+an ESC or FC failure. Log battery SOC/voltage explicitly in the re-test.
+
 ---
 
 ## 2026-07-22 — Motor-load test, solar-only (no batteries)

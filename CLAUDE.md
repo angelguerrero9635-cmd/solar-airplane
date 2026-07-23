@@ -158,6 +158,17 @@ update instead.
   distinguish these — but it doesn't retroactively resolve which one
   was happening in the existing data. See `specs/wiring_diagram.md`'s
   "Negative/return path" section.
+- **The main battery's BMS disconnects it above 4.2V (confirmed
+  2026-07-23) — a 4th possible confound for the existing brownout
+  data.** This is an active protective cutoff, not just a voltage
+  ceiling: whenever solar charges the pack to full while still
+  connected, the BMS opens the connection entirely. None of the
+  existing brownout bench entries in `logs/test_flights.md` recorded
+  battery SOC/voltage at the time of failure, so it's not ruled out
+  that some observed "brownouts" were actually the battery silently
+  dropping out mid-test (removing its buffering right when it may have
+  been needed), rather than the ESC, the FC, or ground bounce. Log
+  battery SOC/voltage in future bench tests to rule this in or out.
 
 ## 5. Open questions / next steps
 
@@ -181,16 +192,21 @@ update instead.
       stands. No change needed to the AUW total; the two figures simply
       aren't the same kind of number (spec-sheet nominal vs. this unit's
       actual scale weight).
-- [x] ~~ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).~~
-      **Resolved 2026-07-23 — accepted as-is, no protection added.**
-      Decision: the array would need improved cell efficiency to reach
-      ~5V at true open circuit, and with any load connected (the actual
-      operating condition, since the fault scenario requires the main
-      battery to be disconnected while the array stays connected to
-      Branch C) voltage should never get that high — the main bus is
-      expected to run **sub-4V under load**, comfortably below the
-      ESC's 5V max. No clamp/TVS protection planned; revisit only if a
-      real overvoltage event is observed.
+- [ ] ~~ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).~~
+      **Re-opened 2026-07-23 — not reversed, but the premise behind
+      "accepted as-is" needs a second look.** Original resolution:
+      accept as-is, since reaching ~5V would need improved array
+      efficiency at open circuit, and the "main battery disconnected"
+      fault scenario was assumed rare. **New info undermines that
+      premise:** the battery's own BMS disconnects it automatically
+      every time it hits 4.2V (full charge) while solar is still
+      charging it — a normal, recurring event on a sunny day, not a
+      rare fault. If the motor happens to be idle at that instant (light
+      avionics-only load), the array runs closer to its lightly-loaded
+      voltage than the "sub-4V under load" assumption pictured. Measured
+      Voc (4.57V) still has ~0.4V margin below 5V even unloaded, so the
+      conclusion may still hold — but re-confirm rather than treat this
+      as settled. See `specs/components.md`.
 - [x] ~~Branch A (VBAT voltage-sense tap) is undecided.~~ **Decided in
       concept, 2026-07-23** — not a plain Ideal Diode Module like
       Branches B/C after all. Branch A's Ideal Diode Pair becomes a true

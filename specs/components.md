@@ -34,7 +34,7 @@ Last updated: 2026-07-23
 
 | Component | Spec | Weight | Voltage range | Notes |
 |---|---|---|---|---|
-| Main Battery | 18650 Li-ion, 2600 mAh, 1S | 47.1 g | ~2.5–3.0V (cutoff) to 4.2V (full charge), nominal 3.6–3.7V | Standard Li-ion figures. On Branch C — resting voltage → SOC curve in `calculations/battery_soc.md` |
+| Main Battery | 18650 Li-ion, 2600 mAh, 1S | 47.1 g | ~2.5–3.0V (cutoff) to 4.2V (full charge), nominal 3.6–3.7V | Standard Li-ion figures. On Branch C — resting voltage → SOC curve in `calculations/battery_soc.md`. **Confirmed 2026-07-23: the pack's BMS actively disconnects the battery above 4.2V** — this is a protective cutoff, not just a voltage ceiling the cell happens to sit under. Whenever solar charging pushes the pack to full while still connected, the BMS opens the connection entirely. See "Voltage limits & compatibility" below for why this matters more than it sounds. |
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g | ~3.0–3.3V (cutoff) to 4.2V (full charge), nominal 3.7V | Standard 1S LiPo figures. On Branch B — fed from solar via a dedicated ideal diode + 2A current meter, in parallel with the FPV camera/VTX. **Not fully isolated from solar the way earlier docs implied** — see `specs/wiring_diagram.md`. |
 | Solar Cells | SunPower C60 × 7 (series), Voc≈5.0V/Vmp≈4.06V theoretical, up to 2.4A each nameplate | 98 g total (14 g each) | Self-generates ~4.4–5.1V (Voc); see `specs/datasheets/sunpower_c60.md` | Not a "rated input" component — it's the source. **Updated 2026-07-22 from 6→7 cells per decisions/0001 — partially bench-confirmed 2026-07-22: measured Voc 4.57V, ~9–11% below the ~5.0–5.1V theoretical (see `logs/test_flights.md`). True Vmp and motor-load behavior still pending — see CLAUDE.md open questions.** |
 | Ideal Diode — Branch A | Pololu Power ORing Ideal Diode Pair (6A), used as a true 2-input OR | 1.46 g | Rated 4–60V input | Input 1: solar array (existing). Input 2: main battery (**planned 2026-07-23, not yet wired**). Output → Flight Controller VBAT pin. Gives a contextually meaningful in-flight voltage reading — solar voltage when solar is dominant, battery voltage when running on battery power. See `specs/wiring_diagram.md`. |
@@ -115,6 +115,22 @@ away:
   that high; the main bus is expected to run **sub-4V under load**,
   comfortably below the ESC's max. No clamp/TVS protection planned;
   revisit only if a real overvoltage event is observed.
+  **⚠️ Worth reconsidering (2026-07-23) — flagging, not reversing:** the
+  reasoning above treated "main battery disconnected while array stays
+  connected" as a rare fault scenario. It's confirmed **not** rare: the
+  battery's own BMS disconnects it automatically every time it reaches
+  4.2V (full charge) while solar is still charging it — a normal,
+  recurring event on any good sunny day, not an edge case. At the
+  instant of disconnect, if the motor happens to be idle (light load —
+  just FC/avionics draw), the array would be running under a much
+  lighter load than "the actual operating condition" this decision
+  assumed, pushing its voltage closer to the higher, lightly-loaded end
+  of its range — closer to the "any load connected" assumption's edge
+  case than routine operation. This doesn't necessarily change the
+  conclusion (measured Voc still has ~0.4V margin below 5V even
+  unloaded), but the *premise* that this is a rare fault no longer
+  holds — worth a second look, not just accepting the original
+  reasoning unchanged.
 - **ESC weight discrepancy — resolved 2026-07-23, measured weight is
   authoritative.** The E-Power BE001 spec sheet states 7.3g, but that's
   the manufacturer's nominal figure, not a weighing of the actual unit

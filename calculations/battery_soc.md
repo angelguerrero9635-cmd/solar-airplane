@@ -1,6 +1,6 @@
 # Battery State of Charge (SOC) — Voltage Curve & Coulomb Counting
 
-Last updated: 2026-07-21. Companion script: `battery_soc.py`.
+Last updated: 2026-07-23. Companion script: `battery_soc.py`.
 
 ## Voltage-based lookup (resting voltage only, no load)
 
@@ -20,15 +20,32 @@ Last updated: 2026-07-21. Companion script: `battery_soc.py`.
   is imprecise there.
 - Must be measured at rest (no load for a few minutes) — under load, internal
   resistance sag makes the pack read lower than true SOC.
+- **The 4.20V/100% row is an active cutoff, not a soft ceiling (confirmed
+  2026-07-23):** the pack's BMS actively disconnects the battery above 4.2V.
+  Under solar charging, once the pack reaches full, it doesn't just stop
+  accepting charge — it drops off the bus entirely until voltage falls back
+  under the BMS's reconnect threshold (not yet characterized). Any SOC
+  logic (voltage-lookup or coulomb-counting) needs to account for the
+  battery being able to disappear from the circuit at 100% SOC, not just
+  plateau there — see `specs/components.md` and `CLAUDE.md`'s open
+  questions for the operational implications (this affects the ESC
+  overvoltage-margin question and is a new possible confound in past
+  brownout bench data).
 
 ## Better option: coulomb counting
 
-The project already has 3× SparkFun ACS723 current sensors on the power
-path. These can integrate current over time (∫I dt) for a materially more
-accurate SOC estimate than voltage lookup alone, especially useful given how
-flat the voltage curve is mid-range.
+**⚠️ Stale as written (flagged 2026-07-23, not resolved):** this section
+originally assumed the 3 SparkFun ACS723 current sensors as the basis for
+coulomb counting. Those are retired — not used at all anymore (see
+`CLAUDE.md` §5, 2026-07-22) — and even the current bench-only current
+sensors can't be logged in flight, since the FC has no free ADC channel
+beyond VBAT (`CLAUDE.md` §4). Coulomb counting as described below would
+need either a different FC/logger with a spare current-sense ADC input, or
+a different approach entirely — this is the same gap already flagged in
+`docs/roadmap.md`'s Phase 2 item, not a new one, just repeated here since
+this file describes the same plan.
 
-**Not yet implemented — see open questions in CLAUDE.md.**
-Rough plan: log current sensor readings at a fixed interval (e.g. 1 Hz) from
-the flight controller or a logging script, integrate to get Ah consumed/
-gained, and subtract/add from the 2600 mAh nominal capacity.
+Rough plan (unchanged, still needs the hardware gap above resolved first):
+log current sensor readings at a fixed interval (e.g. 1 Hz) from the flight
+controller or a logging script, integrate to get Ah consumed/gained, and
+subtract/add from the 2600 mAh nominal capacity.
