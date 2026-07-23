@@ -101,17 +101,20 @@ away:
   motor generally just yields lower RPM/thrust than the motor's
   potential rather than damage, but the actual achievable thrust at 1S
   hasn't been separately verified against this rating.
-- **ESC's 5V max rating has little margin above the array's theoretical
-  Voc (2026-07-22).** The E-Power BE001's own spec sheet states "Max
-  Vol: 1S, 5V." The 7-cell array's theoretical Voc is ~5.0–5.1V — right
-  at or slightly above that 5V ceiling — though the *measured* Voc
-  (4.57V, see `logs/test_flights.md`) has more comfortable margin. This
-  matters specifically in a fault scenario where the main battery is
-  disconnected but the array is still connected to Branch C: the ESC
-  would then see array voltage directly (not clamped by the battery),
-  and if that's near/above theoretical Voc, it's close to or past the
-  ESC's stated max. Not confirmed as an actual problem — just flagging
-  the numbers are close enough to be worth checking, not assuming safe.
+- **ESC's 5V max rating vs. the array's theoretical Voc — accepted
+  as-is, resolved 2026-07-23, no protection added.** The E-Power
+  BE001's own spec sheet states "Max Vol: 1S, 5V." The 7-cell array's
+  theoretical Voc is ~5.0–5.1V — right at or slightly above that 5V
+  ceiling — though the *measured* Voc (4.57V, see `logs/test_flights.md`)
+  has more comfortable margin. This matters specifically in a fault
+  scenario where the main battery is disconnected but the array is
+  still connected to Branch C, so the ESC sees array voltage directly
+  (not clamped by the battery). **Decision:** reaching ~5V would need
+  improved array efficiency at true open circuit, and with any load
+  connected — the actual operating condition — voltage should never get
+  that high; the main bus is expected to run **sub-4V under load**,
+  comfortably below the ESC's max. No clamp/TVS protection planned;
+  revisit only if a real overvoltage event is observed.
 - **ESC weight discrepancy (2026-07-22).** The E-Power BE001 spec sheet
   states 7.3g, but this table's existing figure (5.07g) was already
   recorded before the exact model was identified — unclear which is the

@@ -164,13 +164,16 @@ update instead.
       file/`specs/components.md` already had 5.07g recorded before the
       model was known. Not reconciled — reweigh the actual unit to
       confirm which figure is real before trusting the AUW total.
-- [ ] **ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).**
-      The E-Power BE001 is rated "1S, 5V max." The array's theoretical
-      Voc (~5.0–5.1V) is right at/above that in a fault scenario (main
-      battery disconnected, array still connected to Branch C) — though
-      the *measured* Voc (4.57V) has more margin. Not confirmed as an
-      actual problem, just close enough to check rather than assume
-      safe — see `specs/components.md`.
+- [x] ~~ESC's 5V max rating vs. array's theoretical Voc (2026-07-22).~~
+      **Resolved 2026-07-23 — accepted as-is, no protection added.**
+      Decision: the array would need improved cell efficiency to reach
+      ~5V at true open circuit, and with any load connected (the actual
+      operating condition, since the fault scenario requires the main
+      battery to be disconnected while the array stays connected to
+      Branch C) voltage should never get that high — the main bus is
+      expected to run **sub-4V under load**, comfortably below the
+      ESC's 5V max. No clamp/TVS protection planned; revisit only if a
+      real overvoltage event is observed.
 - [x] ~~Branch A (VBAT voltage-sense tap) is undecided.~~ **Decided in
       concept, 2026-07-23** — not a plain Ideal Diode Module like
       Branches B/C after all. Branch A's Ideal Diode Pair becomes a true
@@ -277,8 +280,15 @@ update instead.
       unvalidated. Also check whether the regulator module already has
       onboard bypass caps before assuming it needs more, and observe
       correct polarity when installing (these are polarized parts).
-- [ ] Decide whether an MPPT/buck stage is needed long-term vs. static
-      series-cell matching
+- [x] ~~Decide whether an MPPT/buck stage is needed long-term vs. static
+      series-cell matching.~~ **Resolved 2026-07-23 — sticking with
+      static series-cell matching, no MPPT/buck stage for this design.**
+      The 7-cell string's bench performance so far (much smaller load
+      sag than the 6-cell baseline) supports matching solar output to
+      bus load this way; the added weight/complexity/cost of a real
+      MPPT stage isn't justified for this design. Revisit only if future
+      bench data (true Vmp, motor-load test) shows the static match
+      falling short.
 - [ ] **Log a real bench test with current-sensor data** to
       `logs/test_flights.md` — current-sensor readings are bench-only
       (see Section 4); a real *test flight* will only yield the single

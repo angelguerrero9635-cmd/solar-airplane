@@ -80,3 +80,15 @@ solar-only — expected, since batteries exist in the real flight config
 specifically for this reason, but worth having confirmed. Status still
 stays "pending real-world measurement to confirm" — a true Vmp/voltage
 measurement under motor load is still the missing piece.
+
+## Post-decision update (2026-07-23) — Option 1 (MPPT/buck) ruled out
+
+The "if 7 cells doesn't meaningfully close the gap, escalate to Option 1
+(MPPT/buck stage)" contingency above is resolved: **sticking with
+static series-cell matching (Option 2) for this design, no MPPT/buck
+stage.** The 7-cell string's bench results so far (smaller load sag than
+the 6-cell baseline) support matching solar output to bus load this way,
+and the added weight/complexity/cost of a real MPPT stage isn't
+justified for this design. This is a design decision, not a new
+measurement — the "pending real-world measurement to confirm" status
+above (true Vmp, motor-load voltage) is unaffected and still open.
