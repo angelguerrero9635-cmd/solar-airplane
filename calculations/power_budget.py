@@ -50,6 +50,52 @@ CELL_VMP = 0.58
 CELL_IMP = 5.9  # amps, per string (series doesn't change current)
 N_CELLS_SERIES = 7  # update as the string is modified; see decisions/0001-cell-series-count.md
 
+# --- Wing mass vs. span sensitivity (chord fixed) -------------------------
+# 2026-07-22: estimate, NOT measured. Models foam-wing-only mass so wing
+# loading can be recomputed for candidate spans without holding AUW
+# artificially constant (that was a real error in an earlier chat-only
+# version of this analysis - see calculations/power_budget.md).
+#
+# Sources: EPP foam density 20-30 kg/m^3 is typical for RC use (lighter end
+# preferred, since it directly lowers wing loading - same priority as this
+# project). Clark-Y thickness ratio (11.7% of chord) is a well-established
+# figure. AIRFOIL_AREA_COEFFICIENT is a standard engineering rule-of-thumb
+# for airfoil cross-section area (~0.7 x t_max x chord) - NOT a Clark-Y-
+# specific figure, treat as approximate.
+AIRFOIL_THICKNESS_RATIO = 0.117
+AIRFOIL_AREA_COEFFICIENT = 0.7
+FOAM_DENSITY_KG_M3_LOW = 20
+FOAM_DENSITY_KG_M3_HIGH = 30
+
+
+def wing_foam_mass_g(span_m, chord_m, density_kg_m3):
+    """Estimated foam-only wing mass (g), assuming a solid foam core with a
+    constant airfoil section along the span (untapered). Does NOT include
+    spars, fuselage, mount, wiring, or adhesives - see non_wing_mass_g()."""
+    t_max_m = AIRFOIL_THICKNESS_RATIO * chord_m
+    cross_section_area_m2 = AIRFOIL_AREA_COEFFICIENT * t_max_m * chord_m
+    volume_m3 = cross_section_area_m2 * span_m
+    return volume_m3 * density_kg_m3 * 1000  # kg -> g
+
+
+def non_wing_mass_g(density_kg_m3):
+    """'Everything except the foam wing' (listed components + spars +
+    fuselage + mount + wiring + adhesives), netted out from the current
+    documented AUW estimate at the current WINGSPAN_M/CHORD_M so this model
+    reproduces that figure at the current span. Not an independent
+    measurement - inherits any error in the current AUW estimate."""
+    current_wing = wing_foam_mass_g(WINGSPAN_M, CHORD_M, density_kg_m3)
+    return total_mass_g() - current_wing
+
+
+def wing_loading_by_span(span_m, density_kg_m3, chord_m=CHORD_M):
+    """Returns (total_mass_g, wing_mass_g, area_dm2, wing_loading_g_dm2) for
+    a candidate span at the given foam density, holding chord fixed."""
+    wing_mass = wing_foam_mass_g(span_m, chord_m, density_kg_m3)
+    total = non_wing_mass_g(density_kg_m3) + wing_mass
+    area_dm2 = span_m * chord_m * 100
+    return total, wing_mass, area_dm2, total / area_dm2
+
 
 def total_mass_g():
     return sum(KNOWN_COMPONENTS_G.values()) + ESTIMATED_UNLISTED_G
@@ -90,6 +136,25 @@ def main():
         print(
             f"{n}-cell string: Voc={voc:.2f}V  Vmp={vmp:.2f}V  "
             f"theoretical Pmax={p:.1f}W (at true Vmp, MPPT-matched)"
+        )
+
+    print(
+        "\nWing loading vs. span (chord fixed at "
+        f"{CHORD_M * 1000:.0f}mm) - foam density {FOAM_DENSITY_KG_M3_LOW}-"
+        f"{FOAM_DENSITY_KG_M3_HIGH} kg/m^3, ESTIMATE not measured:"
+    )
+    for span_mm in (900, 1000, 1100, 1200, 1300, 1500):
+        span_m = span_mm / 1000
+        _, wing_low, area_dm2, wl_low = wing_loading_by_span(
+            span_m, FOAM_DENSITY_KG_M3_LOW
+        )
+        total_high, wing_high, _, wl_high = wing_loading_by_span(
+            span_m, FOAM_DENSITY_KG_M3_HIGH
+        )
+        print(
+            f"  {span_mm}mm: area={area_dm2:.1f}dm^2  "
+            f"wing mass={wing_low:.1f}-{wing_high:.1f}g  "
+            f"wing loading={wl_low:.1f}-{wl_high:.1f} g/dm^2"
         )
 
 

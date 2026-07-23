@@ -34,6 +34,65 @@ even lower cruise power requirements relative to weight than before, though
 that also assumes the airframe mass doesn't grow proportionally with the
 extra wing area.
 
+## Wing loading vs. span, chord fixed at 200mm (2026-07-22, estimate)
+
+Prompted by a question about whether a smaller span (down to ~900mm,
+the minimum needed to fit 7 SunPower C60 cells at 125mm each) would be
+better. An earlier chat-only version of this analysis held AUW constant
+across spans — that was wrong, since a bigger span at fixed chord means
+more foam wing (and more spar length), so AUW should scale with span
+too. This section corrects that, using `power_budget.py`'s
+`wing_loading_by_span()`.
+
+**Method:** models the *foam wing alone* as a solid, untapered airfoil
+section (cross-section ≈ 0.7 × thickness × chord — a standard
+engineering rule-of-thumb for airfoil area, not Clark-Y-specific) ×
+foam density × span. "Everything else" (listed components, spars,
+fuselage, mount, wiring, adhesives) is netted out from the current
+347.4g AUW estimate at the current 1200mm span, so the model reproduces
+that figure exactly at 1200mm and only the wing-foam portion scales for
+other spans.
+
+**Sources:** EPP foam density 20–30 kg/m³ is typical for RC use (lighter
+end generally preferred — directly lowers wing loading, same priority
+this project already has). Clark-Y thickness ratio (11.7% of chord) is
+a well-established figure. The 0.7 area coefficient is a general
+airfoil-shape approximation, not sourced specifically for Clark-Y —
+treat it as approximate.
+
+| Span | Area | Wing mass (foam only) | Wing loading |
+|---|---|---|---|
+| 900mm (7-cell floor) | 18.0 dm² | 59–89g | ~17.7–18.2 g/dm² |
+| 1000mm | 20.0 dm² | 66–98g | ~16.4–16.7 g/dm² |
+| 1100mm | 22.0 dm² | 72–108g | ~15.3–15.5 g/dm² |
+| **1200mm (current)** | **24.0 dm²** | **79–118g** | **~14.5 g/dm²** |
+| 1300mm | 26.0 dm² | 85–128g | ~13.6–13.7 g/dm² |
+| 1500mm | 30.0 dm² | 98–147g | ~12.2–12.6 g/dm² |
+
+**Corrected conclusion:** a bigger span still gives lower wing loading
+within this realistic foam-density range — the trend from the earlier
+(flawed) analysis was directionally right — but the improvement is more
+modest than a constant-AUW comparison suggested, since part of the area
+gain is offset by added wing weight. Going down to the 900mm floor is
+somewhat less costly than the flawed analysis implied, and going bigger
+than 1200mm is somewhat less beneficial.
+
+**Important cross-check this surfaced:** at the current 1200mm span,
+this model's foam-only wing mass estimate (79–118g) is comparable to
+or *exceeds* the entire currently-documented "~90–110g estimated
+unlisted mass" in `specs/components.md` — which is supposed to cover
+the wing **and** spars, fuselage tube, motor mount, wiring, and
+adhesives combined, not just the wing. That leaves little to nothing
+for everything else in that bucket, which can't be right. This is a
+concrete, physics-based reason (not just a vague suspicion) to believe
+the current AUW estimate under-counts wing weight for the Clark-Y wing
+— reinforcing the open question already flagged about this, not a new
+one. Possible explanations: the actual build uses lighter/thinner foam
+or a lightened (non-solid, e.g. ribbed) structure rather than a solid
+block, the area-coefficient approximation runs a bit high for the
+actual shape, or the AUW estimate genuinely needs revising upward. Only
+a real scale weight of the actual wing resolves this.
+
 ## Estimated cruise power
 
 Using **50–70 W/kg** for a light glider airframe with some non-aerodynamic

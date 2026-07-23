@@ -159,12 +159,20 @@ update instead.
       documented 2026-07-22, not yet in the ~247g listed-components total
       or the AUW estimate — weigh once specced/sourced.
 - [ ] **The Clark-Y / 1200×200mm wing update (2026-07-22) hasn't been
-      re-weighed.** Wing area and wing loading in this file,
+      re-weighed — and a physics estimate suggests the AUW is probably
+      too low.** Wing area and wing loading in this file,
       `specs/components.md`, and `calculations/power_budget.md`/`.py` have
       all been updated for the new geometry, but the ~90–110g unlisted
       airframe mass estimate (and therefore the ~337–357g AUW) still
       reflects the old SD7037/1210×150mm wing. A larger chord likely means
-      more foam and skin material — confirm real weight once built.
+      more foam and skin material. **Stronger evidence now (2026-07-22):**
+      a foam-density-based estimate (`calculations/power_budget.md`'s
+      "Wing loading vs. span" section) puts the foam wing *alone* at
+      ~79–118g at the current span — comparable to or more than the
+      entire 90–110g bucket that's supposed to also cover spars,
+      fuselage, mount, wiring, and adhesives. Confirm real weight once
+      built — this isn't just a stale estimate anymore, there's a
+      concrete reason to think it's genuinely too low.
 - [ ] **The 6→7 cell update is partially bench-confirmed (2026-07-22),
       not fully.** `calculations/power_budget.py`/`.md`, `specs/components.md`,
       and this file's component table were updated to reflect 7 cells and
