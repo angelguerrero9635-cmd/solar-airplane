@@ -211,12 +211,20 @@ brownouts — see `logs/test_flights.md`):
   "tentative, may be replaced with a plain diode module" as earlier
   drafts of this doc said. What's still outstanding is purely physical:
   the second input wire (main battery -> diode pair) doesn't exist yet.
-- **Branch A power vs. sense.** Not confirmed whether the FC's VBAT pin,
-  in this wiring, only feeds the FC's voltage-sense ADC, or also
-  supplies the FC's operating power (VBAT pads are dual-purpose power +
-  sense on many flight controllers). If it's also a power path, Branch A
-  isn't purely instrumentation. Unaffected by the 2-input OR change —
-  still open either way.
+- ~~**Branch A power vs. sense.**~~ **Resolved 2026-07-23:** the F405
+  NAVI's BAT pad is a shared power+sense pad by design — its onboard 5V
+  (servo) and 9V (VTX) BECs are meant to draw from it, alongside an
+  onboard 120A current sensor (product specs, 2026-07-23; the official
+  manual PDF itself returns 403 through this sandbox's network policy,
+  same class of block seen with Amazon links, so this relies on
+  consistent specs across multiple product listings rather than the
+  primary-source PDF). In practice, though, Branch A only feeds VBAT
+  ~4.4–4.6V — below the 12–30V those onboard BECs need, and below the
+  5V/9V they're supposed to output, which a buck regulator physically
+  cannot do. So the pad is power+sense *by design*, but **functions as
+  sense-only in this build** — real FC power comes from the separate
+  external 5V Regulator on Branch C via the servo rail (already
+  documented above), not from VBAT.
 - ~~Current-sensor count/type doesn't reconcile with
   `specs/components.md`.~~ **Resolved 2026-07-23:** the original 3
   SparkFun ACS723 breakouts are retired, not used at all anymore. The 4

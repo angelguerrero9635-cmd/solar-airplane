@@ -178,9 +178,17 @@ update instead.
       battery (**new — planned, not yet physically wired**), Output =
       FC VBAT pin. Gives a contextually meaningful in-flight reading —
       solar voltage when solar is dominant, battery voltage when running
-      on battery power. Still open: whether this VBAT connection is
-      purely a sense tap or also delivers power to the FC (unaffected by
-      the 2-input change). See `specs/wiring_diagram.md`.
+      on battery power. **Sense-vs-power question resolved 2026-07-23:**
+      the F405 NAVI's BAT pad is a shared power+sense input by design
+      (onboard 5V/5A servo BEC and 9V/2A VTX BEC both draw from it,
+      alongside an onboard 120A current sensor — product specs,
+      2026-07-23). But a buck regulator can't output more than it's
+      fed, and Branch A only feeds VBAT ~4.4–4.6V — below what those
+      onboard BECs need and below their own 5V/9V outputs. So in this
+      build, Branch A functions as **sense-only in practice** (not by
+      pad design) — real FC power comes from the separate external 5V
+      Regulator on Branch C via the servo rail, not from VBAT. See
+      `specs/wiring_diagram.md`.
 - [ ] **Physically wire Branch A's new main-battery input (2026-07-23).**
       Decided in concept (see above), not yet built — the second input
       wire (main battery positive → Ideal Diode Pair's second input)

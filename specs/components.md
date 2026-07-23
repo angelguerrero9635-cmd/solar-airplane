@@ -69,6 +69,20 @@ away:
   Branch A's *one* reading actually represents is being addressed
   separately — see the planned 2-input OR-ing change in
   `specs/wiring_diagram.md`.
+- **VBAT is power+sense by design, but sense-only in practice
+  (resolved 2026-07-23).** The F405 NAVI's BAT pad is a shared
+  power+sense input architecturally — its onboard 5V/5A servo BEC and
+  9V/2A VTX BEC are meant to draw from it, alongside an onboard 120A
+  current sensor (product specs; the manual PDF itself 403s through
+  this sandbox's network policy, so this leans on consistent specs
+  across multiple listings rather than the primary source). Since
+  Branch A only feeds it ~4.4–4.6V — below the 12–30V those BECs need,
+  and below the 5V/9V they output, which a buck regulator can't do —
+  the pad can't actually deliver operating power here. This build
+  already gets FC power from the separate external 5V Regulator on
+  Branch C via the servo rail, so this doesn't change anything about
+  the physical build, just resolves the "is Branch A purely
+  instrumentation" question: yes, in this build, it is.
 - **The array's operating voltage sits close to the ideal diodes' rated
   floor.** All 3 ideal-diode devices (Branches A/B/C) are Pololu parts
   rated for a **4–60V** input range. The array's measured Voc (4.57V) and
@@ -147,7 +161,7 @@ spec sheet/packaging, 2026-07-22). The two recommended capacitors
 (battery, array) are marked "TBD" rather than "Unspecified" since
 they're not built yet at all, not just missing a model number.
 
-Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650), E-Power 1S 5A ESC (BE001) product spec sheet/packaging photo (2026-07-22).
+Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-motor-m1104-1104-7500kv-fpv-drone-motor-blue), [ATOMRC F405 NAVI manual — Manuals+](https://manuals.plus/m/f811e58145346816d35c9be11b74af1c32fead33f5805c4112f09a257ae97186), [BN-880 GNSS Module + Compass Datasheet](https://images-na.ssl-images-amazon.com/images/I/81xnOf7jqyL.pdf), [Happymodel EP1 receiver](https://www.happymodel.cn/index.php/2022/09/01/happymodel-ep1-dual-receiver-true-diversity-2-4ghz-expresslrs-rx/), [AKK BA3 AIO camera/VTX](https://www.akktek.com/akk-ba3.html), [Pololu Power ORing Ideal Diode Pair, 4-60V, 6A](https://www.pololu.com/product/5398), [Pololu Ideal Diode Reverse Voltage Protector family](https://www.pololu.com/category/329/reverse-voltage-protection-and-ideal-diodes), [SparkFun ACS723 Current Sensor Breakout Hookup Guide](https://learn.sparkfun.com/tutorials/current-sensor-breakout-acs723-hookup-guide/all), [DM-S0020 servo listings — Amazon](https://www.amazon.com/Geekstory-DM-S0020-Degree-Connector-4-8V-6V/dp/B0DG5GGLQB), [18650 Li-ion voltage window — Cellsaviors](https://cellsaviors.com/blog/min-max-voltage-18650), E-Power 1S 5A ESC (BE001) product spec sheet/packaging photo (2026-07-22), F405 NAVI BEC/current-sensor specs (12–30V input, 120A current sensor, 5V/5A + 9V/2A onboard BECs) via [ATOMRC product listing](https://atomrc.com/products/atomrc-fixed-wing-flight-controller-f405-navi) and [SkyZoneFPV listing](https://www.skyzonefpv.com/products/atomrc-fixed-wing-flight-controller-f405-navi) — searched 2026-07-23; the manual PDF itself returned HTTP 403 through this sandbox's network policy.
 
 ## Weight summary
 
