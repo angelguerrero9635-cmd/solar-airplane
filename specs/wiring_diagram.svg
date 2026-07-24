@@ -11,7 +11,7 @@
   <rect x="0" y="0" width="1700" height="1000" fill="#0f1f33"/>
 
   <!-- Legend -->
-  <rect x="1400" y="20" width="280" height="95" rx="4" fill="#13253d" stroke="#2c4a6e"/>
+  <rect x="1400" y="20" width="280" height="115" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="1540" y="36" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">LEGEND</text>
   <line x1="1415" y1="53" x2="1445" y2="53" stroke="#5fb8d1" marker-end="url(#arrow)"/>
   <text x="1453" y="57" fill="#9fb3c8" font-size="9">Positive / signal path</text>
@@ -19,6 +19,9 @@
   <text x="1453" y="77" fill="#9fb3c8" font-size="9">Ground / return</text>
   <path d="M 1415 93 L 1432 93 A 6,6 0 0 1 1444 93 L 1445 93" fill="none" stroke="#9fb3c8" stroke-width="1.5"/>
   <text x="1453" y="97" fill="#9fb3c8" font-size="9">Hump = crossing, not connected</text>
+  <line x1="1415" y1="113" x2="1437" y2="113" stroke="#5a6b80"/>
+  <circle cx="1437" cy="113" r="4" fill="#0f1f33" stroke="#5a6b80"/>
+  <text x="1453" y="117" fill="#9fb3c8" font-size="9">Open circle = floating, not tied to bus</text>
 
   <!-- ================= SOLAR ARRAY / SENSOR / SPLIT ================= -->
 
@@ -88,10 +91,15 @@
   <path d="M 360,460 L 360,475 L 180,475" fill="none" stroke="#5a6b80"/>
   <path d="M 640,460 L 640,475 L 180,475" fill="none" stroke="#5a6b80"/>
 
-  <!-- Branch B ground lane: one straight run, clear of every box in this
-       branch, collecting Diode #1 OUT- and both FPV loads' grounds. -->
-  <line x1="180" y1="305" x2="180" y2="920" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
-  <text x="150" y="600" fill="#5a6b80" font-size="8" text-anchor="middle" transform="rotate(-90 150 600)">GND — Branch B (Diode #1 OUT− + FPV Camera + FPV Battery)</text>
+  <!-- Branch B ground lane: collects Diode #1 OUT- and both FPV loads'
+       grounds into one local loop. Confirmed 2026-07-24: this loop is NOT
+       tied to the Negative Return Bus - Branch B's ground is fully
+       isolated from Branch C / the rest of the system, not just the
+       positive side. Lane ends in an open circle (floating, by design/
+       as-built - not a rendering cutoff) rather than reaching the bus. -->
+  <line x1="180" y1="305" x2="180" y2="510" stroke="#5a6b80"/>
+  <circle cx="180" cy="510" r="4" fill="#0f1f33" stroke="#5a6b80"/>
+  <text x="150" y="600" fill="#5a6b80" font-size="8" text-anchor="middle" transform="rotate(-90 150 600)">GND — Branch B (Diode #1 OUT− + FPV Camera + FPV Battery) — ISOLATED, not tied to the negative return bus</text>
 
   <!-- ================= BRANCH C — MAIN BUS ================= -->
 

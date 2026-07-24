@@ -259,6 +259,25 @@ update instead.
       Not yet configured on the FC; needs deciding where this limit
       lives (OSD warning, RTH/failsafe trigger, or just a pilot
       warning) once the three-regime theory above is confirmed.
+- [ ] **Branch B's ground is fully isolated from the rest of the
+      aircraft (confirmed 2026-07-24) — intentional or a wiring gap?**
+      The FPV Camera/VTX and FPV Battery grounds tie to Ideal Diode
+      Module #1's OUT− pin, forming one local loop — but that loop is
+      **not** connected to the Negative Return Bus (Main Battery/ESC/FC
+      ground). This corrects an earlier assumption in
+      `specs/wiring_diagram.md` that it did converge with the bus. Since
+      Branch B's only ground reference is the Solar Array's negative
+      (shared with Diode #2's input), the FPV rail's ground floats
+      relative to the main battery/ESC/FC ground plane whenever the
+      array isn't actively feeding it. FPV video-ground isolation from
+      motor/ESC switching noise is a legitimate and common design
+      choice, so this may be deliberate — but it hasn't been confirmed
+      as intentional vs. an overlooked connection. Needs a decision: tie
+      Branch B's ground to the main bus, or document the isolation as
+      permanent design intent (and check for any downstream
+      implications, e.g. FPV video noise/ground-loop behavior either
+      way). See `specs/wiring_diagram.md`'s 2026-07-24 correction and
+      `specs/wiring_diagram.svg`.
 - [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
       kept for reference, not an active task.** The current design (7
       cells, Clark-Y wing) isn't being changed to hit this now. Honest

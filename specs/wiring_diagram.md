@@ -150,12 +150,36 @@ terminal feeds a distribution line that reaches **both** diode
 modules' IN− pins (Branch B's Ideal Diode Module #1 and Branch C's
 Ideal Diode Module #2), since both share the same solar input. Each
 module's OUT− pin then continues downstream on its own branch — Branch
-B's OUT− converges with the FPV Camera/VTX and FPV Battery grounds
-before reaching the negative return bus; Branch C's OUT− joins the
-existing ESC ground lane on its way to the same bus. The distribution
-line crosses the Branch B/C split's positive line once (both are
-needed at that point, at different heights) — the diagram marks that
-with a hump per the legend, since it's a crossing, not a connection.
+C's OUT− joins the ESC/Main Battery/5V Regulator ground lane on its way
+to the negative return bus. The distribution line crosses the Branch
+B/C split's positive line once (both are needed at that point, at
+different heights) — the diagram marks that with a hump per the
+legend, since it's a crossing, not a connection.
+
+> ⚠️ **Correction (2026-07-24):** the sentence above previously said
+> Branch B's OUT− "converges with the FPV Camera/VTX and FPV Battery
+> grounds before reaching the negative return bus." **That's wrong —
+> confirmed directly:** the FPV Camera/VTX and FPV Battery grounds tie
+> to Ideal Diode Module #1's OUT− pin (forming one local loop: Diode
+> #1 OUT− + Camera + Battery), but **that loop is not connected to the
+> Negative Return Bus at all.** Branch B's ground is fully isolated
+> from Branch C's — not just the positive side (already known — the
+> two branches' positive paths never rejoin), but the *return* side
+> too. `wiring_diagram.svg` now draws Branch B's ground lane ending in
+> an open circle rather than an arrow into the bus, to make this
+> explicit (see the updated legend).
+>
+> **Implication, not yet resolved:** since Branch B's only ground
+> reference is the Solar Array's negative terminal (via Diode #1's
+> IN−, shared with Diode #2), and that never ties to the main
+> battery/ESC/FC ground plane, the FPV rail's ground floats relative to
+> the rest of the aircraft whenever the solar array isn't the thing
+> powering it (e.g. on battery-only bench tests with the array
+> disconnected, or if Diode #1 is reverse-biased and not conducting).
+> Whether this is deliberate (FPV video ground isolation from
+> motor/ESC switching noise is a common and often desirable practice)
+> or a wiring gap that should be closed is an open question — see
+> `CLAUDE.md` §5.
 
 ## In-flight vs. bench-test instrumentation
 
