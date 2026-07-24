@@ -30,15 +30,17 @@
   <!-- Solar Array negative -> feeds BOTH diode modules' IN- pins (2026-07-24:
        the ideal diode modules have separate negative pins on input and
        output sides, not a simple pass-through common ground). -->
-  <polyline points="600,40 570,40 570,148" fill="none" stroke="#5a6b80"/>
+  <polyline points="600,40 570,40 570,169" fill="none" stroke="#5a6b80"/>
   <text x="578" y="90" fill="#5a6b80" font-size="8">GND</text>
-  <!-- distribution line at y=148, humping over the 5A-sensor->split line at x=750 -->
-  <path d="M 570,148 L 735,148 A 8,8 0 0 1 765,148 L 1150,148"
+  <!-- distribution line at y=169 (clear of the 5A Current Sensor box, which has
+       no negative pin of its own - it's a positive-line-only inline sensor),
+       humping over the 5A-sensor->split line at x=750 -->
+  <path d="M 570,169 L 735,169 A 8,8 0 0 1 765,169 L 1150,169"
         fill="none" stroke="#5a6b80"/>
-  <line x1="680" y1="148" x2="680" y2="178" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
-  <text x="640" y="144" fill="#5a6b80" font-size="7">IN−</text>
-  <line x1="1150" y1="148" x2="1150" y2="178" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
-  <text x="1113" y="144" fill="#5a6b80" font-size="7">IN−</text>
+  <line x1="680" y1="169" x2="680" y2="178" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="640" y="165" fill="#5a6b80" font-size="7">IN−</text>
+  <line x1="1150" y1="169" x2="1150" y2="178" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="1113" y="165" fill="#5a6b80" font-size="7">IN−</text>
 
   <!-- 5A total sensor -->
   <rect x="600" y="95" width="300" height="45" rx="4" fill="#13253d" stroke="#2c4a6e"/>
