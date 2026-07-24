@@ -36,6 +36,93 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-24 — Battery-only load test #3: first simultaneous VBAT + bus voltage reading
+
+> ⚠️ **Unresolved discrepancy — VBAT does not track bus voltage as the
+> 2026-07-24 wiring change predicted.** See Observations below. Flagging
+> rather than reconciling — need to confirm exactly where "FC volts" was
+> probed before drawing conclusions.
+
+**Type:** bench test
+**Conditions:** not recorded.
+**Config:** Main battery only — wired to ESC and to the Flight
+Controller/5V Regulator. No solar, no camera, no FPV battery. Starting/
+ending battery voltage **not recorded this time** (earlier tests logged
+this — worth capturing next time). Same physical setup as the two
+2026-07-23 battery-only tests, but this is the **first test to read VBAT
+(FC volts) simultaneously with bus voltage**, plus a one-time servo-rail
+check at the start (5.00V).
+
+**Readings** (motor current vs. bus voltage vs. FC volts/VBAT vs. throttle):
+
+| Motor current | Bus voltage | FC volts (VBAT) | Throttle |
+|---|---|---|---|
+| 0A | 3.42V | 4.48V | 0 |
+| 0.5A | 3.24V | 4.48V | 4 |
+| 1A | 3.06V | 4.48V | 17 |
+| 1.5A | 2.86V | 4.50V | 31 |
+| 2A | 2.55V | 4.57V | 50 |
+| 2.25A | 2.45V | 4.53V | 60 |
+
+Could not reach 2.5A before the battery's protection latched off.
+
+**Observations:**
+- **VBAT (FC volts) does not track bus voltage.** Per `specs/
+  wiring_diagram.md`'s 2026-07-24 change, VBAT wires directly to the
+  ESC's red (power) pin — the same node as "bus voltage" in this table.
+  If that's correct, VBAT and bus voltage should be nearly identical
+  (it's a sense line, negligible current, no meaningful IR drop). Instead
+  bus voltage crashes from 3.42V to 2.45V while VBAT stays flat around
+  4.48–4.57V, tracking close to the 5V servo-rail reading (5.00V at the
+  start) instead. **Not reconciled yet — open question below.**
+- Bus voltage sag is roughly linear with current: endpoints (0A, 3.42V)
+  and (2.25A, 2.45V) give **V ≈ 3.42 − 0.43×I**, i.e. ~0.43Ω effective
+  resistance — same ballpark as the two 2026-07-23 tests (~0.3Ω), though
+  a bit higher (hand-read analog panel meters this time — see
+  `photos/2026-07-24-test-bench/` — so some imprecision is expected).
+  The 1.5A→2A step sags more than the surrounding steps (−0.31V over
+  0.5A vs. ~−0.18–0.20V elsewhere); could be a real nonlinearity as the
+  battery nears its protection threshold, or just meter-reading noise —
+  not enough points to tell.
+- Bus voltage reached 2.45V without tripping, and the trip happened when
+  *current* was pushed past ~2.25A — consistent with the 2026-07-23
+  finding that this is overcurrent protection (OCP), not a fixed-voltage
+  cutoff (the earlier, superseded UVP hypothesis pegged the cutoff
+  around 2.9–3.0V; this test sustained well below that on voltage alone).
+- **But the trip current here (~2.25–2.5A) is lower than both
+  2026-07-23 tests (~2.9–3A).** Same battery, same "battery-only"
+  config in principle. Two candidate explanations, not distinguished by
+  this data alone:
+  1. The BMS's OCP threshold is on **total battery current**, not motor
+     current alone — if avionics draw (servos moving under load this
+     time vs. idle before, GPS acquiring, etc.) was higher in this test
+     than in the 2026-07-23 tests, the same *total* trip current would
+     show up as a *lower* motor-current reading, since the 5A sensor on
+     the ESC leg only measures the motor branch, not total battery
+     output.
+  2. Genuine run-to-run variability in the trip threshold itself (BMS
+     protection points are rarely razor-precise).
+  Cannot tell which without measuring avionics current simultaneously
+  with motor current — see Follow-up.
+
+**Deviation from prediction:** The VBAT-tracks-bus-voltage assumption
+from the 2026-07-24 wiring change is directly contradicted by this data,
+if "FC volts" was in fact read from the VBAT pin.
+
+**Follow-up:**
+- **Confirm exactly where "FC volts" was measured** — the FC's dedicated
+  VBAT pad/pin directly (multimeter), or via OSD/telemetry software, or
+  possibly the servo rail's 5V itself? This determines whether VBAT
+  genuinely isn't reaching the ESC red pin as wired (a real build issue)
+  or whether this was a measurement-point mix-up.
+- Measure avionics (FC+servos+GPS+telemetry) current separately from
+  motor current in the next test, to test the "total current, not motor
+  current alone" OCP hypothesis above.
+- Record starting/ending battery voltage next time, per the established
+  template.
+
+---
+
 ## 2026-07-24 — Test bench photos (record keeping only, no readings)
 
 **Type:** bench test
