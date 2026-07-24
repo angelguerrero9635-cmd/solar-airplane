@@ -114,12 +114,13 @@
   <text x="700" y="386" fill="#9fb3c8" font-size="8" text-anchor="middle">(positive-line-only, no ground pin)</text>
   <line x1="700" y1="395" x2="700" y2="430" stroke="#5fb8d1"/>
 
-  <!-- Trunk: 3 parallel children (Main Battery, ESC-leg sensor, 5V
-       Regulator), each fed by a short tee. -->
-  <line x1="700" y1="430" x2="700" y2="732" stroke="#5fb8d1"/>
+  <!-- Trunk: 4 parallel children (Main Battery, ESC-leg sensor, VIN
+       Capacitor, 5V Regulator), each fed by a short tee. -->
+  <line x1="700" y1="430" x2="700" y2="762" stroke="#5fb8d1"/>
   <line x1="700" y1="472" x2="730" y2="472" stroke="#5fb8d1" marker-end="url(#arrow)"/>
   <line x1="700" y1="570" x2="730" y2="570" stroke="#5fb8d1" marker-end="url(#arrow)"/>
-  <line x1="700" y1="732" x2="730" y2="732" stroke="#5fb8d1" marker-end="url(#arrow)"/>
+  <line x1="700" y1="697" x2="730" y2="697" stroke="#5fb8d1" marker-end="url(#arrow)"/>
+  <line x1="700" y1="762" x2="730" y2="762" stroke="#5fb8d1" marker-end="url(#arrow)"/>
 
   <rect x="730" y="445" width="170" height="55" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="815" y="463" fill="#e7eef4" font-size="9" font-weight="bold" text-anchor="middle">Main Battery</text>
@@ -142,30 +143,35 @@
 
   <!-- VBAT tap: ESC red pin -> FC VBAT. Exits ESC's left edge (its top
        entry is used for the sensor's series output, not this), humps once
-       over the trunk's tee into the 5V Regulator, then turns for FC
-       before the 5V Regulator's own output line reaches that height -
-       so the two never need to cross each other. -->
-  <path d="M 730,615 L 715,615 L 715,724 A 8,8 0 0 1 715,740 L 715,780 L 400,780 L 400,870"
+       over the trunk itself (a single crossing, at the ESC's own exit
+       height, before the trunk's next tee), then routes down the trunk's
+       left side - clear of every tee - before turning for FC. -->
+  <path d="M 730,615 L 715,615 A 8,8 0 0 1 685,615 L 685,800 L 400,800 L 400,870"
         fill="none" stroke="#5fb8d1" marker-end="url(#arrow)"/>
-  <text x="560" y="775" fill="#7fd4e8" font-size="9" text-anchor="middle">VBAT — ESC red pin (bus voltage)</text>
+  <text x="560" y="795" fill="#7fd4e8" font-size="9" text-anchor="middle">VBAT — ESC red pin (bus voltage)</text>
 
-  <!-- Capacitor at 5V Regulator VIN, installed 2026-07-23 -->
-  <rect x="560" y="710" width="140" height="35" rx="3" fill="#13253d" stroke="#2c4a6e"/>
-  <text x="630" y="726" fill="#e7eef4" font-size="8" font-weight="bold" text-anchor="middle">Capacitor — VIN</text>
-  <text x="630" y="737" fill="#9fb3c8" font-size="7" text-anchor="middle">installed 2026-07-23</text>
-  <line x1="700" y1="727" x2="700" y2="732" stroke="#5fb8d1"/>
+  <!-- Capacitor at 5V Regulator VIN, installed 2026-07-23. Positioned
+       directly above the Regulator (2026-07-24) - it's wired across
+       VIN, i.e. it taps BOTH the same positive trunk node and the same
+       ground node the Regulator uses, not just the positive rail. Drawn
+       as its own parallel tap off the trunk, same pattern as Main
+       Battery / ESC-leg Sensor / Regulator. -->
+  <rect x="730" y="680" width="170" height="35" rx="3" fill="#13253d" stroke="#2c4a6e"/>
+  <text x="815" y="694" fill="#e7eef4" font-size="8" font-weight="bold" text-anchor="middle">Capacitor — VIN</text>
+  <text x="815" y="706" fill="#9fb3c8" font-size="7" text-anchor="middle">installed 2026-07-23</text>
+  <path d="M 900,697 L 920,697" fill="none" stroke="#5a6b80"/>
 
-  <rect x="730" y="705" width="170" height="55" rx="4" fill="#13253d" stroke="#2c4a6e"/>
-  <text x="815" y="723" fill="#e7eef4" font-size="9" font-weight="bold" text-anchor="middle">5V Regulator</text>
-  <text x="815" y="735" fill="#9fb3c8" font-size="7" text-anchor="middle">Pololu S7V7F5 (step-up/step-down)</text>
-  <text x="815" y="746" fill="#7fd4e8" font-size="7" font-style="italic" text-anchor="middle">(parallel)</text>
-  <path d="M 900,745 L 920,745" fill="none" stroke="#5a6b80"/>
+  <rect x="730" y="735" width="170" height="55" rx="4" fill="#13253d" stroke="#2c4a6e"/>
+  <text x="815" y="753" fill="#e7eef4" font-size="9" font-weight="bold" text-anchor="middle">5V Regulator</text>
+  <text x="815" y="765" fill="#9fb3c8" font-size="7" text-anchor="middle">Pololu S7V7F5 (step-up/step-down)</text>
+  <text x="815" y="776" fill="#7fd4e8" font-size="7" font-style="italic" text-anchor="middle">(parallel)</text>
+  <path d="M 900,762 L 920,762" fill="none" stroke="#5a6b80"/>
 
   <!-- 5V Regulator -> FC (servo rail power). Turns below the VBAT tap's
-       own turn (y=780), so the two lines' final approaches to the FC
+       own turn (y=800), so the two lines' final approaches to the FC
        never cross. -->
-  <path d="M 815,760 L 815,800 L 500,800 L 500,870" fill="none" stroke="#5fb8d1" marker-end="url(#arrow)"/>
-  <text x="660" y="795" fill="#7fd4e8" font-size="9" text-anchor="middle">5V (power, servo rail)</text>
+  <path d="M 815,790 L 815,815 L 500,815 L 500,870" fill="none" stroke="#5fb8d1" marker-end="url(#arrow)"/>
+  <text x="660" y="810" fill="#7fd4e8" font-size="9" text-anchor="middle">5V (power, servo rail)</text>
 
   <!-- Branch C ground lane -->
   <line x1="920" y1="320" x2="920" y2="1060" stroke="#5a6b80"/>
