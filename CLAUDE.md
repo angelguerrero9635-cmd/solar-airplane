@@ -206,33 +206,46 @@ update instead.
 
 ## 5. Open questions / next steps
 
-- [ ] **⚠️ HIGH PRIORITY (2026-07-23, updated same day): does cruise
-      flight require motor current above the battery's ~2.9–3A
-      overcurrent trip?** The motor-draw shutdown is root-caused to the
-      battery's BMS protection (see Section 4) — which kills power to
-      the *entire* aircraft, not just the motor, until manually reset.
-      An initial hypothesis that this was SOC-dependent (undervoltage
-      trip, shrinking margin as the battery depletes) was tested and
-      **overturned**: two battery-only load tests at different starting
-      voltages (4.01V and 3.88V) both tripped at essentially the same
-      current (~2.9–3A), not at the same voltage — consistent with a
-      **fixed overcurrent threshold, not a SOC-dependent one**. That
-      makes this a simpler but more immediate constraint: the ceiling
-      applies from takeoff, not just late in a discharge cycle. The
-      estimated cruise power range (~17–24W, see
-      `calculations/power_budget.md`) works out to roughly 4–6.5A of
-      total system current at a ~3.7–4.2V bus; with avionics drawing
-      ~0.65–0.8A, the motor's share alone could plausibly exceed
-      ~2.9–3A during *ordinary* cruise, not just at an extreme. Needs:
-      (1) a third battery-only test at a still-lower starting voltage
-      (e.g. ~3.5V) to confirm the ~2.9–3A trip current holds across the
-      whole usable SOC range, and (2) real motor-load data with solar
-      reconnected to see how much headroom solar contribution adds. If
-      confirmed as a hard, SOC-independent ceiling, this becomes a
-      design constraint to solve (ESC current limiting, a lower-draw
-      prop/motor combination, or a battery/BMS with a higher OCP
-      threshold), not just something to monitor via SOC in flight. See
-      `logs/test_flights.md`'s three 2026-07-23 entries.
+- [ ] **⚠️ HIGH PRIORITY (2026-07-23/24): three-regime theory of usable
+      throttle across the battery's discharge cycle — plausible, not
+      yet confirmed.** The ~2.9–3A motor-draw shutdown is root-caused to
+      the battery's BMS overcurrent protection (see Section 4) — which
+      kills power to the *entire* aircraft, not just the motor, until
+      manually reset. The trip **current** stays roughly constant
+      (~2.9–3A) across different starting battery voltages (4.01V,
+      3.88V), but the **throttle position** needed to reach that current
+      is strongly voltage-dependent (less throttle needed at higher
+      battery voltage — ordinary motor/ESC behavior, since a given
+      throttle % delivers less effective voltage at a lower bus). This
+      leads to a working theory of three regimes across a discharge
+      cycle:
+      1. **High battery voltage:** OCP trips at low-to-moderate
+         throttle — most of the throttle range is unsafe.
+      2. **Mid voltage:** OCP trips only at high throttle — safe range
+         grows as voltage drops.
+      3. **Low voltage:** full throttle can no longer reach ~2.9–3A at
+         all (the motor/prop combination can't draw that much current
+         from a bus this low) — but **the 5V Regulator's own input
+         headroom (2.7–11.8V) likely becomes the new limiting factor**
+         instead, with a different symptom (FC brownout/reset from
+         regulator dropout, not a battery-protection bus-wide outage).
+         Not just theoretical: the lower of the two battery-only tests
+         already logged a bus reading of **2.76V at 2.9A — only 0.06V
+         above the regulator's documented 2.7V minimum input.**
+      **If this holds, the actually-safe throttle/voltage envelope may
+      be narrower than either failure mode looks in isolation.** Needs:
+      (1) throttle position logged alongside current in future tests,
+      (2) the 5V Regulator's own *output* monitored directly (not just
+      bus voltage) during a high-current pull at low starting SOC to
+      test the regulator-headroom hypothesis, (3) a third battery-only
+      test at a still-lower starting voltage to find where full
+      throttle stops reaching the OCP trip current, and (4) real
+      motor-load data with solar reconnected to see how much headroom
+      solar contribution restores. Whatever the outcome, this is a
+      design constraint to characterize precisely before treating
+      cruise flight as viable at the estimated power budget — not
+      something to resolve by assumption. See `logs/test_flights.md`'s
+      2026-07-23/24 entries.
 - [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
       kept for reference, not an active task.** The current design (7
       cells, Clark-Y wing) isn't being changed to hit this now. Honest

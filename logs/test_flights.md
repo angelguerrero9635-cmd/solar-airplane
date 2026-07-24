@@ -114,6 +114,62 @@ against a `power_budget.md` figure.
   threshold), not something that can be managed by just watching SOC
   during flight.
 
+**Update (2026-07-24) — throttle position was different between the two
+tests, and this reframes the whole picture:** user reports needing
+**more throttle** in this (lower-voltage) test to reach the same 2.9A
+than in the first (higher-voltage) test. This is expected motor/ESC
+behavior — at a lower bus voltage, a given throttle % delivers less
+effective voltage to the motor, so more throttle is needed to reach the
+same current — and it resolves an apparent tension: the *current* at
+which the OCP trips stays ~constant (confirming OCP over UVP), but the
+*throttle position* needed to reach that current is strongly voltage-
+dependent. **User's theory, which fits the data well:**
+- **At high battery voltage** (near full charge), the ~2.9–3A OCP trip
+  is reachable at low-to-moderate throttle — most of the throttle range
+  is unsafe.
+- **As the battery depletes**, reaching the same trip current requires
+  progressively more throttle, so the "unsafe" portion of the throttle
+  range shrinks toward the top end.
+- **At some low-enough battery voltage, even full throttle can no
+  longer push the motor past the ~2.9–3A trip current at all** — the
+  bus voltage ceiling is now too low for the motor/prop combination to
+  draw that much current regardless of duty cycle. At that point the
+  *entire* throttle range becomes usable again, from the OCP's
+  perspective.
+- **But at that same low end, a different problem likely takes over:
+  the 5V Regulator (Pololu S7V7F5, input range 2.7–11.8V) may not have
+  enough input headroom to hold FC power stable when current is being
+  diverted to the ESC/motor.** The regulator's input is the same shared
+  bus this test measured. **This is not just theoretical — this test's
+  own last reading (2.76V at 2.9A) is only 0.06V above the regulator's
+  documented 2.7V minimum input.** At a still-lower starting battery
+  voltage, the same current draw could plausibly sag bus voltage *below*
+  2.7V before the battery's own OCP even trips, meaning the regulator
+  itself — not the battery protection — could become the actual limit,
+  with a different symptom (FC brownout/reset from regulator dropout,
+  not a full bus power-loss requiring battery reconnect).
+- **Net picture: three regimes across a discharge cycle** — (1) high
+  voltage, OCP trips easily, most throttle unsafe; (2) mid voltage, OCP
+  trips only at high throttle, safe range growing; (3) low voltage, OCP
+  no longer reachable, but the 5V regulator's input headroom becomes the
+  new constraint instead. The "safe" middle ground may be narrower than
+  either single failure mode suggests on its own.
+- **Not yet confirmed** — this is a well-reasoned theory from the
+  pattern in the data so far, not a directly tested conclusion. See
+  Follow-up.
+
+**Follow-up (added 2026-07-24):**
+- **Log throttle position (not just current) at every step in future
+  tests** — now recognized as a meaningful, SOC-dependent variable in
+  its own right, not just a means to reach a target current.
+- **Directly monitor the 5V Regulator's own output** (not just bus/
+  input voltage) during a high-current pull at low starting SOC, to
+  test the regulator-headroom hypothesis — does FC power actually
+  glitch/reset before or separately from the battery's OCP tripping?
+- Find the starting battery voltage at which full throttle no longer
+  reaches ~2.9A (confirms regime 3 above), then check whether the
+  regulator's output is already unstable at that point.
+
 ---
 
 ## 2026-07-23 — Battery-only load test: motor amps vs. bus voltage (refines the BMS-trip finding)
