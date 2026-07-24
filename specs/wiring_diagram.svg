@@ -103,11 +103,16 @@
   <rect x="550" y="230" width="300" height="60" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="700" y="253" fill="#e7eef4" font-size="12" font-weight="bold" text-anchor="middle">Ideal Diode Module #2</text>
   <text x="700" y="268" fill="#9fb3c8" font-size="9" text-anchor="middle">(Pololu Ideal Diode Module)</text>
-  <text x="670" y="241" fill="#5a6b80" font-size="7" text-anchor="middle">OUT−</text>
+  <text x="765" y="241" fill="#5a6b80" font-size="7" text-anchor="middle">OUT−</text>
   <line x1="700" y1="290" x2="700" y2="350" stroke="#5fb8d1" marker-end="url(#arrow)"/>
 
-  <!-- Diode #2 OUT- -> Branch C ground lane -->
-  <path d="M 670,290 L 670,320 L 920,320" fill="none" stroke="#5a6b80"/>
+  <!-- Diode #2 OUT- -> Branch C ground lane. Exits to the right of the
+       positive line (x=765 vs x=700) since the lane is on the right
+       (x=920) - keeps the two lines diverging instead of the ground
+       line overlapping/crossing back over the positive line to get
+       there. Offset from the IN- pin (x=730) too, so the two negative
+       pins don't stack into one line through the box. -->
+  <path d="M 765,290 L 765,320 L 920,320" fill="none" stroke="#5a6b80"/>
 
   <rect x="580" y="350" width="240" height="45" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="700" y="373" fill="#e7eef4" font-size="12" font-weight="bold" text-anchor="middle">2A Current Meter</text>
