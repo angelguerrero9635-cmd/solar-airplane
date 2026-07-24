@@ -31,12 +31,15 @@ rejoined — each branch powers something different.
 
 ![Wiring diagram — solar array splits into 2 branches (FPV rail, main
 battery bus), which converge again only at the shared flight controller
-box. The flight controller's VBAT pin now wires directly to the ESC's
-red power pin on Branch C, instead of a separate diode-OR tap. Also
-shows negative/return paths: a negative return bus, with confirmed
-ground legs (gray) from the ESC, Main Battery, 5V Regulator, and the
-FC's own independent ground (star ground), plus the installed capacitor
-at the 5V regulator's input.](wiring_diagram.svg)
+box. The flight controller's VBAT pin wires directly to the ESC's red
+power pin on Branch C, instead of a separate diode-OR tap. Every
+positive and negative/return line is drawn in full, routed to avoid
+crossing component boxes, with a small hump wherever two lines must
+cross without connecting (e.g. the VBAT tap over the 5V regulator's
+power line). All ground legs — Solar Array, FPV Camera/VTX, FPV
+Battery, ESC, Main Battery, 5V Regulator, and the FC's own independent
+ground (star ground) — run into one wide negative return bus at the
+bottom.](wiring_diagram.svg)
 
 Text version of the same diagram, for diffing/searching:
 
@@ -184,6 +187,14 @@ regulator's input minimum). The voltage sensor feeding VBAT **has been
 calibrated** (confirmed 2026-07-23) and that calibration should still
 hold, since it was calibrated against Branch C's own voltage range
 already.
+
+**Planned (2026-07-24, not yet implemented):** a low-voltage alarm/
+limit on this VBAT reading, since it's now a direct real-time read of
+the bus voltage the battery-BMS/overcurrent investigation has been
+characterizing. ~3.0V is proposed as the lower limit — above the 5V
+regulator's 2.7V minimum input and above where the battery-only tests
+actually failed (last good readings 2.96V and 2.76V) — see `CLAUDE.md`
+§5's high-priority item for the full reasoning.
 
 ## Recommended physical wiring (proposed — not yet built)
 
@@ -351,11 +362,15 @@ already in `specs/components.md`. The physical-wiring recommendation is
 exactly that — a recommendation, not a confirmed build. The visual
 diagram (`wiring_diagram.svg`) is a hand-drawn rendering of the same
 topology described in the text version above; update both together if
-the topology changes, same as everything else in `specs/`. The SVG also
-depicts negative/return paths (gray = confirmed normal ground, dashed
-orange = anything still planned/not yet built — see the diagram's own
-legend). Routing for the Solar Array's and Branch B's negative legs is
-simplified/omitted for legibility (a short "GND → negative bus" label
-stands in for the full run) since they aren't part of any current
-troubleshooting; the FC/ESC/Main Battery/5V Regulator paths are drawn in
-full since those are the ones under active investigation.
+the topology changes, same as everything else in `specs/`.
+
+**Diagram conventions (updated 2026-07-24):** every positive and
+negative/return line is drawn in full — including the Solar Array's and
+Branch B's (FPV Camera/VTX, FPV Battery) ground legs, previously
+simplified to a short label. Lines are routed to avoid passing through
+any component box. Where two lines must cross without connecting (e.g.
+the VBAT tap crossing the 5V regulator's power line), a small semicircular
+**hump** marks the crossing — see the diagram's own legend. Positive/
+signal paths are solid cyan; ground/return paths are solid gray, both
+routed into the single wide "NEGATIVE RETURN BUS" bar at the bottom for
+the return side.

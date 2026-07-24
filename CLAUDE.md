@@ -247,6 +247,18 @@ update instead.
       cruise flight as viable at the estimated power budget — not
       something to resolve by assumption. See `logs/test_flights.md`'s
       2026-07-23/24 entries.
+      **Planned mitigation (2026-07-24, not yet implemented):** set a
+      low-voltage alarm/limit on the VBAT (bus voltage) reading — now
+      directly meaningful in-flight telemetry since VBAT reads Branch
+      C's bus (see the ESC-red-pin change above). **~3.0V proposed as
+      the lower limit**, which lines up with the known thresholds:
+      above the 5V regulator's documented 2.7V minimum input, and above
+      where both battery-only tests actually failed (last good readings
+      2.96V/2.75A and 2.76V/2.9A respectively) — so 3.0V gives a warning
+      margin *before* the observed failure zone, not right at its edge.
+      Not yet configured on the FC; needs deciding where this limit
+      lives (OSD warning, RTH/failsafe trigger, or just a pilot
+      warning) once the three-regime theory above is confirmed.
 - [ ] **250g is a long-term goal, not a current blocker (2026-07-22) —
       kept for reference, not an active task.** The current design (7
       cells, Clark-Y wing) isn't being changed to hit this now. Honest

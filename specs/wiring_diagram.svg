@@ -11,12 +11,14 @@
   <rect x="0" y="0" width="1560" height="850" fill="#0f1f33"/>
 
   <!-- Legend -->
-  <rect x="1180" y="12" width="360" height="72" rx="4" fill="#13253d" stroke="#2c4a6e"/>
+  <rect x="1180" y="12" width="360" height="86" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="1360" y="28" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">LEGEND</text>
   <line x1="1195" y1="45" x2="1225" y2="45" stroke="#5fb8d1" marker-end="url(#arrow)"/>
   <text x="1233" y="49" fill="#9fb3c8" font-size="9">Positive / signal path</text>
   <line x1="1195" y1="65" x2="1225" y2="65" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
   <text x="1233" y="69" fill="#9fb3c8" font-size="9">Ground / return (confirmed, normal)</text>
+  <path d="M 1195 85 L 1212 85 A 6,6 0 0 1 1224 85 L 1225 85" fill="none" stroke="#9fb3c8" stroke-width="1.5"/>
+  <text x="1233" y="89" fill="#9fb3c8" font-size="9">Hump = crossing, not connected</text>
 
   <!-- Solar Array -->
   <rect x="600" y="12" width="300" height="55" rx="4" fill="#13253d" stroke="#2c4a6e"/>
@@ -24,6 +26,10 @@
   <text x="750" y="48" fill="#9fb3c8" font-size="10" text-anchor="middle">7x SunPower C60 (series)</text>
   <text x="750" y="61" fill="#9fb3c8" font-size="10" text-anchor="middle">Voc≈5.0V  Vmp≈4.06V</text>
   <line x1="750" y1="67" x2="750" y2="95" stroke="#5fb8d1" marker-end="url(#arrow)"/>
+
+  <!-- Solar Array ground -> bus, routed down the far-left margin (fully drawn 2026-07-24) -->
+  <polyline points="600,40 40,40 40,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="48" y="400" fill="#5a6b80" font-size="8">GND</text>
 
   <!-- 5A total sensor -->
   <rect x="600" y="95" width="300" height="45" rx="4" fill="#13253d" stroke="#2c4a6e"/>
@@ -63,6 +69,14 @@
   <text x="920" y="346" fill="#9fb3c8" font-size="9" text-anchor="middle">1S 400 mAh LiPo</text>
   <text x="920" y="359" fill="#7fd4e8" font-size="9" font-style="italic" text-anchor="middle">(parallel)</text>
 
+  <!-- FPV Camera/VTX ground -> bus, routed down a left-margin lane (fully drawn 2026-07-24) -->
+  <polyline points="530,340 100,340 100,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="108" y="430" fill="#5a6b80" font-size="8">GND</text>
+
+  <!-- FPV Battery ground -> bus, routed down a left-margin lane (fully drawn 2026-07-24) -->
+  <polyline points="920,367 920,380 160,380 160,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <text x="168" y="460" fill="#5a6b80" font-size="8">GND</text>
+
   <!-- Branch C -->
   <rect x="1080" y="178" width="340" height="52" rx="4" fill="#13253d" stroke="#2c4a6e"/>
   <text x="1250" y="200" fill="#e7eef4" font-size="12" font-weight="bold" text-anchor="middle">Ideal Diode Module #2</text>
@@ -91,8 +105,10 @@
   <text x="1377" y="390" fill="#9fb3c8" font-size="8" text-anchor="middle">T-Motor M1104 KV7500, 6x3 prop</text>
   <text x="1377" y="401" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
 
-  <!-- VBAT tap: ESC red pin -> FC VBAT (NEW 2026-07-24, replaces Branch A) -->
-  <polyline points="1420,404 1420,500 750,500 750,560" fill="none" stroke="#5fb8d1" marker-end="url(#arrow)"/>
+  <!-- VBAT tap: ESC red pin -> FC VBAT (NEW 2026-07-24, replaces Branch A).
+       Humps over the 5V-regulator power line near x=1162-1182 (no connection). -->
+  <path d="M 1420,404 L 1420,500 L 1182,500 A 10,10 0 0 1 1162,500 L 750,500 L 750,560"
+        fill="none" stroke="#5fb8d1" marker-end="url(#arrow)"/>
   <text x="1000" y="490" fill="#7fd4e8" font-size="10" text-anchor="middle">VBAT — ESC red pin (bus voltage)</text>
   <text x="1420" y="418" fill="#7fd4e8" font-size="8" text-anchor="middle">red pin</text>
 
@@ -138,19 +154,21 @@
   <text x="1020" y="659" fill="#e7eef4" font-size="10" text-anchor="middle">Servos ×4</text>
   <text x="1020" y="672" fill="#9fb3c8" font-size="8" text-anchor="middle">DM-S0020 micro</text>
 
-  <!-- ============ NEGATIVE / RETURN PATHS (added 2026-07-23) ============ -->
+  <!-- ============ NEGATIVE / RETURN PATHS (added 2026-07-23, fully routed 2026-07-24) ============ -->
 
-  <!-- Negative return bus -->
-  <rect x="1140" y="770" width="390" height="42" rx="4" fill="#13253d" stroke="#8a6a4a"/>
-  <text x="1335" y="788" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">⏚ NEGATIVE RETURN BUS</text>
-  <text x="1335" y="802" fill="#9fb3c8" font-size="9" text-anchor="middle">(battery / solar array negative)</text>
+  <!-- Negative return bus - full width to receive every ground lane cleanly -->
+  <rect x="15" y="770" width="1530" height="42" rx="4" fill="#13253d" stroke="#8a6a4a"/>
+  <text x="780" y="788" fill="#e7eef4" font-size="11" font-weight="bold" text-anchor="middle">⏚ NEGATIVE RETURN BUS</text>
+  <text x="780" y="802" fill="#9fb3c8" font-size="9" text-anchor="middle">(battery / solar array negative)</text>
 
   <!-- 5V Regulator ground -> bus (confirmed, normal) -->
   <line x1="1377" y1="468" x2="1377" y2="770" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
   <text x="1390" y="640" fill="#5a6b80" font-size="8">GND</text>
 
-  <!-- ESC ground -> bus, routed left of the Branch C column (confirmed, normal) -->
-  <polyline points="1265,384 1225,384 1225,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+  <!-- ESC ground -> bus, routed left of the Branch C column (confirmed, normal).
+       Humps sideways over the capacitor's diagonal connector near y=437. -->
+  <path d="M 1265,384 L 1225,384 L 1225,427 A 10,10 0 0 1 1225,447 L 1225,770"
+        fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
   <text x="1195" y="600" fill="#5a6b80" font-size="8">GND</text>
 
   <!-- Main Battery ground -> bus, routed right of the Branch C column (confirmed, normal) -->
@@ -163,8 +181,4 @@
   <polyline points="650,615 650,705 1150,705 1150,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
   <text x="660" y="700" fill="#5a6b80" font-size="8">GND — independent FC ground</text>
   <text x="660" y="712" fill="#5a6b80" font-size="8">(star ground), confirmed 2026-07-23</text>
-
-  <!-- Solar Array negative (called out, routing simplified for clarity) -->
-  <text x="905" y="40" fill="#5a6b80" font-size="8">⏚ GND (→ negative bus,</text>
-  <text x="905" y="51" fill="#5a6b80" font-size="8">routing simplified here)</text>
 </svg>
