@@ -36,6 +36,33 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-24 — Test bench photos (record keeping only, no readings)
+
+**Type:** bench test
+**Conditions:** (not recorded)
+**Config:** full bench layout as currently wired — 7-cell solar array,
+FC + 4 servos + camera/VTX + GPS + telemetry radio + motor/prop, plus the
+bench-only current-sensing instrumentation (analog ammeters).
+
+**Readings:** none taken — photos only, for visual record keeping.
+
+**Observations:** 3 photos of the full bench saved to
+`photos/2026-07-24-test-bench/` (`bench-overview.jpeg`,
+`bench-array-and-fc.jpeg`, `bench-meters-and-motor.jpeg`). Visually
+consistent with the documented build: 7 solar cells in series, BN-880 GPS
+and 915MHz telemetry radio labels match `specs/components.md`. Component
+identity for the analog ammeters and the two battery packs visible was
+**not** confirmed against the photos — see open question below.
+
+**Deviation from prediction:** n/a — no measurements taken.
+
+**Follow-up:** if useful later, identify which analog meter corresponds
+to which branch (5A array sensor vs. the 2× 2A current meters) and which
+battery pack is the main 18650 vs. the FPV 1S pack, then cross-reference
+against `specs/wiring_diagram.md`.
+
+---
+
 ## 2026-07-23 — Battery-only load test #2, lower starting SOC (overturns the UVP hypothesis)
 
 **Type:** bench test
