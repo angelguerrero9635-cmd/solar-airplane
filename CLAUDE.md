@@ -39,23 +39,24 @@ design math (kept on record for reference, not as a call to action).
   spars (updated 2026-07-22, was SD7037, 1210mm span, 150mm chord)
 - Carbon fiber tube/rod fuselage, 3D printed motor mount
 - **Wing area:** ~0.24 m² (24.0 dm²)
-- **Estimated AUW:** ~334.2–354.2g (see `calculations/power_budget.md`;
+- **Estimated AUW:** ~332.7–352.7g (see `calculations/power_budget.md`;
   updated for the 7-cell solar string, theoretical pending bench
   confirmation — this estimate predates the 2026-07-22 wing change and
   hasn't been revisited for it; updated 2026-07-23 to drop the retired
-  ACS723 current sensors, 3.81g, and again 2026-07-23 to add the
-  now-identified/weighed 5V Regulator, 0.6g)
-- **Wing loading:** ~13.9–14.8 g/dm² (sailplane range; lower than the
+  ACS723 current sensors, 3.81g, updated again 2026-07-23 to add the
+  now-identified/weighed 5V Regulator, 0.6g, and again 2026-07-24 to
+  drop Branch A's now-eliminated Ideal Diode Pair, 1.46g)
+- **Wing loading:** ~13.9–14.7 g/dm² (sailplane range; lower than the
   previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
   shorter span)
-- Power path: solar array → 3 independent ideal-diode branches, **not
-  rejoined downstream** — Branch A taps FC VBAT as a 2-input OR (solar
-  array + main battery, **planned 2026-07-23, second input not yet
-  wired**) for a contextually meaningful in-flight voltage reading,
-  Branch B feeds the FPV rail, Branch C feeds the main battery
-  bus/ESC/FC power (see `specs/wiring_diagram.md` for the full diagram —
-  corrected 2026-07-22, an earlier version of this file wrongly assumed
-  the branches rejoined at one shared bus)
+- Power path: solar array → **2** independent ideal-diode branches
+  (**reduced from 3, 2026-07-24** — Branch A eliminated entirely), **not
+  rejoined downstream** — Branch B feeds the FPV rail, Branch C feeds
+  the main battery bus/ESC/FC power. **VBAT now wires directly to the
+  ESC's red pin on Branch C** (changed 2026-07-24, replacing the old
+  Branch A diode-OR tap) — see `specs/wiring_diagram.md` for the full
+  diagram and reasoning (corrected 2026-07-22, an earlier version of
+  this file wrongly assumed the branches rejoined at one shared bus)
 
 ## 3. Key components (see `specs/components.md` for full table + sources)
 
@@ -73,9 +74,9 @@ design math (kept on record for reference, not as a call to action).
 | FPV Battery | 1S 400 mAh LiPo | 11.2 g |
 | Solar Cells | SunPower C60, currently 7 in series (updated from 6, 2026-07-22) | 98 g (14 g ea.) |
 | Servos | 4× DM-S0020 micro | 13 g total |
-| Ideal Diode — Branch A | Pololu Power ORing, 2-input OR (solar + main battery, 2nd input planned/not yet wired), → FC VBAT | 1.46 g |
 | Ideal Diode — Branch B | Pololu Ideal Diode Module, → FPV rail | 0.27 g |
 | Ideal Diode — Branch C | Pololu Ideal Diode Module, → main battery bus | 0.27 g |
+| Ideal Diode — Branch A (REMOVED) | Eliminated from the build, 2026-07-24 — VBAT now wires directly to the ESC's red pin (Branch C's bus) instead | excluded from totals |
 | 5V Regulator | Pololu S7V7F5 (step-up/step-down), feeds FC via servo rail (Branch C) | 0.6 g |
 | 5A/2A Current Sensors (bench-only) | ×4 total (2× 5A, 2× 2A), never flown | n/a — no need to weigh |
 | Current Sensors (RETIRED) | SparkFun ACS723, ×3 — not used at all anymore (retired 2026-07-22) | excluded from totals |
@@ -134,14 +135,14 @@ update instead.
   or telemetered in flight — they're all bench-test-only (the original 3
   ACS723s are retired/not used at all; the current 4-device bench set is
   a separate, still-in-use setup). The VBAT voltage sensor **has been
-  calibrated** (confirmed 2026-07-23), so the raw reading is trustworthy
-  — but as currently wired, VBAT is fed only from the solar array
-  (Branch A), so the one in-flight reading is **solar array voltage,
-  not main battery voltage**. **Planned fix (2026-07-23, not yet
-  built):** Branch A's Ideal Diode Pair becomes a true 2-input OR (solar
-  array + main battery → VBAT), so the single reading becomes solar
-  voltage when solar is dominant, or battery voltage when running on
-  battery power — see `specs/wiring_diagram.md`.
+  calibrated** (confirmed 2026-07-23), so the raw reading is trustworthy.
+  **VBAT's source changed 2026-07-24:** no longer Branch A's diode-OR
+  tap (eliminated) — now wired directly to the **ESC's red pin**, i.e.
+  Branch C's bus. The one in-flight reading is now **bus voltage**
+  (reflecting whichever of solar/battery is effectively dominant at
+  that bus node, same as the old OR-ing plan would have given, just via
+  Branch C's existing topology rather than a dedicated diode pair) —
+  see `specs/wiring_diagram.md`.
 - **"All-day" (dawn-to-dusk) flight is not currently realistic** with 6–8
   cells of this size; midday net-positive is achievable, morning/evening is
   battery-buffered only.
@@ -251,7 +252,7 @@ update instead.
       cells, Clark-Y wing) isn't being changed to hit this now. Honest
       math is in `calculations/power_budget.md`'s "Weight budget vs. the
       250g target": flight-configuration listed components alone leave
-      only ~5.8g of headroom before any airframe structure is added, and
+      only ~7.3g of headroom before any airframe structure is added, and
       the two biggest levers (Solar Cells 98g, Main Battery 47.1g) are
       also the two most central to the project's mission. Relevant
       whenever future components or design changes are being weighed —
@@ -287,8 +288,12 @@ update instead.
       correspondingly bus) voltage closer to the ESC's ceiling. See
       `specs/components.md`.
 - [x] ~~Branch A (VBAT voltage-sense tap) is undecided.~~ **Decided in
-      concept, 2026-07-23** — not a plain Ideal Diode Module like
-      Branches B/C after all. Branch A's Ideal Diode Pair becomes a true
+      concept, 2026-07-23 — since superseded, 2026-07-24: Branch A was
+      eliminated entirely rather than built as the 2-input OR described
+      below (see the "Physically wire Branch A" item above). Kept here
+      as historical record of how that decision evolved.** Not a plain
+      Ideal Diode Module like Branches B/C after all. Branch A's Ideal
+      Diode Pair becomes a true
       2-input OR: Input 1 = solar array (existing), Input 2 = main
       battery (**new — planned, not yet physically wired**), Output =
       FC VBAT pin. Gives a contextually meaningful in-flight reading —
@@ -309,15 +314,23 @@ update instead.
       solar being present — the planned battery-input OR-ing change
       (above) also means that partial-FC-power domain stays up on
       battery alone, not just on sun. See `specs/wiring_diagram.md`.
-- [ ] **Physically wire Branch A's new main-battery input (2026-07-23).**
-      Decided in concept (see above), not yet built as of this writing —
-      the second input wire (main battery positive → Ideal Diode Pair's
-      second input) doesn't exist yet, unlike the FC ground isolation
-      and 5V regulator VIN capacitor from the same evening's plan, both
-      of which are now confirmed built (see resolved items above). Once
-      wired, re-verify the VBAT reading actually tracks battery voltage
-      when running on battery power (and solar voltage otherwise),
-      rather than assuming the OR-ing behaves as expected.
+- [x] ~~Physically wire Branch A's new main-battery input.~~
+      **Superseded 2026-07-24 — Branch A eliminated entirely, not
+      built as planned.** Instead of adding a second input to Branch
+      A's diode pair, the whole Branch A concept is scrapped: VBAT now
+      wires directly to the **ESC's red (power) pin**, i.e. Branch C's
+      bus. Reasoning: bus voltage (what the ESC/motor/regulator actually
+      experience, including sag under load) is more useful in-flight
+      telemetry than a dedicated solar-or-battery OR-ing reading would
+      have been, especially given the active battery-BMS/overcurrent
+      investigation (Section 4/5) where bus voltage is exactly the
+      metric that matters. In practice the reading still behaves
+      similarly — Branch C's existing topology already blends solar
+      (via its own diode) and battery (direct parallel) at that bus
+      node — just without a second, dedicated diode pair. The Ideal
+      Diode Pair (1.46g) is removed from the build and the weight
+      totals. See `specs/wiring_diagram.md` and
+      `specs/components.md`.
 - [x] ~~VBAT is rated far above what it's actually fed (2026-07-22).~~
       **Resolved 2026-07-23** — the voltage sensor has been calibrated
       for this lower range; the raw VBAT reading is now trustworthy. The
@@ -332,7 +345,7 @@ update instead.
       count/rating discrepancy.
 - [x] ~~5V Regulator is unweighed.~~ **Resolved 2026-07-23 — identified
       as a Pololu S7V7F5 (5V Step-Up/Step-Down Voltage Regulator),
-      0.6g mfr. spec (no header pins), now in the ~244.2g
+      0.6g mfr. spec (no header pins), now in the ~242.7g
       listed-components total and the AUW estimate.** Input range
       2.7–11.8V comfortably covers Branch C's bus (~3.6–4.6V) — its
       buck-**boost** topology is exactly why it works on a bus that dips
@@ -348,7 +361,7 @@ update instead.
       too low.** Wing area and wing loading in this file,
       `specs/components.md`, and `calculations/power_budget.md`/`.py` have
       all been updated for the new geometry, but the ~90–110g unlisted
-      airframe mass estimate (and therefore the ~334.2–354.2g AUW) still
+      airframe mass estimate (and therefore the ~332.7–352.7g AUW) still
       reflects the old SD7037/1210×150mm wing. A larger chord likely means
       more foam and skin material. **Stronger evidence now (2026-07-22):**
       a foam-density-based estimate (`calculations/power_budget.md`'s
@@ -417,7 +430,7 @@ update instead.
       will actually be able to attribute results to a specific cause.
       Observe correct polarity when installing (polarized parts).
       **Weigh the actual on-hand parts** before assuming they don't
-      matter against the ~5.8g remaining 250g headroom — no sourced
+      matter against the ~7.3g remaining 250g headroom — no sourced
       weight found for this specific RLTZ part yet.
 - [x] ~~Isolate the FC's and ESC's negative/return paths.~~ **Confirmed
       built 2026-07-23** — an independent ground wire now runs from the
@@ -451,11 +464,13 @@ update instead.
       can't yet be converted to Watts for comparison against
       `calculations/power_budget.md`'s estimate.
 - [x] ~~Decide whether Branch A should sense main battery instead of
-      solar array.~~ **Resolved 2026-07-23 — answer is "both," via
-      OR-ing, not "instead of."** See the Branch A entry above: the
-      Ideal Diode Pair becomes a 2-input OR (solar array + main battery),
-      so the one in-flight VBAT reading reflects whichever source is
-      higher, rather than trading one for the other.
+      solar array.~~ **Resolved 2026-07-23 — answer was "both," via
+      OR-ing, not "instead of." Superseded 2026-07-24** by eliminating
+      Branch A entirely — VBAT now reads Branch C's bus directly
+      (ESC's red pin), which achieves the same "whichever source
+      dominates" effect via Branch C's existing topology, without a
+      dedicated diode pair. See the "Physically wire Branch A" item
+      above.
 - [ ] Re-run wing loading / power budget once final AUW is weighed (not
       estimated)
 

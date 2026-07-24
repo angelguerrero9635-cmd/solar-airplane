@@ -1,6 +1,6 @@
 # Power Budget & Wing Loading — Calculations
 
-Last updated: 2026-07-23. Companion script: `power_budget.py`.
+Last updated: 2026-07-24. Companion script: `power_budget.py`.
 Run the script to regenerate these numbers whenever weight or geometry
 changes — don't hand-edit the results below without re-running it.
 
@@ -17,8 +17,8 @@ changes — don't hand-edit the results below without re-running it.
 
 - Wingspan: 1.20 m
 - Chord: 0.20 m → wing area ≈ 0.24 m² (24.0 dm²)
-- Estimated AUW: ~334.2–354.2 g (⚠️ estimate, needs a real scale
-  measurement; midpoint 344.2 g used below; predates the wing geometry
+- Estimated AUW: ~332.7–352.7 g (⚠️ estimate, needs a real scale
+  measurement; midpoint 342.7 g used below; predates the wing geometry
   change above, so the unlisted airframe mass this AUW assumes may be
   understated for the larger wing)
 - Airfoil: Clark-Y (classic flat-bottom section, widely used in RC gliders
@@ -40,6 +40,14 @@ changes — don't hand-edit the results below without re-running it.
 > `flight_listed_mass_g()` and the 250g headroom below (243.6g → 244.2g,
 > 6.4g → 5.8g headroom) — unlike the ACS723 removal above, the 5V
 > regulator is a real flight component, not bench-only gear.
+>
+> **Update (2026-07-24):** Branch A (the planned solar+battery diode-OR
+> tap for VBAT) is eliminated entirely — VBAT now wires directly to the
+> ESC's red pin instead. The Ideal Diode Pair (1.46g) is removed from
+> `KNOWN_COMPONENTS_G`, dropping the total/AUW estimate by 1.46g
+> (344.2g → 342.7g midpoint) and the flight-config mass and 250g
+> headroom the same way (244.2g → 242.7g, 5.8g → 7.3g headroom) — this
+> is a real flight component being removed, not a bench-only exclusion.
 
 ## Weight budget vs. the 250g target (added 2026-07-22)
 
@@ -49,20 +57,21 @@ component/design decisions, not a call to change the current build.
 Script output (`flight_listed_mass_g()`, `weight_budget_headroom_g()`):
 
 ```
-Flight-config listed mass (excl. bench-only gear): 244.2 g
-Headroom under 250g target, before ANY airframe structure: 5.8 g
+Flight-config listed mass (excl. bench-only gear): 242.7 g
+Headroom under 250g target, before ANY airframe structure: 7.3 g
 ```
 
 **If this is pursued later, it'll mean reducing the component list,
 not just building the airframe lighter.** Flight-configuration listed
-components (244.2g — the retired ACS723 current sensors are no longer
-counted at all, and the now-identified/weighed 5V Regulator, 0.6g, is
-now included — see the 2026-07-23 updates above) leave only ~5.8g of
-headroom before adding the 3 recommended capacitors, or *any* airframe
-structure at all. The "Wing loading vs. span" section below estimates
-the foam wing **alone** at a minimum of ~59g (900mm span, lowest
-typical RC foam density) — already ~53g over that 5.8g headroom before
-spars, fuselage, mount, wiring, or adhesives are added.
+components (242.7g — the retired ACS723 current sensors and Branch A's
+now-eliminated Ideal Diode Pair are no longer counted at all, while the
+now-identified/weighed 5V Regulator, 0.6g, is included — see the
+2026-07-23/24 updates above) leave only ~7.3g of headroom before adding
+the 3 recommended capacitors, or *any* airframe structure at all. The
+"Wing loading vs. span" section below estimates the foam wing **alone**
+at a minimum of ~59g (900mm span, lowest typical RC foam density) —
+already ~52g over that 7.3g headroom before spars, fuselage, mount,
+wiring, or adhesives are added.
 
 The two largest single line items in the component list — Solar Cells
 (98g) and Main Battery (47.1g) — are also the two most central to this
@@ -79,8 +88,8 @@ future changes.
 
 ## Wing loading
 
-344.2 g over 24.0 dm² → **~14.3 g/dm²** (range ~13.9–14.8 g/dm² across the
-334.2–354.2 g AUW estimate). Notably lower than the previous SD7037 wing
+342.7 g over 24.0 dm² → **~14.3 g/dm²** (range ~13.9–14.7 g/dm² across the
+332.7–352.7 g AUW estimate). Notably lower than the previous SD7037 wing
 (18.2 dm², ~19.1 g/dm²) — the larger chord (150mm → 200mm) outweighs the
 slightly shorter span (1210mm → 1200mm). Still glider territory, likely
 even lower cruise power requirements relative to weight than before, though
@@ -102,7 +111,7 @@ section (cross-section ≈ 0.7 × thickness × chord — a standard
 engineering rule-of-thumb for airfoil area, not Clark-Y-specific) ×
 foam density × span. "Everything else" (listed components, spars,
 fuselage, mount, wiring, adhesives) is netted out from the current
-344.2g AUW estimate at the current 1200mm span, so the model reproduces
+342.7g AUW estimate at the current 1200mm span, so the model reproduces
 that figure exactly at 1200mm and only the wing-foam portion scales for
 other spans.
 
@@ -115,12 +124,12 @@ treat it as approximate.
 
 | Span | Area | Wing mass (foam only) | Wing loading |
 |---|---|---|---|
-| 900mm (7-cell floor) | 18.0 dm² | 59–89g | ~17.5–18.0 g/dm² |
-| 1000mm | 20.0 dm² | 66–98g | ~16.2–16.6 g/dm² |
-| 1100mm | 22.0 dm² | 72–108g | ~15.2–15.3 g/dm² |
+| 900mm (7-cell floor) | 18.0 dm² | 59–89g | ~17.4–17.9 g/dm² |
+| 1000mm | 20.0 dm² | 66–98g | ~16.2–16.5 g/dm² |
+| 1100mm | 22.0 dm² | 72–108g | ~15.1–15.3 g/dm² |
 | **1200mm (current)** | **24.0 dm²** | **79–118g** | **~14.3 g/dm²** |
-| 1300mm | 26.0 dm² | 85–128g | ~13.5–13.6 g/dm² |
-| 1500mm | 30.0 dm² | 98–147g | ~12.1–12.5 g/dm² |
+| 1300mm | 26.0 dm² | 85–128g | ~13.4–13.6 g/dm² |
+| 1500mm | 30.0 dm² | 98–147g | ~12.1–12.4 g/dm² |
 
 **Corrected conclusion:** a bigger span still gives lower wing loading
 within this realistic foam-density range — the trend from the earlier
@@ -152,14 +161,14 @@ Using **50–70 W/kg** for a light glider airframe with some non-aerodynamic
 payload drag (vs. 30–50 W/kg for a clean glider). This range is unchanged
 from the SD7037 wing — it's not re-derived for the new wing loading, so
 it's worth revisiting once real cruise-throttle current draw is measured
-on the Clark-Y wing (a ~14.5 g/dm² wing loading is closer to the "clean
+on the Clark-Y wing (a ~14.3 g/dm² wing loading is closer to the "clean
 glider" end of the range than the old ~19.1 g/dm² was):
 
-- At 0.3336 kg: ~16.7–23.4 W
-- At 0.3536 kg: ~17.7–24.8 W
+- At 0.3327 kg: ~16.6–23.3 W
+- At 0.3527 kg: ~17.6–24.7 W
 
 **Working estimate: ~17–24 W to sustain level cruise** (script output at the
-344.2 g midpoint: 17.2–24.1 W).
+342.7 g midpoint: 17.1–24.0 W).
 
 ## Solar output estimate (7-cell string, theoretical)
 

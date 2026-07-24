@@ -1,6 +1,13 @@
 # Wiring Diagram — Block/System Level
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
+
+> ⚠️ **Major revision (2026-07-24):** Branch A (the planned solar+battery
+> ideal-diode-pair OR-ing tap for VBAT) has been **eliminated entirely**.
+> VBAT now wires directly to the **ESC's red (power) pin** — i.e.,
+> Branch C's bus — instead. See "In-flight vs. bench-test
+> instrumentation" below for the reasoning and what this means for the
+> one available in-flight reading.
 
 > This is a **block-level power and signal diagram**, built from the
 > documented component list plus the diode/branch topology below, which
@@ -17,52 +24,27 @@ Last updated: 2026-07-23
 
 ## Main power & signal path
 
-The solar array feeds 3 independent ideal-diode branches. All 3 diodes
+The solar array feeds 2 independent ideal-diode branches (Branch A no
+longer exists — see the 2026-07-24 revision note above). Both diodes
 share the same input (the solar array); their outputs are **not**
 rejoined — each branch powers something different.
 
-![Wiring diagram — solar array splits into 3 branches: a voltage-sense
-OR-ing tap to the flight controller's VBAT pin (planned to also take a
-second input from the main battery), the FPV rail, and the main battery
-bus, which converge again only at the shared flight controller box.
-Also shows negative/return paths: a negative return bus, with confirmed
-ground legs (gray) from the ESC, Main Battery, 5V Regulator, and — as
-of 2026-07-23 — the FC's own independent ground (star ground, no longer
-routed through the ESC), plus the now-installed capacitor at the 5V
-regulator's input. Branch A's planned main-battery input is still shown
-dashed (not yet built).](wiring_diagram.svg)
+![Wiring diagram — solar array splits into 2 branches (FPV rail, main
+battery bus), which converge again only at the shared flight controller
+box. The flight controller's VBAT pin now wires directly to the ESC's
+red power pin on Branch C, instead of a separate diode-OR tap. Also
+shows negative/return paths: a negative return bus, with confirmed
+ground legs (gray) from the ESC, Main Battery, 5V Regulator, and the
+FC's own independent ground (star ground), plus the installed capacitor
+at the 5V regulator's input.](wiring_diagram.svg)
 
 Text version of the same diagram, for diffing/searching:
 
 ```
 Solar Array — 7x SunPower C60 (series), Voc≈5.0V Vmp≈4.06V
-  -> 5A Current Sensor (measures total array output, before the 3-way
+  -> 5A Current Sensor (measures total array output, before the 2-way
      split below)
-  -> splits into 3 independent branches:
-
-BRANCH A — VBAT OR-ing tap (PLANNED CHANGE, 2026-07-23 — decided in
-concept, not yet physically built)
-  Ideal Diode Pair (Pololu Power ORing, 6A) — used as a true 2-input OR
-    Input 1: Solar Array (existing, confirmed)
-    Input 2: Main Battery (NEW — planned, not yet wired)
-    -> Output -> Flight Controller VBAT pin (the pin wired to the FC's
-       onboard voltage-sense ADC)
-    Purpose: a contextually meaningful in-flight voltage reading.
-       Whichever input is higher wins (ideal-diode OR-ing behavior; each
-       diode only conducts when its own input exceeds the shared output,
-       so the two inputs never back-feed each other) — solar array
-       voltage when solar exceeds battery voltage, main battery voltage
-       when running on battery power (e.g. at night, in shade, or if
-       solar output sags). This replaces the previous single-diode,
-       solar-only tap and directly resolves the "no in-flight battery
-       monitoring" gap flagged below.
-
-       Note (2026-07-23): the main battery's BMS actively disconnects it
-       above 4.2V (see `specs/components.md`). When that happens, this
-       input simply goes open — the OR-ing correctly falls back to
-       whatever solar provides, with no special handling needed. Worth
-       knowing so a sudden VBAT reading change right at a BMS disconnect
-       isn't mistaken for a wiring fault.
+  -> splits into 2 independent branches:
 
 BRANCH B — FPV rail
   Ideal Diode Module #1 (Pololu Ideal Diode Module)
@@ -76,6 +58,10 @@ BRANCH C — main battery bus
          -> Main Battery — 18650 Li-ion, 2600 mAh, 1S               -- parallel
          -> 5A Current Sensor -> ESC -> Motor (T-Motor M1104 KV7500,
             6x3 prop)                                                -- parallel
+              -> ESC red (power) pin -> Flight Controller VBAT pin
+                 (NEW, 2026-07-24 — replaces the old Branch A
+                 diode-OR tap; see "In-flight vs. bench-test
+                 instrumentation" below)
          -> 5V Regulator (Pololu S7V7F5) -> Flight Controller, via the
             servo rail                                                -- parallel
               -> GPS — BN-880
@@ -140,17 +126,13 @@ Regulator's VIN (see `specs/components.md`'s capacitor priority list,
 item 1 of 4) — the first of the recommended capacitors to be
 installed.
 
-**Still planned, not yet built:** Branch A's main-battery 2nd input
-(above) — this was part of the same evening's plan but is not done yet.
-
 **Diagram note:** `wiring_diagram.svg` depicts the negative-path
 topology (see its legend) — gray solid = confirmed normal ground (ESC,
-Main Battery, 5V Regulator, and now the FC too, each routed to a
-"NEGATIVE RETURN BUS" element), dashed orange = anything still
-planned/not yet built (currently just Branch A's battery input). The
-Solar Array's and Branch B's negative legs are called out with a short
-label rather than a fully-routed line, to keep the diagram legible —
-they aren't part of the current troubleshooting.
+Main Battery, 5V Regulator, and the FC too, each routed to a "NEGATIVE
+RETURN BUS" element). The Solar Array's and Branch B's negative legs
+are called out with a short label rather than a fully-routed line, to
+keep the diagram legible — they aren't part of the current
+troubleshooting.
 
 ## In-flight vs. bench-test instrumentation
 
@@ -173,17 +155,35 @@ could be logged or telemetered in flight even if they did fly. They're
 only readable on the ground (e.g. by eye, or with an external logger),
 during bench testing.
 
-**In flight, only one voltage reading is available at all** — via
-Branch A's tap into the FC's VBAT pin. The voltage sensor feeding this
-reading **has been calibrated** (confirmed 2026-07-23 — see
-`CLAUDE.md` open questions, resolved). The remaining limitation isn't
-calibration, it's *what* that one reading represents: fed only from the
-solar array, it can't reflect battery condition. **Branch A's planned
-2-input OR-ing change (above) is the fix for this** — once the new
-battery input line is physically built, the single VBAT reading becomes
-solar voltage when solar is dominant, or battery voltage when running on
-battery power, instead of solar-only. Until that line is actually wired,
-the in-flight reading is still solar-array-only as before.
+**In flight, only one voltage reading is available at all** — VBAT.
+**Changed 2026-07-24: Branch A (the planned solar+battery diode-OR tap)
+has been eliminated entirely.** VBAT now wires directly to the **ESC's
+red (power) pin** — i.e., Branch C's main bus — instead of through a
+dedicated diode pair. Rationale: Branch C's bus is exactly the voltage
+the ESC, motor, and 5V Regulator actually experience, including sag
+under motor load — and that's precisely the metric the recent
+battery-BMS/overcurrent investigation (see `CLAUDE.md` §4–5 and
+`logs/test_flights.md`) has been characterizing as flight-safety
+relevant. A dedicated OR-ing tap would have given a more abstract
+"whichever source is higher" reading; direct bus voltage is the more
+useful one to actually monitor in flight, close to real time, against
+the OCP trip point and the 5V regulator's own input floor.
+
+In practice this still behaves similarly to what the OR-ing tap would
+have given: Branch C's existing topology already blends solar (via its
+own diode) and battery (direct parallel connection) at that same bus
+node, so the reading isn't purely "battery-only" — it reflects
+whichever effectively dominates the bus at the time, same as before,
+just without a second, dedicated diode pair to achieve it.
+
+This also **removes the diode that was previously in the VBAT sense
+path** — a direct wire has no diode-drop error, which is a small
+accuracy win given how tight the margins under discussion are (e.g.
+the ~0.06V gap noted between one test's bus reading and the 5V
+regulator's input minimum). The voltage sensor feeding VBAT **has been
+calibrated** (confirmed 2026-07-23) and that calibration should still
+hold, since it was calibrated against Branch C's own voltage range
+already.
 
 ## Recommended physical wiring (proposed — not yet built)
 
@@ -197,25 +197,24 @@ the in-flight reading is still solar-array-only as before.
 **Wire gauge**, by current level (none of these legs should exceed
 ~5–6A even at theoretical peak):
 
-- **26 AWG silicone wire** — signal/low-current legs: Branch A's VBAT
-  sense tap, FPV camera/VTX pigtail, GPS/receiver/telemetry UART leads,
+- **26 AWG silicone wire** — signal/low-current legs: the ESC-red-pin
+  →VBAT tap, FPV camera/VTX pigtail, GPS/receiver/telemetry UART leads,
   servo signal wires.
 - **24 AWG silicone wire** — higher-current legs: solar array output
-  before the 3-way split, Branch C's main battery/ESC leg.
+  before the 2-way split, Branch C's main battery/ESC leg.
 - Silicone (not PVC) insulation throughout — stays flexible at thin
   gauges, standard for this build class.
 
 **Connectors, by branch:**
 
-- **Solar array → all 3 diode inputs:** direct solder, no connector.
+- **Solar array → both diode inputs:** direct solder, no connector.
   Permanent assembly; a connector here only adds weight and resistance.
-- **Branch A (diode → FC VBAT):** solder directly to the FC's
-  VBAT+/GND pads. Full-size FCs like the F405 NAVI typically expose these
-  as bare solder pads for exactly this kind of custom power input.
-  **New second input (planned, not yet wired):** a tap from the main
-  battery's positive terminal into the Ideal Diode Pair's second input —
-  26 AWG is plenty, since this is a sense tap (negligible current), not
-  a power leg.
+- **VBAT tap (2026-07-24, replaces the old Branch A diode-OR):** solder
+  directly from the ESC's red (power) pin to the FC's VBAT+ pad, and
+  the FC's VBAT- to the same negative bus everything else references.
+  26 AWG is plenty — this is a sense tap (negligible current draw from
+  the FC's ADC), not a power leg, even though it's wired straight to
+  the main bus.
 - **Branch B (FPV rail):** match whatever connector the FPV battery
   already ships with (PH2.0/JST-PH 2-pin is standard on 1S ~400mAh
   packs) rather than introducing a different connector family on the
@@ -294,28 +293,24 @@ brownouts — see `logs/test_flights.md`):
   isolation fix above was a real improvement in its own right, but
   wasn't the actual explanation for this failure mode. See
   `CLAUDE.md` §4 and `logs/test_flights.md`.
-- **Branch A's OR-ing plan is decided in concept, not yet physically
-  built (2026-07-23).** The 2-input OR (solar array + main battery ->
-  VBAT) described above is the intended final design — no longer
-  "tentative, may be replaced with a plain diode module" as earlier
-  drafts of this doc said. What's still outstanding is purely physical:
-  the second input wire (main battery -> diode pair) doesn't exist yet.
-- ~~**Branch A power vs. sense.**~~ **Resolved 2026-07-23, bench-
-  confirmed** (correcting an earlier same-day theoretical pass on this
-  same question): connecting voltage to VBAT **does power on part of
-  the flight controller** — Branch A is a real power input, not purely
-  a sense tap. It does **not** power the servo rail — that stays
-  dependent on the separate external 5V Regulator on Branch C, as
-  already documented above. (The F405 NAVI's published spec sheet lists
-  onboard 5V/servo and 9V/VTX BECs fed from a 12–30V BAT input, which
-  led to a first-pass guess that Branch A's ~4.4–4.6V would be too low
-  to power anything on the board at all — direct bench testing shows
-  that guess was wrong for at least part of the FC, even though the
-  servo-rail BEC specifically does need more voltage than Branch A
-  provides.) Practically: with Branch A currently solar-only, that
-  partial FC power depends on solar being present — one more reason the
-  planned battery-input OR-ing change above matters, since it keeps
-  that power domain up on battery alone too, not just on sun.
+- ~~**Branch A's OR-ing plan is decided in concept, not yet physically
+  built.**~~ **Superseded 2026-07-24 — Branch A eliminated entirely,**
+  not built as previously planned. VBAT now wires directly to the
+  ESC's red pin (Branch C's bus) instead — see "In-flight vs.
+  bench-test instrumentation" above. Simpler (no dedicated diode pair,
+  no second input wire to run) and gives a more directly useful
+  reading for the flight-safety questions currently under
+  investigation (bus voltage vs. the battery's OCP trip and the 5V
+  regulator's input floor).
+- **Branch A power vs. sense (2026-07-23 finding) — still applies to
+  the new wiring, not invalidated by the topology change.** Bench
+  testing found that connecting voltage to VBAT powers on part of the
+  flight controller, not just the sense ADC. VBAT is now wired directly
+  to Branch C's bus (the same node the ESC and 5V Regulator use), so
+  this remains true — if anything, more directly so, since there's no
+  longer a diode between VBAT and that bus. VBAT still does **not**
+  power the servo rail — that stays dependent on the separate external
+  5V Regulator on Branch C, as already documented above.
 - ~~Current-sensor count/type doesn't reconcile with
   `specs/components.md`.~~ **Resolved 2026-07-23:** the original 3
   SparkFun ACS723 breakouts are retired, not used at all anymore. The 4
@@ -348,20 +343,19 @@ brownouts — see `logs/test_flights.md`):
 
 ## Source
 
-The branch topology (3 independent diode branches, their specific
+The branch topology (originally 3 independent diode branches, reduced
+to 2 as of 2026-07-24 with Branch A's elimination; their specific
 destinations, the 5V regulator, and the current-sensor placements) was
-confirmed directly, 2026-07-22. Everything else is derived from the
-component list already in `specs/components.md`. The physical-wiring
-recommendation is exactly that — a recommendation, not a confirmed
-build. The visual diagram (`wiring_diagram.svg`) is a hand-drawn
-rendering of the same topology described in the text version above;
-update both together if the topology changes, same as everything else
-in `specs/`. **Scope note (2026-07-23, updated same day):** the SVG now
-depicts negative/return paths too (gray = confirmed normal ground, solid
-orange = confirmed but flagged issue, dashed orange = planned/not yet
-built — see the diagram's own legend), in addition to the positive-side
-branch topology. Routing for the Solar Array's and Branch B's negative
-legs is simplified/omitted for legibility (a short "GND → negative bus"
-label stands in for the full run) since they aren't part of any current
+confirmed directly. Everything else is derived from the component list
+already in `specs/components.md`. The physical-wiring recommendation is
+exactly that — a recommendation, not a confirmed build. The visual
+diagram (`wiring_diagram.svg`) is a hand-drawn rendering of the same
+topology described in the text version above; update both together if
+the topology changes, same as everything else in `specs/`. The SVG also
+depicts negative/return paths (gray = confirmed normal ground, dashed
+orange = anything still planned/not yet built — see the diagram's own
+legend). Routing for the Solar Array's and Branch B's negative legs is
+simplified/omitted for legibility (a short "GND → negative bus" label
+stands in for the full run) since they aren't part of any current
 troubleshooting; the FC/ESC/Main Battery/5V Regulator paths are drawn in
 full since those are the ones under active investigation.

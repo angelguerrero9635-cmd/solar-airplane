@@ -30,11 +30,15 @@ KNOWN_COMPONENTS_G = {
     "fpv_battery": 11.2,
     "solar_cells": 98.0,  # 7 cells x 14 g/cell (see decisions/0001-cell-series-count.md)
     "servos": 13.0,
-    "ideal_diode_pair": 1.46,
     "ideal_diode_modules": 0.27 * 2,
     "capacitor": 0.7,
     "regulator_5v": 0.6,  # Pololu S7V7F5 step-up/step-down, mfr. spec, no header pins
 }
+# Branch A (the planned solar+battery ideal-diode-pair OR-ing tap for VBAT)
+# is eliminated as of 2026-07-24 - VBAT now wires directly to the ESC's
+# red (power) pin, i.e. Branch C's bus, instead. The Ideal Diode Pair
+# (1.46g) is removed from the build entirely, not just unused - see
+# specs/wiring_diagram.md.
 # The original 3 SparkFun ACS723 breakouts (1.27g each, 3.81g total) are
 # retired as of 2026-07-22 - not used at all anymore, replaced by a
 # different 4-sensor bench-only setup (2x 5A sensor, 2x 2A current meter -
