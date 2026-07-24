@@ -132,10 +132,30 @@ installed.
 **Diagram note:** `wiring_diagram.svg` depicts the negative-path
 topology (see its legend) — gray solid = confirmed normal ground (ESC,
 Main Battery, 5V Regulator, and the FC too, each routed to a "NEGATIVE
-RETURN BUS" element). The Solar Array's and Branch B's negative legs
-are called out with a short label rather than a fully-routed line, to
-keep the diagram legible — they aren't part of the current
-troubleshooting.
+RETURN BUS" element).
+
+**Updated 2026-07-24 — the Ideal Diode Modules have negative pins too:**
+earlier versions of this diagram (and an earlier version of this note)
+treated ground as a simple plane that the diode modules sat on top of,
+with the Solar Array's and Branch B's negative legs shown only as a
+short label rather than a fully-routed line. That undersold the real
+hardware: the Pololu Ideal Diode Module has **separate IN− and OUT−
+pins** on the input and output sides — it is not a two-terminal part
+with a shared/pass-through ground. The negative return has to go
+*through* each module's own IN−/OUT− pair, the same way the positive
+side already does, not around it.
+
+The diagram now routes this explicitly: the Solar Array's negative
+terminal feeds a distribution line that reaches **both** diode
+modules' IN− pins (Branch B's Ideal Diode Module #1 and Branch C's
+Ideal Diode Module #2), since both share the same solar input. Each
+module's OUT− pin then continues downstream on its own branch — Branch
+B's OUT− converges with the FPV Camera/VTX and FPV Battery grounds
+before reaching the negative return bus; Branch C's OUT− joins the
+existing ESC ground lane on its way to the same bus. The distribution
+line crosses the Branch B/C split's positive line once (both are
+needed at that point, at different heights) — the diagram marks that
+with a hump per the legend, since it's a crossing, not a connection.
 
 ## In-flight vs. bench-test instrumentation
 
