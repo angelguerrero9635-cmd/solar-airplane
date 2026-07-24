@@ -259,30 +259,39 @@ update instead.
       Not yet configured on the FC; needs deciding where this limit
       lives (OSD warning, RTH/failsafe trigger, or just a pilot
       warning) once the three-regime theory above is confirmed.
-      **⚠️ This mitigation's premise is now in doubt — see the next
-      item.**
-- [ ] **⚠️ HIGH PRIORITY (2026-07-24): VBAT does not appear to track bus
-      voltage — the planned low-voltage-alarm mitigation above may not
-      actually catch anything.** A third battery-only test logged VBAT
-      (FC volts) and bus voltage simultaneously for the first time. Per
-      the 2026-07-24 wiring change, VBAT should read the ESC red pin —
-      the same node as bus voltage — so the two should track closely.
-      Instead, while bus voltage crashed from 3.42V to 2.45V across the
-      current sweep, VBAT stayed flat around 4.48–4.57V, close to the
-      5V servo rail's reading (5.00V) instead of the sagging bus. If
-      this holds up, **a 3.0V VBAT alarm would never fire even as the
-      bus collapses toward its actual failure point** — the exact
-      scenario the alarm is meant to catch. **Not yet root-caused**:
-      could be (a) VBAT genuinely isn't reaching the ESC red pin as
-      wired — a real build defect, (b) "FC volts" in that test was
-      read from a different point than intended (OSD/telemetry vs. the
-      physical pin, or accidentally the servo rail), or (c) something
-      about the FC's VBAT sense circuit that isn't a simple pass-through.
-      Needs the physical wiring re-verified against `specs/
-      wiring_diagram.md` and a repeat measurement with the probe point
-      explicitly confirmed before trusting either the diagram or the
-      planned alarm. See `logs/test_flights.md`'s 2026-07-24 "Battery-
-      only load test #3" entry.
+- [x] ~~VBAT does not appear to track bus voltage (2026-07-24).~~
+      **Resolved same day — not a wiring defect.** The battery-only
+      test that surfaced this had the ESC red pin **deliberately
+      disconnected** from VBAT, specifically to measure bus voltage and
+      VBAT independently. With that pin disconnected, VBAT correctly
+      wasn't reading the sagging bus. See `logs/test_flights.md`'s
+      2026-07-24 "Battery-only load test #3" entry for the resolution.
+      Superseded by the next item, which is the real finding.
+- [ ] **⚠️ HIGH PRIORITY (2026-07-24): connecting VBAT to the ESC red pin
+      changes motor current draw (~0.5A lower when connected) — every
+      prior trip-current test was run with that pin disconnected.**
+      While investigating the item above, connecting/disconnecting the
+      ESC red pin from VBAT *while the motor was running* changed motor
+      current by almost 0.5A at the same commanded throttle (lower with
+      VBAT connected). **Leading hypothesis, not confirmed:** the FC
+      firmware may apply voltage-aware throttle behavior (sag
+      compensation, a current limiter, or failsafe logic) once it has a
+      real VBAT reading — plausible given how low bus voltage got in
+      these tests. Alternative explanations (wiring/loading artifact,
+      measurement noise, uncontrolled throttle drift) aren't ruled out
+      either, since this was a single qualitative observation, not a
+      controlled sweep.
+      **Why this matters:** every OCP trip-current measurement logged so
+      far — both 2026-07-23 tests (~2.9–3A) and the 2026-07-24 test
+      above (~2.25–2.5A) — was run with VBAT **disconnected** from the
+      ESC red pin. In flight, VBAT *is* connected (that's the point of
+      the 2026-07-24 wiring change). If connecting VBAT changes motor
+      current draw, **none of the trip-current data collected so far may
+      be representative of actual in-flight behavior**, and the
+      three-regime theory above needs re-validation with VBAT connected
+      before being trusted. See `logs/test_flights.md`'s 2026-07-24
+      "Connecting VBAT to the ESC red pin changes motor current draw"
+      entry.
 - [ ] **Branch B's ground is fully isolated from the rest of the
       aircraft (confirmed 2026-07-24) — intentional or a wiring gap?**
       The FPV Camera/VTX and FPV Battery grounds tie to Ideal Diode

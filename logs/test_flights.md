@@ -38,20 +38,33 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ## 2026-07-24 — Battery-only load test #3: first simultaneous VBAT + bus voltage reading
 
-> ⚠️ **Unresolved discrepancy — VBAT does not track bus voltage as the
-> 2026-07-24 wiring change predicted.** See Observations below. Flagging
-> rather than reconciling — need to confirm exactly where "FC volts" was
-> probed before drawing conclusions.
+> ✅ **Resolved (2026-07-24, same day):** the VBAT-vs-bus-voltage
+> discrepancy flagged below was **not a wiring defect or measurement
+> mix-up** — the ESC's red pin was **deliberately not connected to
+> VBAT** for this test, specifically so bus voltage and VBAT could be
+> measured independently/separately. With that pin disconnected, VBAT
+> wasn't reading the ESC red pin at all (consistent with it tracking
+> close to the 5V servo rail instead) — so the flat ~4.5V VBAT reading
+> here is expected, not anomalous. The observations below are kept
+> as-written for the record of how this was investigated; treat the
+> "does VBAT track bus voltage" question as answered **only for the
+> disconnected case**. See the follow-up entry immediately below this
+> one for a new, separate, and more important finding: connecting that
+> same red pin while the motor is running measurably changes motor
+> current draw.
 
 **Type:** bench test
 **Conditions:** not recorded.
 **Config:** Main battery only — wired to ESC and to the Flight
-Controller/5V Regulator. No solar, no camera, no FPV battery. Starting/
-ending battery voltage **not recorded this time** (earlier tests logged
-this — worth capturing next time). Same physical setup as the two
-2026-07-23 battery-only tests, but this is the **first test to read VBAT
-(FC volts) simultaneously with bus voltage**, plus a one-time servo-rail
-check at the start (5.00V).
+Controller/5V Regulator. No solar, no camera, no FPV battery. **ESC red
+pin deliberately not connected to VBAT this test** (see resolution
+above) — bus voltage and VBAT were measured as two independent
+readings, not the same node. Starting/ending battery voltage **not
+recorded this time** (earlier tests logged this — worth capturing next
+time). Same physical setup as the two 2026-07-23 battery-only tests,
+but this is the **first test to read VBAT (FC volts) simultaneously
+with bus voltage**, plus a one-time servo-rail check at the start
+(5.00V).
 
 **Readings** (motor current vs. bus voltage vs. FC volts/VBAT vs. throttle):
 
@@ -67,14 +80,13 @@ check at the start (5.00V).
 Could not reach 2.5A before the battery's protection latched off.
 
 **Observations:**
-- **VBAT (FC volts) does not track bus voltage.** Per `specs/
-  wiring_diagram.md`'s 2026-07-24 change, VBAT wires directly to the
-  ESC's red (power) pin — the same node as "bus voltage" in this table.
-  If that's correct, VBAT and bus voltage should be nearly identical
-  (it's a sense line, negligible current, no meaningful IR drop). Instead
-  bus voltage crashes from 3.42V to 2.45V while VBAT stays flat around
-  4.48–4.57V, tracking close to the 5V servo-rail reading (5.00V at the
-  start) instead. **Not reconciled yet — open question below.**
+- **VBAT (FC volts) does not track bus voltage — expected, since the
+  ESC red pin was disconnected from VBAT for this test (see resolution
+  above).** Bus voltage crashes from 3.42V to 2.45V while VBAT stays
+  flat around 4.48–4.57V, tracking close to the 5V servo-rail reading
+  (5.00V at the start) instead — consistent with VBAT not being tied to
+  the sagging bus at all in this configuration, not a sign of a wiring
+  defect.
 - Bus voltage sag is roughly linear with current: endpoints (0A, 3.42V)
   and (2.25A, 2.45V) give **V ≈ 3.42 − 0.43×I**, i.e. ~0.43Ω effective
   resistance — same ballpark as the two 2026-07-23 tests (~0.3Ω), though
@@ -105,21 +117,91 @@ Could not reach 2.5A before the battery's protection latched off.
   Cannot tell which without measuring avionics current simultaneously
   with motor current — see Follow-up.
 
-**Deviation from prediction:** The VBAT-tracks-bus-voltage assumption
-from the 2026-07-24 wiring change is directly contradicted by this data,
-if "FC volts" was in fact read from the VBAT pin.
+**Deviation from prediction:** N/A — VBAT not tracking bus voltage is
+expected given the ESC red pin was intentionally disconnected from VBAT
+for this test (see resolution above).
 
 **Follow-up:**
-- **Confirm exactly where "FC volts" was measured** — the FC's dedicated
-  VBAT pad/pin directly (multimeter), or via OSD/telemetry software, or
-  possibly the servo rail's 5V itself? This determines whether VBAT
-  genuinely isn't reaching the ESC red pin as wired (a real build issue)
-  or whether this was a measurement-point mix-up.
+- Re-run this same sweep with VBAT actually connected to the ESC red
+  pin to confirm it tracks bus voltage as designed once wired per
+  `specs/wiring_diagram.md` — not yet directly confirmed by a bench
+  test with both connected **and** both read simultaneously. (Note:
+  connecting that pin appears to change motor current draw under load —
+  see the entry below — so this re-run should log current both with and
+  without the pin connected, not just voltage.)
 - Measure avionics (FC+servos+GPS+telemetry) current separately from
   motor current in the next test, to test the "total current, not motor
   current alone" OCP hypothesis above.
 - Record starting/ending battery voltage next time, per the established
   template.
+
+---
+
+## 2026-07-24 — Connecting VBAT to the ESC red pin changes motor current draw (~0.5A)
+
+**Type:** bench test
+**Conditions:** not recorded.
+**Config:** Motor running (throttle held steady, exact position not
+recorded). ESC red pin connected/disconnected from the FC's VBAT pin
+*while the motor was running*, observing the effect on motor current.
+
+**Readings:** Qualitative — motor current dropped by **almost 0.5A**
+when the ESC red pin was connected to VBAT, compared to disconnected, at
+the same commanded throttle. No table (single steady-throttle
+observation, not a sweep).
+
+**Observations:**
+- **This is a real, repeatable-sounding effect, not measurement noise —
+  0.5A is large relative to the currents in this whole test series
+  (trip thresholds around 2.25–3A).** Connecting VBAT isn't electrically
+  inert: it changes how much current the motor draws at a fixed
+  throttle command.
+- **Leading hypothesis, not confirmed:** many flight controller firmwares
+  (Betaflight and others) apply battery-voltage-aware behavior once a
+  valid VBAT reading is present — e.g. voltage-sag compensation, a
+  battery failsafe/current limiter, or governor logic that throttles
+  back when sensed voltage is low. If the ATOMRC F405 NAVI has anything
+  like this active, then connecting VBAT (giving the FC a real, and in
+  this test series often quite low, voltage reading) could trigger the
+  FC to pull back on the throttle output itself — which would show up
+  exactly as observed: lower motor current at the same commanded
+  throttle, only when VBAT is connected.
+- **Alternative, more mundane explanations not yet ruled out:** the
+  extra wire itself changing the circuit's resistance/loading in some
+  way, a measurement artifact from however current was being read, or
+  coincidental throttle drift between the connected/disconnected
+  observations (this was a qualitative comparison, not a controlled
+  sweep with the throttle position logged).
+- **Why this matters:** every prior battery-only test in this log
+  (2026-07-23 tests #1/#2, and load test #3 above) was run **without**
+  VBAT connected to the ESC red pin. If connecting VBAT genuinely
+  changes motor current draw, **the trip-current thresholds recorded in
+  those tests (~2.9–3A) may not be representative of how the aircraft
+  will actually behave in flight**, where VBAT *is* connected (that's
+  the whole point of the 2026-07-24 wiring change — see
+  `specs/wiring_diagram.md`). This could mean the real in-flight OCP
+  trip point is different (likely lower, if the effect is a protective
+  throttle pull-back) than every test logged so far assumed.
+
+**Deviation from prediction:** Significant, if confirmed — none of the
+prior current-sweep tests anticipated that VBAT connection state itself
+would be a variable affecting motor current.
+
+**Follow-up:**
+- **Repeat a full current-sweep test (like the 2026-07-23/07-24 battery-
+  only tests) with VBAT connected to the ESC red pin this time**,
+  logging throttle position, motor current, and bus voltage together —
+  directly comparable to the disconnected-VBAT tests already logged, to
+  quantify the effect properly instead of the one qualitative
+  observation here.
+- If the FC firmware has any voltage-based throttle limiting, current
+  limiting, or failsafe feature, check its configuration (Betaflight
+  CLI/config or equivalent for the ATOMRC F405 NAVI) — this would
+  confirm or rule out the leading hypothesis directly rather than
+  inferring it from bench behavior.
+- Once resolved, revisit `CLAUDE.md` §5's three-regime theory and the
+  planned VBAT low-voltage alarm — both currently assume VBAT-connected
+  behavior matches the VBAT-disconnected data collected so far.
 
 ---
 
