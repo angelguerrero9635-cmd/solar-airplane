@@ -129,8 +129,10 @@
   <text x="1377" y="401" fill="#7fd4e8" font-size="8" font-style="italic" text-anchor="middle">(parallel)</text>
 
   <!-- VBAT tap: ESC red pin -> FC VBAT (NEW 2026-07-24, replaces Branch A).
-       Humps over the 5V-regulator power line near x=1162-1182 (no connection). -->
-  <path d="M 1420,404 L 1420,500 L 1182,500 A 10,10 0 0 1 1162,500 L 750,500 L 750,560"
+       Jogs right to x=1500 to clear the 5V Regulator box (1265-1420) before
+       dropping to y=500, then humps over the 5V-regulator power line near
+       x=1162-1182 (no connection). -->
+  <path d="M 1420,404 L 1420,415 L 1500,415 L 1500,500 L 1182,500 A 10,10 0 0 1 1162,500 L 750,500 L 750,560"
         fill="none" stroke="#5fb8d1" marker-end="url(#arrow)"/>
   <text x="1000" y="490" fill="#7fd4e8" font-size="10" text-anchor="middle">VBAT — ESC red pin (bus voltage)</text>
   <text x="1420" y="418" fill="#7fd4e8" font-size="8" text-anchor="middle">red pin</text>
@@ -202,8 +204,11 @@
 
   <!-- FC's independent ground return (star ground) - confirmed built 2026-07-23,
        replacing the old ESC-routed path (removed from this diagram - see
-       specs/wiring_diagram.md's dated history for the prior state) -->
-  <polyline points="650,615 650,705 1150,705 1150,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
+       specs/wiring_diagram.md's dated history for the prior state).
+       Exits the FC's left edge and jogs to x=390 (left of GPS's box and the
+       servo-rail fan-out) before dropping down, to clear the Receiver box
+       (600-760,640-682). -->
+  <polyline points="600,590 390,590 390,705 1150,705 1150,770" fill="none" stroke="#5a6b80" marker-end="url(#arrow-gray)"/>
   <text x="660" y="700" fill="#5a6b80" font-size="8">GND — independent FC ground</text>
   <text x="660" y="712" fill="#5a6b80" font-size="8">(star ground), confirmed 2026-07-23</text>
 </svg>
