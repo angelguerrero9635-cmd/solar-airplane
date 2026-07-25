@@ -271,23 +271,48 @@ update instead.
       cruise flight as viable at the estimated power budget — not
       something to resolve by assumption. See `logs/test_flights.md`'s
       2026-07-23/24 entries.
-      **Planned mitigation (2026-07-24, not yet implemented):** set a
-      low-voltage alarm/limit on the VBAT (bus voltage) reading — now
-      directly meaningful in-flight telemetry since VBAT reads Branch
-      C's bus (see the ESC-red-pin change above). **~3.0V proposed as
-      the lower limit**, which lines up with the known thresholds:
-      above the 5V regulator's documented 2.7V minimum input, and above
-      where both battery-only tests actually failed (last good readings
-      2.96V/2.75A and 2.76V/2.9A respectively) — so 3.0V gives a warning
-      margin *before* the observed failure zone, not right at its edge.
-      The newly-found ESC cutout (~2.25V) is also below this 3.0V
-      threshold, so the planned alarm would still catch it — but this
-      is now the *third* mechanism converging in the same low-voltage
-      zone (battery OCP, ESC cutout, and the not-yet-confirmed regulator
-      dropout), worth keeping in mind when this alarm is finally tuned.
-      Not yet configured on the FC; needs deciding where this limit
-      lives (OSD warning, RTH/failsafe trigger, or just a pilot
-      warning) once the three-regime theory above is confirmed.
+      **Planned mitigation — superseded 2026-07-24, a single fixed VBAT
+      floor doesn't account for varying SOC/solar/throttle combinations.**
+      The original proposal (a flat ~3.0V alarm) assumed the "safe" bus
+      voltage is roughly constant — but the OCP trip is current-triggered,
+      not voltage-triggered, so the *absolute* bus voltage at trip scales
+      with starting SOC (less sag needed to reach the same trip current
+      when SOC is higher). A flat floor low enough to preserve range at
+      low SOC gives **no warning at all** for a sudden high-current trip
+      at high SOC, which back-of-envelope resistance math suggests could
+      happen as high as ~3.2–3.3V on a well-charged pack — above any
+      reasonable fixed floor.
+      **New proposal, not yet implemented or validated: a sag-relative
+      threshold instead of a fixed floor.** Sag from a resting/low-
+      throttle baseline to last-good-reading-before-trouble is far more
+      consistent across different starting SOC than absolute voltage is:
+      | Test | Start | Last good | Sag |
+      |---|---|---|---|
+      | 07-23 #1 | 4.01V | 2.96V @ 2.75A | 1.05V |
+      | 07-23 #2 | 3.88V | 2.76V @ 2.9A | 1.12V |
+      | 07-24 #3 | 3.54V | 2.45V @ 2.25A | 1.09V |
+      Absolute trip voltage spans 0.5V across these three tests; sag
+      spans only ~0.07V — despite different starting SOC *and* test #3
+      tripping at a notably lower current (still unexplained — see
+      above). Proposed model: (1) an **absolute floor around 2.5–2.6V**
+      for the ESC/regulator's own low-voltage cutout (a hardware limit,
+      independent of sag dynamics), plus (2) a **relative alarm at
+      ~0.8V sag** from a rolling low-throttle baseline (refreshed
+      whenever throttle returns to idle), for the OCP mechanism —
+      whichever triggers first is the action point. This automatically
+      adapts to solar contribution and battery SOC without modeling
+      either separately, since it's tracking real-time observed bus
+      behavior rather than a precomputed assumption.
+      **Not yet validated — only 3 sag data points, and depends on
+      resolving:** (a) whether OCP is motor-current-only or total-current
+      (test #3's lower trip current is still unexplained and could mean
+      the sag budget isn't truly constant once avionics draw varies),
+      (b) whether ~1.0V sag holds up with more tests across a wider SOC
+      range, (c) whether the FC/OSD platform can implement a rolling-
+      baseline relative alarm at all, or whether this has to be
+      approximated as a per-flight manual pre-flight calculation instead.
+      See `logs/test_flights.md`'s 2026-07-24 "Battery-only load test #3"
+      entry for the full sag table and reasoning.
 - [x] ~~VBAT does not appear to track bus voltage (2026-07-24).~~
       **Resolved same day — not a wiring defect.** The battery-only
       test that surfaced this had the ESC red pin **deliberately

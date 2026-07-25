@@ -210,12 +210,11 @@ hypothesis (confounded by USB power — see correction).
 Controller/5V Regulator. No solar, no camera, no FPV battery. **ESC red
 pin deliberately not connected to VBAT this test** (see resolution
 above) — bus voltage and VBAT were measured as two independent
-readings, not the same node. Starting/ending battery voltage **not
-recorded this time** (earlier tests logged this — worth capturing next
-time). Same physical setup as the two 2026-07-23 battery-only tests,
-but this is the **first test to read VBAT (FC volts) simultaneously
-with bus voltage**, plus a one-time servo-rail check at the start
-(5.00V).
+readings, not the same node. **Battery voltage: 3.54V at start, 3.49V
+at end** (added 2026-07-24, after initial logging). Same physical setup
+as the two 2026-07-23 battery-only tests, but this is the **first test
+to read VBAT (FC volts) simultaneously with bus voltage**, plus a
+one-time servo-rail check at the start (5.00V).
 
 **Readings** (motor current vs. bus voltage vs. FC volts/VBAT vs. throttle):
 
@@ -267,6 +266,22 @@ Could not reach 2.5A before the battery's protection latched off.
      protection points are rarely razor-precise).
   Cannot tell which without measuring avionics current simultaneously
   with motor current — see Follow-up.
+- **Sag from starting voltage to last-good reading: 3.54V → 2.45V =
+  1.09V.** This lines up strikingly well with the two 2026-07-23 tests'
+  sag-to-trouble, despite all three tests starting at different battery
+  voltages and this one tripping at a notably lower current:
+  | Test | Start | Last good | Sag |
+  |---|---|---|---|
+  | 07-23 #1 | 4.01V | 2.96V @ 2.75A | 1.05V |
+  | 07-23 #2 | 3.88V | 2.76V @ 2.9A | 1.12V |
+  | 07-24 #3 | 3.54V | 2.45V @ 2.25A | **1.09V** |
+  Absolute trip voltage varies by 0.5V across these three tests; sag
+  varies by only ~0.07V. **This suggests sag-from-resting-voltage, not
+  absolute bus voltage, is the more SOC-independent quantity** — a
+  candidate basis for a smarter in-flight low-voltage warning than a
+  single fixed VBAT floor (which can't adapt to different starting SOC
+  or solar contribution). Still only 3 data points — worth treating as
+  a promising pattern, not a confirmed constant. See `CLAUDE.md` §5.
 
 **Deviation from prediction:** N/A — VBAT not tracking bus voltage is
 expected given the ESC red pin was intentionally disconnected from VBAT
@@ -283,8 +298,8 @@ for this test (see resolution above).
 - Measure avionics (FC+servos+GPS+telemetry) current separately from
   motor current in the next test, to test the "total current, not motor
   current alone" OCP hypothesis above.
-- Record starting/ending battery voltage next time, per the established
-  template.
+- Gather more sag-to-trouble data points (varied starting SOC) to test
+  whether the ~1.0–1.1V sag pattern above holds up as a real constant.
 
 ---
 
