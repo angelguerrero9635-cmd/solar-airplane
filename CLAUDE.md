@@ -229,20 +229,34 @@ update instead.
          from a bus this low). Hypothesized: **the 5V Regulator's own
          input headroom (2.7–11.8V) becomes the limiting factor**, with
          FC brownout/reset as the symptom. **Still unconfirmed either
-         way, 2026-07-24:** a low-starting-voltage motor test found the
-         **ESC** consistently cutting out around **2.25V bus**, at low
-         current (~1–1.5A) — a new, separate, previously-undocumented
-         failure mode (E-Power BE001 had no documented minimum
-         voltage). **Confirmed reset behavior: throttle to zero clears
-         it — no physical reconnect needed, unlike the battery OCP
-         trip.** That test's FC was powered in part via USB from a
-         laptop, though, so it says nothing about whether the 5V
-         Regulator can sustain the FC from Branch C's bus alone at that
-         voltage — the regulator-headroom hypothesis is **neither
-         confirmed nor refuted** yet, still needs a clean test with the
-         FC on Branch C power only. See `logs/test_flights.md`'s
-         2026-07-24 "ESC cuts out at 2.25V" entry (includes this
-         correction).
+         way, 2026-07-24 — two tests, same 2.25V number, likely
+         different causes, not yet reconciled:**
+         - A battery-fed motor test found the **ESC** consistently
+           cutting out around **2.25V bus**, at low current (~1–1.5A) —
+           resets via throttle-to-zero, no physical reconnect needed
+           (unlike the battery OCP trip). That test's FC was powered in
+           part via USB, though, so it's uninformative about the
+           regulator's own headroom.
+         - A separate **solar-only** test (no batteries at all) found
+           the **regulator/FC** cutting out first, also at **2.25V
+           bus** — but that test pushed the array to ~3A, above its
+           ~2.4A/cell nameplate rating, so the cutoff may just be the
+           array's own I-V curve collapsing past its rated current,
+           not the regulator's true dropout point.
+         - **The matching 2.25V figure across two different sources
+           (battery vs. solar) and two different reported symptoms
+           (ESC vs. regulator/FC) is suspicious enough to flag
+           directly: it's plausible both tests are actually seeing the
+           *same* regulator/FC-side dropout, with the first test's "ESC
+           cutout" really being the ESC losing a valid throttle signal
+           once the FC's servo-rail-side logic lost power (masked by
+           USB keeping the FC's MCU alive) — rather than two
+           independent, coincidentally-identical thresholds.** Not
+           distinguished yet. The regulator-headroom hypothesis remains
+           **neither confirmed nor refuted**. See `logs/
+           test_flights.md`'s two 2026-07-24 entries ("ESC cuts out at
+           2.25V" and "Solar-only load test") for the full readings and
+           the specific follow-up test proposed to tell these apart.
       **If this holds, the actually-safe throttle/voltage envelope may
       be narrower than either failure mode looks in isolation.** Needs:
       (1) throttle position logged alongside current in future tests,

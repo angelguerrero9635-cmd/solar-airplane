@@ -36,6 +36,84 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-24 — Solar-only load test: regulator/FC cut out first, also at 2.25V bus — likely array IV-curve collapse, not a component threshold
+
+**Type:** bench test
+**Conditions:** not recorded (sun condition relevant this time, unlike
+battery-only tests — not captured).
+**Config:** **Solar array only — no batteries connected at all** (main
+or FPV). Isolates what the 7-cell array can deliver through Branch C
+(Diode #2) directly to ESC/motor + 5V Regulator/FC with no battery
+buffering. USB connection status to the FC **not stated** — worth
+confirming, given the USB-power confound found in the prior entry.
+
+**Readings:** Qualitative. Bus voltage climbed down as motor current was
+increased; **regulator/FC turned off first** (not the ESC), consistently
+at **2.25V on the main bus**. At/near cutoff: ~2A to the motor, ~3A total
+from the solar array, remainder (~1A) going to the flight controller
+and/or losses (diode, sensor, wiring).
+
+**Observations:**
+- **The array was pushed to ~3A total — above its ~2.4A/cell nameplate
+  rating** (`specs/components.md`'s Solar Cells row: "up to 2.4A each
+  nameplate," 7 cells in series, so the string is only rated to ~2.4A).
+  Pushing a solar string past its rated current typically means
+  operating past the knee of its I-V curve, toward short-circuit
+  behavior — where voltage collapses steeply for small further increases
+  in current, independent of whatever's downstream. **This is a strong
+  candidate explanation for the 2.25V cutoff being an array-side voltage
+  collapse, not necessarily a regulator or FC threshold being reached.**
+- **This is a genuinely different test setup than the earlier "ESC cuts
+  out at 2.25V" entry** (battery-fed, no solar) — that test's source was
+  a battery (gradual IR-drop sag under load); this one's source is a
+  solar string (potentially steep I-V collapse past its rated current).
+  **The same 2.25V number appearing in both is noteworthy but may be
+  coincidental rather than revealing a shared component threshold** —
+  see the open question below before assuming these two results
+  corroborate each other.
+- **Possible reframe of the earlier ESC-cutout entry:** if the array-fed
+  test's cutoff is really about the source collapsing (not a downstream
+  component's own protection), it raises the question of whether the
+  *earlier* battery-fed "ESC cutout" was actually an ESC-internal
+  low-voltage protection, or whether it was actually the regulator/FC
+  side losing power first (same 2.25V) and the ESC merely stopped
+  because it lost a valid throttle signal from the FC — with the FC's
+  own MCU appearing to "stay online" only because of the USB confound
+  already flagged in that entry. **Not distinguished yet** — see
+  Follow-up.
+- **Rough power check:** ~3A at ~2.25V ≈ 6.75W delivered to the bus at
+  cutoff — well below the ~17–24W cruise power estimate in
+  `calculations/power_budget.md`. Not a contradiction (that estimate
+  assumes battery + solar together, not solar alone), but confirms solar
+  alone, at this current, isn't in the neighborhood of sustaining cruise
+  flight without the battery.
+
+**Deviation from prediction:** Partially tests the three-regime theory's
+regulator-dropout hypothesis (`CLAUDE.md` §5) — but the array-overcurrent
+confound (above) means this result **shouldn't yet be read as a clean
+measurement of the regulator's true input headroom.**
+
+**Follow-up:**
+- **Repeat with array current capped below ~2.4A** (stay under the
+  cells' nameplate rating) to separate "array I-V collapse" from
+  "regulator/FC's own low-voltage threshold" as the actual cause of the
+  cutoff.
+- **Confirm USB connection status to the FC** for this test.
+- **Directly test whether the earlier "ESC cutout" and this "regulator/FC
+  cutout" are the same underlying event**: with the FC kept alive via
+  USB (to rule out FC-MCU-loss) and Branch C bus brought down toward
+  2.25V under battery power (not solar, to avoid the array-collapse
+  confound), check whether the ESC still stops responding — if the FC
+  keeps sending a valid throttle signal throughout and the ESC still
+  cuts out at 2.25V, that supports an independent ESC threshold; if the
+  ESC recovers whenever a valid signal is confirmed present, that
+  points to the earlier result being a signal-loss symptom of the
+  regulator dropping out, not an ESC-specific protection.
+- Log sun condition/time of day for solar tests going forward, per the
+  template.
+
+---
+
 ## 2026-07-24 — ESC cuts out at 2.25V bus; resets with throttle-to-zero, no physical reset needed
 
 > ⚠️ **Correction (same day):** the original version of this entry
