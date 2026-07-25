@@ -226,13 +226,21 @@ update instead.
          grows as voltage drops.
       3. **Low voltage:** full throttle can no longer reach ~2.9–3A at
          all (the motor/prop combination can't draw that much current
-         from a bus this low) — but **the 5V Regulator's own input
-         headroom (2.7–11.8V) likely becomes the new limiting factor**
-         instead, with a different symptom (FC brownout/reset from
-         regulator dropout, not a battery-protection bus-wide outage).
-         Not just theoretical: the lower of the two battery-only tests
-         already logged a bus reading of **2.76V at 2.9A — only 0.06V
-         above the regulator's documented 2.7V minimum input.**
+         from a bus this low). Originally hypothesized: **the 5V
+         Regulator's own input headroom (2.7–11.8V) becomes the limiting
+         factor**, with FC brownout/reset as the symptom. **Partially
+         revised, 2026-07-24:** a low-starting-voltage motor test instead
+         found the **ESC** consistently cutting out around **2.25V bus**,
+         at low current (~1–1.5A) — while the **battery and FC stayed
+         online**, below the regulator's documented 2.7V minimum input.
+         So the regulator seems to have more real-world margin than its
+         spec floor suggested (good news there), but there's a **third,
+         separate failure mode**: an ESC-level low-voltage cutout, not
+         previously documented in any spec sheet for the E-Power BE001.
+         Whether this ESC cutout is self-recovering or needs a power
+         cycle (like the battery OCP does) is **not yet known** — see
+         `logs/test_flights.md`'s 2026-07-24 "ESC cuts out at 2.25V"
+         entry.
       **If this holds, the actually-safe throttle/voltage envelope may
       be narrower than either failure mode looks in isolation.** Needs:
       (1) throttle position logged alongside current in future tests,
@@ -256,6 +264,11 @@ update instead.
       where both battery-only tests actually failed (last good readings
       2.96V/2.75A and 2.76V/2.9A respectively) — so 3.0V gives a warning
       margin *before* the observed failure zone, not right at its edge.
+      The newly-found ESC cutout (~2.25V) is also below this 3.0V
+      threshold, so the planned alarm would still catch it — but this
+      is now the *third* mechanism converging in the same low-voltage
+      zone (battery OCP, ESC cutout, and the not-yet-confirmed regulator
+      dropout), worth keeping in mind when this alarm is finally tuned.
       Not yet configured on the FC; needs deciding where this limit
       lives (OSD warning, RTH/failsafe trigger, or just a pilot
       warning) once the three-regime theory above is confirmed.
