@@ -36,84 +36,76 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
-## 2026-07-24 — ESC cuts out at 2.25V bus, battery and FC stay online (new failure mode, distinct from battery OCP)
+## 2026-07-24 — ESC cuts out at 2.25V bus; resets with throttle-to-zero, no physical reset needed
+
+> ⚠️ **Correction (same day):** the original version of this entry
+> claimed the battery/FC staying online at 2.25V bus meant "the 5V
+> Regulator has more real-world margin than its documented 2.7V
+> minimum." **That claim is retracted — the test doesn't support it.**
+> The flight controller was connected via USB to a laptop for this
+> test, which supplies its own power. The FC staying "online" is
+> therefore uninformative about whether the 5V Regulator can actually
+> sustain the FC from Branch C's bus alone at 2.25V — it may well not be
+> able to. This test only demonstrates the ESC's own cutout voltage and
+> its reset behavior (see below), not anything about the regulator's
+> real-world headroom. The regulator-margin question from the
+> three-regime theory remains **open**, not resolved either way.
 
 **Type:** bench test
 **Conditions:** not recorded.
 **Config:** Low starting battery voltage (exact value not given — worth
-recording next time). Motor load test; ESC consistently cut out at
-**2.25V on the main bus**, at low motor amps (~1–1.5A). Not stated
-whether VBAT was connected to the ESC red pin for this test — see
-Follow-up, given the just-logged finding that this connection state
-itself affects motor current draw.
+recording next time). **Flight controller powered in part via USB from a
+laptop during this test** — a confound for any claim about what the
+battery/5V Regulator alone can sustain (see correction above). Motor
+load test; ESC consistently cut out at **2.25V on the main bus**, at low
+motor amps (~1–1.5A). Not stated whether VBAT was connected to the ESC
+red pin for this test — see Follow-up, given the just-logged finding
+that this connection state itself affects motor current draw.
 
 **Readings:** Qualitative — ESC cutout point (2.25V bus) repeated
 ("consistently") across attempts, at ~1–1.5A motor current.
 
 **Observations:**
 - **This is a different failure mode than the battery's own BMS
-  overcurrent protection documented in the 2026-07-23 tests.** The
-  battery OCP trip kills the *entire* bus (battery, FC, everything) and
-  needs the battery physically disconnected/reconnected to recover. Here,
-  **the battery and flight controller stay online** — only the ESC/motor
-  path drops out. This reads as the ESC's own low-voltage cutout, not a
-  battery protection event.
+  overcurrent protection documented in the 2026-07-23 tests, and clearly
+  milder.** The battery OCP trip kills the *entire* bus and needs the
+  battery **physically disconnected/reconnected** to recover. This ESC
+  cutout instead **resets by bringing throttle to zero** — no physical
+  reset required. Confirmed directly, not inferred.
 - **This happens at much lower current (~1–1.5A) than the OCP trip
   current (~2.9–3A) seen in every prior test.** At low starting battery
   voltage, this ESC-level cutout appears to bind well before the
   battery's OCP ever would — the aircraft runs out of usable throttle
   range here for a completely different reason than at high SOC.
-- **This partially revises the three-regime theory's regime 3
-  prediction (`CLAUDE.md` §5).** That theory predicted the 5V
-  Regulator's input headroom (2.7V documented minimum) would become the
-  binding constraint at low battery voltage, with **FC brownout/reset**
-  as the symptom. Instead: the FC (and the regulator feeding it) stayed
-  online at 2.25V bus — *below* the regulator's documented 2.7V minimum
-  input — while the **ESC** was what actually cut out. Two implications:
-  1. The 5V Regulator appears to have more real-world margin below its
-     datasheet-minimum input than assumed — it's still delivering usable
-     power to the FC below its own documented floor. Good news for the
-     FC-brownout concern specifically, but not yet a confirmed
-     re-characterization (single bench observation, regulator output
-     itself still hasn't been directly monitored per the existing
-     follow-up in `CLAUDE.md` §5).
-  2. There's now a **third distinct failure mode** to track alongside
-     battery OCP and (hypothesized, not yet observed) regulator dropout:
-     an ESC-level low-voltage cutout around 2.25V bus. No minimum
-     operating voltage was previously documented for the E-Power BE001
-     ESC (`specs/components.md` only had its "5V max" rating) — 2.25V is
-     new empirical spec data, not from any datasheet.
-- **Open question, not answered by this test: does the ESC recover on
-  its own** (e.g. if throttle is backed off and bus voltage recovers), or
-  does it need a power cycle like the battery OCP case does? This matters
-  a lot for how dangerous this failure mode actually is in flight — a
-  self-recovering ESC cutout is far more benign than one requiring a
-  physical reset.
+- **New empirical spec data point for the ESC:** no minimum operating
+  voltage was previously documented for the E-Power BE001 (`specs/
+  components.md` only had its "5V max" rating) — 2.25V bus is now an
+  observed cutout point, with a confirmed reset behavior (throttle to
+  zero). Worth adding to `specs/components.md`'s ESC row.
+- **Does NOT confirm or refute the three-regime theory's regime-3
+  regulator-dropout prediction** (`CLAUDE.md` §5) — see the correction
+  above. The FC staying "online" here isn't evidence either way, because
+  of the USB power confound. That question needs a re-test with the FC
+  running on Branch C power alone (no USB), monitoring the regulator's
+  own output directly.
 
-**Deviation from prediction:** Contradicts part of the three-regime
-theory's regime-3 prediction (regulator dropout / FC brownout) — see
-Observations. The overall "something new limits low-voltage operation"
-framing holds, but the specific mechanism and symptom are different than
-hypothesized.
+**Deviation from prediction:** Confirms a new, previously undocumented
+ESC-level failure mode; does not confirm or refute the regulator-dropout
+hypothesis (confounded by USB power — see correction).
 
 **Follow-up:**
-- Determine whether the ESC recovers on its own once bus voltage rises
-  again (reduce throttle and observe), or requires a battery
-  disconnect/reconnect — critical for characterizing how this failure
-  mode should be treated in flight (e.g. RTH viability if it happens).
+- **Re-run this test with the FC powered only from Branch C (no USB),**
+  monitoring the 5V Regulator's own output directly, to actually test
+  the three-regime theory's regulator-headroom hypothesis — this test
+  didn't isolate that variable.
 - Record the actual starting battery voltage for this test.
 - Confirm whether VBAT was connected to the ESC red pin during this
   test, given the just-logged finding that connection state changes
   motor current draw by ~0.5A — relevant since this test's ~1–1.5A
   reading could shift if repeated with the opposite VBAT connection
   state.
-- Directly monitor the 5V Regulator's own output (not just bus voltage)
-  during a repeat of this test, to see whether it's genuinely holding
-  5V steady at 2.25V input or itself sagging (this was already a
-  follow-up from the three-regime theory — now more urgent given this
-  result).
-- Update `specs/components.md`'s ESC row with this 2.25V empirical
-  cutout figure once confirmed with a recorded starting voltage.
+- Update `specs/components.md`'s ESC row with the 2.25V cutout / 
+  throttle-to-zero reset behavior, once a starting voltage is recorded.
 
 ---
 

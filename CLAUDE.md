@@ -226,21 +226,23 @@ update instead.
          grows as voltage drops.
       3. **Low voltage:** full throttle can no longer reach ~2.9–3A at
          all (the motor/prop combination can't draw that much current
-         from a bus this low). Originally hypothesized: **the 5V
-         Regulator's own input headroom (2.7–11.8V) becomes the limiting
-         factor**, with FC brownout/reset as the symptom. **Partially
-         revised, 2026-07-24:** a low-starting-voltage motor test instead
-         found the **ESC** consistently cutting out around **2.25V bus**,
-         at low current (~1–1.5A) — while the **battery and FC stayed
-         online**, below the regulator's documented 2.7V minimum input.
-         So the regulator seems to have more real-world margin than its
-         spec floor suggested (good news there), but there's a **third,
-         separate failure mode**: an ESC-level low-voltage cutout, not
-         previously documented in any spec sheet for the E-Power BE001.
-         Whether this ESC cutout is self-recovering or needs a power
-         cycle (like the battery OCP does) is **not yet known** — see
-         `logs/test_flights.md`'s 2026-07-24 "ESC cuts out at 2.25V"
-         entry.
+         from a bus this low). Hypothesized: **the 5V Regulator's own
+         input headroom (2.7–11.8V) becomes the limiting factor**, with
+         FC brownout/reset as the symptom. **Still unconfirmed either
+         way, 2026-07-24:** a low-starting-voltage motor test found the
+         **ESC** consistently cutting out around **2.25V bus**, at low
+         current (~1–1.5A) — a new, separate, previously-undocumented
+         failure mode (E-Power BE001 had no documented minimum
+         voltage). **Confirmed reset behavior: throttle to zero clears
+         it — no physical reconnect needed, unlike the battery OCP
+         trip.** That test's FC was powered in part via USB from a
+         laptop, though, so it says nothing about whether the 5V
+         Regulator can sustain the FC from Branch C's bus alone at that
+         voltage — the regulator-headroom hypothesis is **neither
+         confirmed nor refuted** yet, still needs a clean test with the
+         FC on Branch C power only. See `logs/test_flights.md`'s
+         2026-07-24 "ESC cuts out at 2.25V" entry (includes this
+         correction).
       **If this holds, the actually-safe throttle/voltage envelope may
       be narrower than either failure mode looks in isolation.** Needs:
       (1) throttle position logged alongside current in future tests,
