@@ -36,6 +36,94 @@ and battery_soc.md — note if reality diverges and by how much)
 
 ---
 
+## 2026-07-24 — Throttle scale 0.45 validated: no overcurrent trip across full battery cycle, battery-only or with solar
+
+**Type:** ground roll / bench test (throttle scale set in INAV, tested
+across a full battery discharge cycle and under solar).
+**Conditions:** includes both battery-only running and solar-connected
+running, with sun/shade transitions at full power. Not otherwise
+recorded.
+**Config:** INAV throttle scale set to **0.45** (down from the ~0.6
+figure discussed but not yet logged) — caps commanded throttle to 45%
+of the transmitter's full range. **VBAT disconnected from the ESC red
+pin** for this test (same as most prior tests).
+
+**Readings:** Qualitative, but comprehensive:
+- **Battery-only, full throttle scale range, across the whole discharge
+  cycle:** motor current capped at **2.2A at full battery charge**,
+  stabilizes around **2A for most of the cycle**, gradually drops to
+  **1.5A toward the end of the battery cycle**. No overcurrent trip
+  observed anywhere in this range.
+- **VBAT (disconnected from ESC red pin):** stays flat around **4.5V
+  all the way to failure** — sustained by the 5V Regulator/servo rail,
+  not the sagging bus. Confirms the 2026-07-24 "Battery-only load test
+  #3" finding again: with VBAT disconnected, it's not a useful voltage
+  reading at all.
+- **Under solar power, including sun/shade transitions at full power:**
+  also no overcurrent trip. Motor current reaches up to **3A**, with
+  **most of that current coming from solar**, not the battery.
+
+**Observations:**
+- **The throttle scale appears to solve the OCP risk directly, without
+  needing a voltage-based alarm at all — for the battery-only case.**
+  Every current reading across the full discharge cycle (2.2A → 2A →
+  1.5A) stays below every previously-observed OCP trip current
+  (~2.25–3A across the 2026-07-23/07-24 tests). This sidesteps the
+  whole "absolute voltage doesn't predict OCP because it scales with
+  SOC" problem from the sag-based-alarm discussion (`CLAUDE.md` §5) by
+  capping the cause (current) directly instead of trying to detect its
+  voltage symptom.
+- **Important residual gap, not solved by this: the ESC/regulator
+  low-voltage cutout (~2.25V bus) is a voltage-triggered mechanism, not
+  a current-triggered one — capping current doesn't protect against
+  it.** The **1.5A reading toward the end of the battery cycle** is
+  uncomfortably close to the **~1–1.5A current logged in the "ESC cuts
+  out at 2.25V" entry** (a low-starting-voltage battery test). Nothing
+  here confirms bus voltage stays above 2.25V late in a real discharge
+  cycle — the throttle scale doesn't address that failure mode, since
+  it's about voltage headroom, not current. The sag-based/absolute-
+  floor voltage alarm proposal is still needed for **this** mechanism,
+  separate from OCP.
+- **Solar test result is a strong, clean data point for the "does OCP
+  trip on battery current alone, or total bus current" open question**
+  (raised in the 2026-07-24 "Battery-only load test #3" entry). Total
+  motor current reached **3A here with solar contributing "most" of
+  it** — above the ~2.9A total current that tripped OCP in the
+  battery-only 2026-07-23 tests — **with no trip.** The simplest
+  explanation: the BMS's overcurrent protection monitors current out of
+  the **battery itself**, not total current delivered to the motor/bus.
+  If solar is supplying most of the 3A, the battery's own share stays
+  comfortably under its ~2.9A threshold even though total motor current
+  exceeds it. This doesn't resolve why load test #3 tripped at a lower
+  current than the other two 2026-07-23 tests (that's a different,
+  still-open question about avionics draw specifically), but it does
+  argue against "OCP cares about total bus current including solar."
+- **Worth quantifying:** with motor current at 3A and "most" coming
+  from solar, the array itself could be approaching or exceeding its
+  ~2.4A/cell nameplate rating again (see the 2026-07-24 "Solar-only load
+  test" entry's array-collapse finding) — not confirmed here since the
+  exact solar/battery split wasn't measured, just "most."
+
+**Deviation from prediction:** Positive — the throttle scale approach
+performs better than expected across varying SOC and solar conditions,
+resolving the OCP concern more simply than the voltage-based alarm
+scheme being designed for it. Does not resolve the separate ESC/
+regulator voltage-cutout concern.
+
+**Follow-up:**
+- Quantify the actual battery-vs-solar current split at the 3A reading,
+  to check the array isn't being pushed past its ~2.4A/cell rating again.
+- Bus voltage still needs monitoring for the ESC/regulator cutout risk
+  specifically, independent of this throttle-scale result — the sag-
+  based or absolute-floor alarm proposal in `CLAUDE.md` §5 remains
+  relevant for that mechanism, not superseded by this test.
+- Consider re-running this same throttle-scale validation with VBAT
+  actually connected to the ESC red pin (and USB disconnected), now that
+  a safe current ceiling is established, to get real bus-voltage data
+  across the full cycle under the throttle-scale-limited current profile.
+
+---
+
 ## 2026-07-24 — Solar-only load test: regulator/FC cut out first, also at 2.25V bus — likely array IV-curve collapse, not a component threshold
 
 **Type:** bench test

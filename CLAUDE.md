@@ -271,8 +271,35 @@ update instead.
       cruise flight as viable at the estimated power budget — not
       something to resolve by assumption. See `logs/test_flights.md`'s
       2026-07-23/24 entries.
-      **Planned mitigation — superseded 2026-07-24, a single fixed VBAT
-      floor doesn't account for varying SOC/solar/throttle combinations.**
+      **✅ OCP risk largely mitigated 2026-07-24 via a different
+      mechanism than a voltage alarm: an INAV throttle scale of 0.45.**
+      This caps commanded throttle to 45% of the transmitter's full
+      range, and validated across a full battery discharge cycle
+      (2.2A at full charge → ~2A for most of the cycle → 1.5A near
+      depletion — all below every observed OCP trip current, 2.25–3A)
+      and under solar power including sun/shade transitions at full
+      power (up to 3A total, no trip — see Follow-up note on why this
+      doesn't contradict the ~2.9A battery-only trip current). This
+      sidesteps the "absolute voltage doesn't predict OCP" problem
+      entirely by capping the current directly instead of trying to
+      infer it from voltage. **Does not address the separate ESC/
+      regulator low-voltage cutout (~2.25V bus)** — that's voltage-
+      triggered, not current-triggered, and the 1.5A reading late in
+      the battery cycle is uncomfortably close to the ~1–1.5A logged in
+      the "ESC cuts out at 2.25V" entry. A voltage safeguard is still
+      needed for that mechanism specifically. See `logs/test_flights.md`'s
+      2026-07-24 "Throttle scale 0.45 validated" entry.
+      **Bonus finding from the solar test above: evidence that OCP
+      monitors current out of the battery itself, not total bus
+      current.** 3A total motor current (mostly solar-sourced) didn't
+      trip OCP, while ~2.9A total current tripped it in the battery-only
+      2026-07-23 tests — consistent with the BMS watching the battery's
+      own output, not the combined bus. Doesn't resolve the separate
+      "why did load test #3 trip at a lower current" question (still
+      open, possibly avionics-draw-related).
+      **Planned mitigation for the ESC/regulator voltage cutout — a
+      single fixed VBAT floor doesn't account for varying SOC/solar/
+      throttle combinations.**
       The original proposal (a flat ~3.0V alarm) assumed the "safe" bus
       voltage is roughly constant — but the OCP trip is current-triggered,
       not voltage-triggered, so the *absolute* bus voltage at trip scales
