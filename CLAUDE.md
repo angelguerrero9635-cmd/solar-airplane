@@ -322,30 +322,36 @@ update instead.
       2026-07-24 "Battery-only load test #3" entry for the resolution.
       Superseded by the next item, which is the real finding.
 - [ ] **⚠️ HIGH PRIORITY (2026-07-24): connecting VBAT to the ESC red pin
-      changes motor current draw (~0.5A lower when connected) — every
-      prior trip-current test was run with that pin disconnected.**
-      While investigating the item above, connecting/disconnecting the
-      ESC red pin from VBAT *while the motor was running* changed motor
-      current by almost 0.5A at the same commanded throttle (lower with
-      VBAT connected). **Leading hypothesis, not confirmed:** the FC
-      firmware may apply voltage-aware throttle behavior (sag
-      compensation, a current limiter, or failsafe logic) once it has a
-      real VBAT reading — plausible given how low bus voltage got in
-      these tests. Alternative explanations (wiring/loading artifact,
-      measurement noise, uncontrolled throttle drift) aren't ruled out
-      either, since this was a single qualitative observation, not a
-      controlled sweep.
-      **Why this matters:** every OCP trip-current measurement logged so
-      far — both 2026-07-23 tests (~2.9–3A) and the 2026-07-24 test
-      above (~2.25–2.5A) — was run with VBAT **disconnected** from the
-      ESC red pin. In flight, VBAT *is* connected (that's the point of
-      the 2026-07-24 wiring change). If connecting VBAT changes motor
-      current draw, **none of the trip-current data collected so far may
-      be representative of actual in-flight behavior**, and the
-      three-regime theory above needs re-validation with VBAT connected
-      before being trusted. See `logs/test_flights.md`'s 2026-07-24
-      "Connecting VBAT to the ESC red pin changes motor current draw"
-      entry.
+      changes the 5A sensor's reading by ~0.5A — likely a USB-backfeed
+      bench artifact, not a real change in motor current. Every prior
+      trip-current test was run with that pin disconnected, and may not
+      transfer to real in-flight readings either way.** Reframed same
+      day: connecting VBAT while the motor was running dropped the 5A
+      sensor's reading by ~0.5A at the same throttle. **Leading
+      hypothesis (reasoned from the topology, not yet isolated):** the
+      FC — plausibly via its USB connection to a laptop, an independent
+      power source — may be **backfeeding current into the main bus**
+      through the VBAT wire once it's tied to the ESC red pin. The 5A
+      sensor sits in-line on the trunk-to-ESC path only, not on the VBAT
+      tap, so it would miss any current arriving via that alternate
+      path — meaning the *sensor reading* drops without the *motor*
+      necessarily receiving less current at all. If confirmed, **this
+      is a bench-test artifact specific to having USB connected, with no
+      in-flight equivalent** (no USB in flight). Secondary, previously-
+      leading hypothesis: FC firmware voltage-aware throttle behavior
+      (sag compensation/current limiter) — not ruled out, but less
+      likely given USB was known to be connected in at least one
+      closely-related test this session.
+      **Why this matters either way:** every OCP trip-current measurement
+      logged so far — both 2026-07-23 tests (~2.9–3A) and the 2026-07-24
+      test above (~2.25–2.5A) — was run with VBAT **disconnected**. In
+      flight, VBAT is connected but USB is not — a combination no bench
+      test has cleanly isolated yet. **If backfeed is confirmed, it also
+      calls into question the "ESC cuts out at 2.25V" and "regulator/FC
+      cuts out" test results above**, since both may have had USB
+      involved. See `logs/test_flights.md`'s 2026-07-24 "Connecting VBAT
+      to the ESC red pin" entry (includes the reframing and the specific
+      test — repeat with USB disconnected — that would settle this).
 - [ ] **Branch B's ground is fully isolated from the rest of the
       aircraft (confirmed 2026-07-24) — intentional or a wiring gap?**
       The FPV Camera/VTX and FPV Battery grounds tie to Ideal Diode

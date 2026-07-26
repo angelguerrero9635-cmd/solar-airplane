@@ -303,15 +303,36 @@ for this test (see resolution above).
 
 ---
 
-## 2026-07-24 — Connecting VBAT to the ESC red pin changes motor current draw (~0.5A)
+## 2026-07-24 — Connecting VBAT to the ESC red pin changes the *meter reading* by ~0.5A (likely backfeed, not less motor current)
+
+> ⚠️ **Reframed (same day):** the original version of this entry treated
+> this as "the motor draws ~0.5A less when VBAT is connected" and led
+> with an FC-firmware voltage-compensation hypothesis. **New working
+> theory, from direct reasoning about the topology, not yet confirmed
+> by isolating the source:** connecting VBAT to the ESC red pin may be
+> **backfeeding the main bus** — i.e. the FC (very plausibly via its USB
+> connection to a laptop, which supplies independent power) injects
+> current into the bus through the VBAT wire once it's tied to the ESC
+> red pin. If so, the **5A sensor's reading drops not because the motor
+> receives less current, but because part of the current reaching the
+> ESC/motor now arrives via the VBAT wire, bypassing the sensor
+> entirely** (the sensor sits in-line on the trunk-to-ESC path only, not
+> on the VBAT tap). The motor's actual current draw may be unchanged, or
+> even higher. This is a materially different — and more mundane —
+> explanation than a firmware voltage-compensation feature, and it
+> would mean **this effect is a USB-power bench-test artifact, not a
+> real in-flight phenomenon** (no USB in flight). Not yet confirmed —
+> see Follow-up for the specific test that would settle it.
 
 **Type:** bench test
 **Conditions:** not recorded.
 **Config:** Motor running (throttle held steady, exact position not
 recorded). ESC red pin connected/disconnected from the FC's VBAT pin
-*while the motor was running*, observing the effect on motor current.
+*while the motor was running*, observing the effect on the 5A sensor's
+reading. **USB connection status to the FC not recorded for this test**
+— central to the backfeed hypothesis above, see Follow-up.
 
-**Readings:** Qualitative — motor current dropped by **almost 0.5A**
+**Readings:** Qualitative — 5A sensor reading dropped by **almost 0.5A**
 when the ESC red pin was connected to VBAT, compared to disconnected, at
 the same commanded throttle. No table (single steady-throttle
 observation, not a sweep).
@@ -320,54 +341,58 @@ observation, not a sweep).
 - **This is a real, repeatable-sounding effect, not measurement noise —
   0.5A is large relative to the currents in this whole test series
   (trip thresholds around 2.25–3A).** Connecting VBAT isn't electrically
-  inert: it changes how much current the motor draws at a fixed
-  throttle command.
-- **Leading hypothesis, not confirmed:** many flight controller firmwares
-  (Betaflight and others) apply battery-voltage-aware behavior once a
-  valid VBAT reading is present — e.g. voltage-sag compensation, a
-  battery failsafe/current limiter, or governor logic that throttles
-  back when sensed voltage is low. If the ATOMRC F405 NAVI has anything
-  like this active, then connecting VBAT (giving the FC a real, and in
-  this test series often quite low, voltage reading) could trigger the
-  FC to pull back on the throttle output itself — which would show up
-  exactly as observed: lower motor current at the same commanded
-  throttle, only when VBAT is connected.
-- **Alternative, more mundane explanations not yet ruled out:** the
-  extra wire itself changing the circuit's resistance/loading in some
-  way, a measurement artifact from however current was being read, or
-  coincidental throttle drift between the connected/disconnected
-  observations (this was a qualitative comparison, not a controlled
-  sweep with the throttle position logged).
-- **Why this matters:** every prior battery-only test in this log
-  (2026-07-23 tests #1/#2, and load test #3 above) was run **without**
-  VBAT connected to the ESC red pin. If connecting VBAT genuinely
-  changes motor current draw, **the trip-current thresholds recorded in
-  those tests (~2.9–3A) may not be representative of how the aircraft
-  will actually behave in flight**, where VBAT *is* connected (that's
-  the whole point of the 2026-07-24 wiring change — see
-  `specs/wiring_diagram.md`). This could mean the real in-flight OCP
-  trip point is different (likely lower, if the effect is a protective
-  throttle pull-back) than every test logged so far assumed.
+  inert.
+- **Leading hypothesis (2026-07-24, reframed): backfeed through the
+  VBAT wire, most likely sourced from USB power via the FC**, making the
+  5A sensor's *reading* drop without the motor necessarily drawing less
+  current at all — see the reframing note above for the mechanism. This
+  would mean the sensor is no longer measuring total current to the
+  ESC/motor once VBAT is connected, since an alternate, unmetered path
+  now exists in parallel.
+- **Previously leading, now secondary hypothesis:** FC firmware applying
+  voltage-aware throttle behavior (sag compensation, current limiter,
+  failsafe) once it has a real VBAT reading. Still possible, but the
+  backfeed explanation is more consistent with a bench setup that had
+  USB connected in at least one closely-related test this session (the
+  "ESC cuts out at 2.25V" entry above).
+- **Other previously-noted alternatives** (wiring/loading artifact,
+  uncontrolled throttle drift) remain unruled-out but now lower priority
+  given the backfeed theory's mechanistic fit.
+- **Why this matters either way:** every prior battery-only test in this
+  log (2026-07-23 tests #1/#2, and load test #3 above) was run **without**
+  VBAT connected to the ESC red pin. Whether the true explanation is
+  backfeed or firmware behavior, **the trip-current thresholds recorded
+  in those tests may not directly transfer to real in-flight readings**,
+  where VBAT is connected but USB is not — a condition combination none
+  of the bench tests so far have cleanly isolated.
 
-**Deviation from prediction:** Significant, if confirmed — none of the
-prior current-sweep tests anticipated that VBAT connection state itself
-would be a variable affecting motor current.
+**Deviation from prediction:** Significant either way — none of the
+prior current-sweep tests anticipated VBAT connection state (or its
+interaction with USB power) as a variable.
 
 **Follow-up:**
-- **Repeat a full current-sweep test (like the 2026-07-23/07-24 battery-
-  only tests) with VBAT connected to the ESC red pin this time**,
-  logging throttle position, motor current, and bus voltage together —
-  directly comparable to the disconnected-VBAT tests already logged, to
-  quantify the effect properly instead of the one qualitative
-  observation here.
+- **Repeat the connect/disconnect comparison with USB fully
+  disconnected from the FC** (battery-powered FC only). If the ~0.5A
+  reading change disappears, that confirms the backfeed-via-USB theory
+  directly. If it persists without USB, the backfeed must be coming
+  from elsewhere (e.g. the FC's own onboard capacitors/regulation) or
+  the firmware hypothesis is back in play.
+- If backfeed is confirmed, **all VBAT-connected bench data collected
+  with USB attached should be treated as unrepresentative of true
+  in-flight current draw**, including whatever informed the "ESC cuts
+  out at 2.25V" and "regulator/FC cuts out" entries above — worth
+  revisiting once this is settled.
+- **Repeat a full current-sweep test with VBAT connected AND USB
+  disconnected**, logging throttle position, motor current (5A sensor),
+  and bus voltage together — the only way to get a clean, comparable
+  reading to the VBAT-disconnected tests already logged.
 - If the FC firmware has any voltage-based throttle limiting, current
-  limiting, or failsafe feature, check its configuration (Betaflight
-  CLI/config or equivalent for the ATOMRC F405 NAVI) — this would
-  confirm or rule out the leading hypothesis directly rather than
-  inferring it from bench behavior.
-- Once resolved, revisit `CLAUDE.md` §5's three-regime theory and the
-  planned VBAT low-voltage alarm — both currently assume VBAT-connected
-  behavior matches the VBAT-disconnected data collected so far.
+  limiting, or failsafe feature, check its configuration anyway — worth
+  ruling in or out independent of the backfeed question.
+- Once resolved, revisit `CLAUDE.md` §5's three-regime theory, the
+  sag-relative alarm proposal, and the "ESC cutout vs. regulator
+  dropout" open question — several of these currently rest on data
+  that may be confounded by USB backfeed.
 
 ---
 
