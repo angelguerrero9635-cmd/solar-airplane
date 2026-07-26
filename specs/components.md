@@ -105,6 +105,24 @@ away:
   motor generally just yields lower RPM/thrust than the motor's
   potential rather than damage, but the actual achievable thrust at 1S
   hasn't been separately verified against this rating.
+  **Rough thrust estimate at 2.5A, 2026-07-24 — placeholder only, not a
+  measurement:** ~30–45g, from V≈3.0V (bus reading at 2.5A across the
+  two 2026-07-23 tests) × I=2.5A ≈ 7.5W electrical, ~65–85% ESC/motor
+  efficiency → ~5–6.5W shaft power, × an assumed 5–7 g/W for a
+  low-pitch/larger-diameter prop like this 6×3 (vs. 3–4 g/W typical for
+  small high-pitch racing props). **Every factor here is an assumption,
+  not a measurement** — no thrust-stand data exists for this motor/prop
+  combo. Manufacturer/retailer thrust tables for this motor were not
+  obtainable (T-Motor, Pyrodrone, GetFPV, drone-fpv-racer.com all
+  returned HTTP 403 through this sandbox's network policy; search
+  snippets only covered this motor's rated 2–4S specs, not 1S). Sanity
+  checks: (a) against ~332–353g AUW, this implies an L/D of only ~8–11
+  for level cruise — plausible for a glider, not obviously wrong; (b) at
+  ~7.5W electrical, this is well under half the ~17–24W cruise power
+  estimate in `calculations/power_budget.md`, meaning 2.5A likely isn't
+  full cruise throttle, or solar is expected to supply much of the
+  difference. **Needs a real thrust-stand measurement to replace this
+  estimate** — see `CLAUDE.md` §5.
 - **ESC's 5V max rating vs. the array's theoretical Voc — re-resolved
   2026-07-23, accepted as-is, no protection planned.** The E-Power
   BE001's own spec sheet states "Max Vol: 1S, 5V." The 7-cell array's

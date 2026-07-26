@@ -352,6 +352,25 @@ update instead.
       involved. See `logs/test_flights.md`'s 2026-07-24 "Connecting VBAT
       to the ESC red pin" entry (includes the reframing and the specific
       test — repeat with USB disconnected — that would settle this).
+- [ ] **Thrust at operating current is estimated, not measured
+      (2026-07-24).** `specs/components.md`'s Motor row now has a rough
+      ~30–45g estimate at 2.5A, built entirely from assumptions (motor/
+      ESC efficiency, an assumed 5–7 g/W for this prop) — no thrust-stand
+      data exists for this motor/6×3-prop combo, and manufacturer thrust
+      tables weren't fetchable (network policy blocked T-Motor/Pyrodrone/
+      GetFPV/drone-fpv-racer.com). **A smaller prop would likely reduce
+      thrust-per-watt, not improve it** — momentum theory says a larger
+      disk (prop diameter) needs less induced velocity to produce the
+      same thrust, so bigger is generally more efficient, all else equal.
+      **Real caveat specific to this build:** the M1104 KV7500 is a tiny
+      motor normally paired with 2–2.5" props, not this 6" one — if it's
+      "overpropped" (can't spin this prop up to an efficient RPM), actual
+      efficiency could be worse than the theory suggests, and a smaller
+      prop might paradoxically test better in practice. **Not resolved
+      without real data** — needs either a thrust-stand measurement or an
+      RPM reading under load at 2.5A to know which effect dominates for
+      this specific motor/prop pairing before treating any prop-size
+      change as an improvement.
 - [ ] **Branch B's ground is fully isolated from the rest of the
       aircraft (confirmed 2026-07-24) — intentional or a wiring gap?**
       The FPV Camera/VTX and FPV Battery grounds tie to Ideal Diode
