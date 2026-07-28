@@ -13,10 +13,20 @@ changes — don't hand-edit the results below without re-running it.
 > (was SD7037, 1210mm span, 150mm chord). The AUW estimate below has not
 > been revisited for the larger wing — see open questions in `CLAUDE.md`.
 
+> ⚠️ **Span updated again, 2026-07-24: 1200mm → 1220mm**, to match the
+> full 4ft (1220mm) length of the actual foam stock selected — Owens
+> Corning FOAMULAR NGX Project Panels (XPS, R-7.5, 1.5in × 14.25in ×
+> 48in) — with no trim waste, for easier manufacturing. Also replaces
+> the foam density used throughout this file: previously a generic
+> "20–30 kg/m³ typical RC EPP foam" placeholder, now the real sourced
+> density for this specific product (~20.8–25.6 kg/m³ — see
+> `specs/components.md`). Both changes are reflected in the numbers
+> below; re-run `power_budget.py` if either changes again.
+
 ## Inputs
 
-- Wingspan: 1.20 m
-- Chord: 0.20 m → wing area ≈ 0.24 m² (24.0 dm²)
+- Wingspan: 1.22 m
+- Chord: 0.20 m → wing area ≈ 0.244 m² (24.4 dm²)
 - Estimated AUW: ~332.7–352.7 g (⚠️ estimate, needs a real scale
   measurement; midpoint 342.7 g used below; predates the wing geometry
   change above, so the unlisted airframe mass this AUW assumes may be
@@ -69,9 +79,9 @@ now-identified/weighed 5V Regulator, 0.6g, is included — see the
 2026-07-23/24 updates above) leave only ~7.3g of headroom before adding
 the 3 recommended capacitors, or *any* airframe structure at all. The
 "Wing loading vs. span" section below estimates the foam wing **alone**
-at a minimum of ~59g (900mm span, lowest typical RC foam density) —
-already ~52g over that 7.3g headroom before spars, fuselage, mount,
-wiring, or adhesives are added.
+at a minimum of ~61g (900mm span, low end of the actual FOAMULAR NGX
+density) — already ~54g over that 7.3g headroom before spars, fuselage,
+mount, wiring, or adhesives are added.
 
 The two largest single line items in the component list — Solar Cells
 (98g) and Main Battery (47.1g) — are also the two most central to this
@@ -88,15 +98,16 @@ future changes.
 
 ## Wing loading
 
-342.7 g over 24.0 dm² → **~14.3 g/dm²** (range ~13.9–14.7 g/dm² across the
+342.7 g over 24.4 dm² → **~14.0 g/dm²** (range ~13.6–14.5 g/dm² across the
 332.7–352.7 g AUW estimate). Notably lower than the previous SD7037 wing
 (18.2 dm², ~19.1 g/dm²) — the larger chord (150mm → 200mm) outweighs the
-slightly shorter span (1210mm → 1200mm). Still glider territory, likely
+slightly shorter span (1210mm → 1220mm). Still glider territory, likely
 even lower cruise power requirements relative to weight than before, though
 that also assumes the airframe mass doesn't grow proportionally with the
 extra wing area.
 
-## Wing loading vs. span, chord fixed at 200mm (2026-07-22, estimate)
+## Wing loading vs. span, chord fixed at 200mm (2026-07-22, estimate; span
+and foam density updated 2026-07-24)
 
 Prompted by a question about whether a smaller span (down to ~900mm,
 the minimum needed to fit 7 SunPower C60 cells at 125mm each) would be
@@ -111,25 +122,32 @@ section (cross-section ≈ 0.7 × thickness × chord — a standard
 engineering rule-of-thumb for airfoil area, not Clark-Y-specific) ×
 foam density × span. "Everything else" (listed components, spars,
 fuselage, mount, wiring, adhesives) is netted out from the current
-342.7g AUW estimate at the current 1200mm span, so the model reproduces
-that figure exactly at 1200mm and only the wing-foam portion scales for
+342.7g AUW estimate at the current 1220mm span, so the model reproduces
+that figure exactly at 1220mm and only the wing-foam portion scales for
 other spans.
 
-**Sources:** EPP foam density 20–30 kg/m³ is typical for RC use (lighter
-end generally preferred — directly lowers wing loading, same priority
-this project already has). Clark-Y thickness ratio (11.7% of chord) is
+**Sources:** foam density updated 2026-07-24 to the actual material
+selected — Owens Corning FOAMULAR NGX Project Panels (XPS, R-7.5, 1.5in
+× 14.25in × 48in). R-7.5 at 1.5in = R-5/in, matching Owens Corning's
+base "15 PSI" grade (FOAMULAR 150), whose datasheet states a minimum
+density of 1.30 lb/ft³ (~20.8 kg/m³); 1.6 lb/ft³ (~25.6 kg/m³) is used
+as a working upper bound since actual density typically runs above the
+stated minimum. Replaces the earlier generic "20–30 kg/m³ typical RC
+EPP foam" placeholder now that a specific real product is selected —
+see `specs/components.md`. Clark-Y thickness ratio (11.7% of chord) is
 a well-established figure. The 0.7 area coefficient is a general
 airfoil-shape approximation, not sourced specifically for Clark-Y —
 treat it as approximate.
 
 | Span | Area | Wing mass (foam only) | Wing loading |
 |---|---|---|---|
-| 900mm (7-cell floor) | 18.0 dm² | 59–89g | ~17.4–17.9 g/dm² |
-| 1000mm | 20.0 dm² | 66–98g | ~16.2–16.5 g/dm² |
-| 1100mm | 22.0 dm² | 72–108g | ~15.1–15.3 g/dm² |
-| **1200mm (current)** | **24.0 dm²** | **79–118g** | **~14.3 g/dm²** |
-| 1300mm | 26.0 dm² | 85–128g | ~13.4–13.6 g/dm² |
-| 1500mm | 30.0 dm² | 98–147g | ~12.1–12.4 g/dm² |
+| 900mm (7-cell floor) | 18.0 dm² | 61–76g | ~17.5–17.8 g/dm² |
+| 1000mm | 20.0 dm² | 68–84g | ~16.2–16.4 g/dm² |
+| 1100mm | 22.0 dm² | 75–92g | ~15.1–15.2 g/dm² |
+| 1200mm | 24.0 dm² | 82–101g | ~14.2 g/dm² |
+| **1220mm (current)** | **24.4 dm²** | **83–102g** | **~14.0 g/dm²** |
+| 1300mm | 26.0 dm² | 89–109g | ~13.4 g/dm² |
+| 1500mm | 30.0 dm² | 102–126g | ~12.1–12.2 g/dm² |
 
 **Corrected conclusion:** a bigger span still gives lower wing loading
 within this realistic foam-density range — the trend from the earlier
@@ -137,23 +155,25 @@ within this realistic foam-density range — the trend from the earlier
 modest than a constant-AUW comparison suggested, since part of the area
 gain is offset by added wing weight. Going down to the 900mm floor is
 somewhat less costly than the flawed analysis implied, and going bigger
-than 1200mm is somewhat less beneficial.
+than the current span is somewhat less beneficial.
 
-**Important cross-check this surfaced:** at the current 1200mm span,
-this model's foam-only wing mass estimate (79–118g) is comparable to
-or *exceeds* the entire currently-documented "~90–110g estimated
-unlisted mass" in `specs/components.md` — which is supposed to cover
-the wing **and** spars, fuselage tube, motor mount, wiring, and
-adhesives combined, not just the wing. That leaves little to nothing
-for everything else in that bucket, which can't be right. This is a
+**Important cross-check this surfaced:** at the current 1220mm span,
+this model's foam-only wing mass estimate (83–102g, now with a real
+sourced density rather than a generic placeholder) is comparable to or
+*exceeds* the entire currently-documented "~90–110g estimated unlisted
+mass" in `specs/components.md` — which is supposed to cover the wing
+**and** spars, fuselage tube, motor mount, wiring, and adhesives
+combined, not just the wing. That leaves little to nothing for
+everything else in that bucket, which can't be right. This is a
 concrete, physics-based reason (not just a vague suspicion) to believe
 the current AUW estimate under-counts wing weight for the Clark-Y wing
 — reinforcing the open question already flagged about this, not a new
-one. Possible explanations: the actual build uses lighter/thinner foam
-or a lightened (non-solid, e.g. ribbed) structure rather than a solid
-block, the area-coefficient approximation runs a bit high for the
-actual shape, or the AUW estimate genuinely needs revising upward. Only
-a real scale weight of the actual wing resolves this.
+one, and now on firmer footing since the foam density is a real
+sourced figure rather than an assumption. Possible explanations: a
+lightened (non-solid, e.g. ribbed) structure rather than a solid block,
+the area-coefficient approximation running a bit high for the actual
+shape, or the AUW estimate genuinely needing revising upward. Only a
+real scale weight of the actual wing resolves this.
 
 ## Estimated cruise power
 
@@ -161,7 +181,7 @@ Using **50–70 W/kg** for a light glider airframe with some non-aerodynamic
 payload drag (vs. 30–50 W/kg for a clean glider). This range is unchanged
 from the SD7037 wing — it's not re-derived for the new wing loading, so
 it's worth revisiting once real cruise-throttle current draw is measured
-on the Clark-Y wing (a ~14.3 g/dm² wing loading is closer to the "clean
+on the Clark-Y wing (a ~14.0 g/dm² wing loading is closer to the "clean
 glider" end of the range than the old ~19.1 g/dm² was):
 
 - At 0.3327 kg: ~16.6–23.3 W
@@ -239,7 +259,7 @@ glider" end of the range than the old ~19.1 g/dm² was):
 ## To do
 
 - [ ] Replace estimated AUW with a real measured weight, now that the wing
-      is a different size (Clark-Y, 1200×200mm) than the estimate assumed
+      is a different size (Clark-Y, 1220×200mm) than the estimate assumed
 - [ ] Replace estimated cruise W/kg with a measured static current draw at
       cruise throttle (bench test with prop, no flight needed)
 - [x] ~~Bench-measure the 7-cell string's actual voltage/current into the

@@ -11,7 +11,10 @@ Usage:
 
 # --- Airframe geometry -------------------------------------------------
 # Clark-Y airfoil, updated 2026-07-22 (was SD7037, 1.21m x 0.15m).
-WINGSPAN_M = 1.20
+# Span updated 2026-07-24 from 1.20m to 1.22m to match the full 4ft
+# (1220mm) length of the FOAMULAR NGX foam stock with no trim waste -
+# see calculations/power_budget.md and specs/components.md.
+WINGSPAN_M = 1.22
 CHORD_M = 0.20
 WING_AREA_M2 = WINGSPAN_M * CHORD_M  # simple rectangular approximation
 
@@ -80,16 +83,22 @@ N_CELLS_SERIES = 7  # update as the string is modified; see decisions/0001-cell-
 # artificially constant (that was a real error in an earlier chat-only
 # version of this analysis - see calculations/power_budget.md).
 #
-# Sources: EPP foam density 20-30 kg/m^3 is typical for RC use (lighter end
-# preferred, since it directly lowers wing loading - same priority as this
-# project). Clark-Y thickness ratio (11.7% of chord) is a well-established
-# figure. AIRFOIL_AREA_COEFFICIENT is a standard engineering rule-of-thumb
-# for airfoil cross-section area (~0.7 x t_max x chord) - NOT a Clark-Y-
-# specific figure, treat as approximate.
+# Sources: updated 2026-07-24 to the actual material selected - Owens
+# Corning FOAMULAR NGX Project Panels, R-7.5, 1.5in x 14.25in x 48in XPS
+# board. R-7.5 at 1.5in = R-5/in, matching Owens Corning's base "15 PSI"
+# grade (FOAMULAR 150), whose own datasheet states a minimum density of
+# 1.30 lb/ft^3 (~20.8 kg/m^3); actual density typically runs somewhat
+# above the stated minimum, so 1.6 lb/ft^3 (~25.6 kg/m^3) is used as a
+# working upper bound. Replaces the earlier generic "20-30 kg/m^3 typical
+# RC EPP foam" placeholder now that a specific real product is selected -
+# see specs/components.md. Clark-Y thickness ratio (11.7% of chord) is a
+# well-established figure. AIRFOIL_AREA_COEFFICIENT is a standard
+# engineering rule-of-thumb for airfoil cross-section area (~0.7 x t_max x
+# chord) - NOT a Clark-Y-specific figure, treat as approximate.
 AIRFOIL_THICKNESS_RATIO = 0.117
 AIRFOIL_AREA_COEFFICIENT = 0.7
-FOAM_DENSITY_KG_M3_LOW = 20
-FOAM_DENSITY_KG_M3_HIGH = 30
+FOAM_DENSITY_KG_M3_LOW = 20.8
+FOAM_DENSITY_KG_M3_HIGH = 25.6
 
 
 def wing_foam_mass_g(span_m, chord_m, density_kg_m3):
@@ -196,7 +205,7 @@ def main():
         f"{CHORD_M * 1000:.0f}mm) - foam density {FOAM_DENSITY_KG_M3_LOW}-"
         f"{FOAM_DENSITY_KG_M3_HIGH} kg/m^3, ESTIMATE not measured:"
     )
-    for span_mm in (900, 1000, 1100, 1200, 1300, 1500):
+    for span_mm in (900, 1000, 1100, 1200, 1220, 1300, 1500):
         span_m = span_mm / 1000
         _, wing_low, area_dm2, wl_low = wing_loading_by_span(
             span_m, FOAM_DENSITY_KG_M3_LOW

@@ -6,7 +6,7 @@ Last updated: 2026-07-23
 
 | Component | Spec | Weight | Notes |
 |---|---|---|---|
-| Wing | Foam, Clark-Y airfoil, 1200mm span, 200mm chord | — | Wing area ≈ 0.24 m² (24.0 dm²). Updated 2026-07-22 from SD7037, 1210×150mm. |
+| Wing | Foam, Clark-Y airfoil, 1220mm span, 200mm chord | — | Wing area ≈ 0.244 m² (24.4 dm²). Updated 2026-07-22 from SD7037, 1210×150mm; span updated again 2026-07-24 (1200mm→1220mm) to match the full 4ft length of the selected foam stock (Owens Corning FOAMULAR NGX Project Panels, XPS, R-7.5, 1.5in×14.25in×48in) with no trim waste. Foam density ~20.8–25.6 kg/m³ (mfr. datasheet minimum 1.30 lb/ft³ for the matching "15 PSI"/FOAMULAR 150 grade, plus a working upper bound) — see the wing weight discussion further down this file and `calculations/power_budget.md`. |
 | Spars | Carbon fiber | — | |
 | Fuselage | Carbon fiber tube/rod | — | |
 | Motor mount | 3D printed | — | |
@@ -260,8 +260,9 @@ Sources: [T-Motor M1104 KV7500 — Pyrodrone](https://pyrodrone.com/products/t-m
   the capacitors aren't built yet.
 - Estimated unlisted mass (foam wing, spars, fuselage tube, mount, wiring,
   adhesives): **~90–110 g** (estimate — replace with a real scale weight
-  ASAP; this predates the 2026-07-22 Clark-Y/1200×200mm wing change, and
-  the larger chord likely pushes it above this range)
+  ASAP; this predates the 2026-07-22 Clark-Y/1220×200mm wing change
+  (span updated again 2026-07-24), and the larger chord likely pushes it
+  above this range)
 - **Estimated AUW: ~332.7–352.7 g** (needs confirmation — see open
   questions in `CLAUDE.md`)
 
@@ -285,11 +286,11 @@ anything now:
 - That leaves **~7.3g** of headroom under 250g for the 3 recommended
   capacitors *and all airframe structure* (wing, spars, fuselage tube,
   motor mount, wiring, adhesives) combined.
-- The wing mass model in `calculations/power_budget.md` puts the foam
-  wing **alone** at a minimum of ~59g (900mm span, lowest typical RC
-  foam density) — already ~52g over that ~7.3g of remaining headroom,
-  before any spar, fuselage, mount, wiring, or adhesive weight is added
-  at all.
+- The wing mass model in `calculations/power_budget.md`, now using the
+  real sourced density of the selected FOAMULAR NGX foam, puts the foam
+  wing **alone** at ~83–102g at the current 1220mm span — already
+  ~76–95g over that ~7.3g of remaining headroom, before any spar,
+  fuselage, mount, wiring, or adhesive weight is added at all.
 - **If this target is pursued later, it'll mean reducing the component
   list, not just building the airframe lighter.** The current listed
   components alone, even excluding bench-only gear, leave no realistic

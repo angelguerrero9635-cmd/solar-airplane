@@ -35,20 +35,31 @@ design math (kept on record for reference, not as a call to action).
 
 ## 2. Current airframe & power architecture
 
-- Foam wing, **Clark-Y** airfoil, 1200mm span, 200mm chord, carbon fiber
-  spars (updated 2026-07-22, was SD7037, 1210mm span, 150mm chord)
+- Foam wing, **Clark-Y** airfoil, **1220mm span** (updated 2026-07-24,
+  was 1200mm — matches the full 4ft length of the actual foam stock
+  selected, Owens Corning FOAMULAR NGX Project Panels, XPS, R-7.5,
+  1.5in×14.25in×48in, with no trim waste), 200mm chord, carbon fiber
+  spars (span originally updated 2026-07-22, was SD7037, 1210mm span,
+  150mm chord)
 - Carbon fiber tube/rod fuselage, 3D printed motor mount
-- **Wing area:** ~0.24 m² (24.0 dm²)
+- **Wing area:** ~0.244 m² (24.4 dm²)
 - **Estimated AUW:** ~332.7–352.7g (see `calculations/power_budget.md`;
   updated for the 7-cell solar string, theoretical pending bench
-  confirmation — this estimate predates the 2026-07-22 wing change and
-  hasn't been revisited for it; updated 2026-07-23 to drop the retired
-  ACS723 current sensors, 3.81g, updated again 2026-07-23 to add the
-  now-identified/weighed 5V Regulator, 0.6g, and again 2026-07-24 to
-  drop Branch A's now-eliminated Ideal Diode Pair, 1.46g)
-- **Wing loading:** ~13.9–14.7 g/dm² (sailplane range; lower than the
+  confirmation — this estimate predates the 2026-07-22/07-24 wing
+  changes and hasn't been revisited for them; updated 2026-07-23 to drop
+  the retired ACS723 current sensors, 3.81g, updated again 2026-07-23 to
+  add the now-identified/weighed 5V Regulator, 0.6g, and again 2026-07-24
+  to drop Branch A's now-eliminated Ideal Diode Pair, 1.46g)
+- **Wing loading:** ~13.6–14.5 g/dm² (sailplane range; lower than the
   previous ~18.5–19.6 g/dm² since the larger chord outweighs the slightly
   shorter span)
+- **Wing foam material identified, 2026-07-24:** Owens Corning FOAMULAR
+  NGX Project Panels (XPS, R-7.5 at 1.5in = R-5/in, matching the base
+  "15 PSI"/FOAMULAR 150 grade). Real sourced density ~20.8–25.6 kg/m³
+  (mfr. datasheet minimum 1.30 lb/ft³, plus a working upper bound above
+  that minimum) — replaces the generic "20–30 kg/m³ typical RC EPP foam"
+  placeholder previously used in `calculations/power_budget.py`. See
+  `specs/components.md`.
 - Power path: solar array → **2** independent ideal-diode branches
   (**reduced from 3, 2026-07-24** — Branch A eliminated entirely), **not
   rejoined downstream** — Branch B feeds the FPV rail, Branch C feeds
@@ -526,20 +537,23 @@ update instead.
       response — see `specs/components.md` for both. (The 5A/2A
       bench-only current sensors, by contrast, are confirmed 2026-07-23
       to never need weighing — none of them fly.)
-- [ ] **The Clark-Y / 1200×200mm wing update (2026-07-22) hasn't been
-      re-weighed — and a physics estimate suggests the AUW is probably
-      too low.** Wing area and wing loading in this file,
-      `specs/components.md`, and `calculations/power_budget.md`/`.py` have
-      all been updated for the new geometry, but the ~90–110g unlisted
-      airframe mass estimate (and therefore the ~332.7–352.7g AUW) still
-      reflects the old SD7037/1210×150mm wing. A larger chord likely means
-      more foam and skin material. **Stronger evidence now (2026-07-22):**
-      a foam-density-based estimate (`calculations/power_budget.md`'s
-      "Wing loading vs. span" section) puts the foam wing *alone* at
-      ~79–118g at the current span — comparable to or more than the
-      entire 90–110g bucket that's supposed to also cover spars,
-      fuselage, mount, wiring, and adhesives. Confirm real weight once
-      built — this isn't just a stale estimate anymore, there's a
+- [ ] **The Clark-Y / 1220×200mm wing update (2026-07-22, span updated
+      again 2026-07-24) hasn't been re-weighed — and a physics estimate
+      suggests the AUW is probably too low.** Wing area and wing loading
+      in this file, `specs/components.md`, and
+      `calculations/power_budget.md`/`.py` have all been updated for the
+      new geometry, but the ~90–110g unlisted airframe mass estimate (and
+      therefore the ~332.7–352.7g AUW) still reflects the old
+      SD7037/1210×150mm wing. A larger chord likely means more foam and
+      skin material. **Stronger evidence now (2026-07-22), on firmer
+      footing since 2026-07-24:** a foam-density-based estimate
+      (`calculations/power_budget.md`'s "Wing loading vs. span" section),
+      now using the real sourced density of the actual FOAMULAR NGX foam
+      selected rather than a generic placeholder, puts the foam wing
+      *alone* at ~83–102g at the current 1220mm span — comparable to or
+      more than the entire 90–110g bucket that's supposed to also cover
+      spars, fuselage, mount, wiring, and adhesives. Confirm real weight
+      once built — this isn't just a stale estimate anymore, there's a
       concrete reason to think it's genuinely too low.
 - [ ] **The 6→7 cell update is partially bench-confirmed (2026-07-22),
       not fully.** `calculations/power_budget.py`/`.md`, `specs/components.md`,
