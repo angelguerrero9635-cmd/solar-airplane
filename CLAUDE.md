@@ -41,7 +41,16 @@ design math (kept on record for reference, not as a call to action).
   1.5in×14.25in×48in, with no trim waste), 200mm chord, carbon fiber
   spars (span originally updated 2026-07-22, was SD7037, 1210mm span,
   150mm chord)
-- Carbon fiber tube/rod fuselage, 3D printed motor mount
+- Carbon fiber tube/rod fuselage, **1220mm length** (sized 2026-07-24,
+  same length as wingspan), wing LE at 380mm from fuselage front. 3D
+  printed motor mount.
+- **Empennage sized 2026-07-24 (first tail spec for this aircraft):**
+  horizontal stabilizer 320mm × 80mm (256 cm², Vh ≈ 0.414), vertical
+  stabilizer 120mm × 80mm (96 cm², Vv ≈ 0.0255), via the tail volume
+  coefficient method at a 790mm tail moment arm. Material/weight **not
+  yet decided** — see `specs/components.md`'s "Empennage sizing"
+  section for the full derivation. Not yet validated against an actual
+  CG/stability check.
 - **Wing area:** ~0.244 m² (24.4 dm²)
 - **Estimated AUW:** ~332.7–352.7g (see `calculations/power_budget.md`;
   updated for the 7-cell solar string, theoretical pending bench
@@ -218,6 +227,20 @@ update instead.
 
 ## 5. Open questions / next steps
 
+- [ ] **Empennage material/weight not yet decided (2026-07-24), and the
+      tail sizing hasn't been checked against actual CG.** Horizontal
+      (320×80mm) and vertical (120×80mm) stabilizers are sized via the
+      tail volume coefficient method — see `specs/components.md`'s
+      "Empennage sizing" section — but that method only sizes tail area
+      for a *typical* moment arm/coefficient; it doesn't confirm the
+      aircraft will actually balance correctly once built. Needs: (1) a
+      material decision (same FOAMULAR NGX foam as the wing, balsa, thin
+      foam board, etc.) so weight can be added to
+      `calculations/power_budget.py`'s `KNOWN_COMPONENTS_G`, and (2) a
+      real CG check once the airframe is assembled — battery/motor/
+      component placement relative to the wing's aerodynamic center
+      determines actual static margin, which this sizing pass didn't
+      address.
 - [ ] **⚠️ HIGH PRIORITY (2026-07-23/24): three-regime theory of usable
       throttle across the battery's discharge cycle — plausible, not
       yet confirmed.** The ~2.9–3A motor-draw shutdown is root-caused to

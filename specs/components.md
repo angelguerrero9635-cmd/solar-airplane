@@ -8,8 +8,62 @@ Last updated: 2026-07-23
 |---|---|---|---|
 | Wing | Foam, Clark-Y airfoil, 1220mm span, 200mm chord | — | Wing area ≈ 0.244 m² (24.4 dm²). Updated 2026-07-22 from SD7037, 1210×150mm; span updated again 2026-07-24 (1200mm→1220mm) to match the full 4ft length of the selected foam stock (Owens Corning FOAMULAR NGX Project Panels, XPS, R-7.5, 1.5in×14.25in×48in) with no trim waste. Foam density ~20.8–25.6 kg/m³ (mfr. datasheet minimum 1.30 lb/ft³ for the matching "15 PSI"/FOAMULAR 150 grade, plus a working upper bound) — see the wing weight discussion further down this file and `calculations/power_budget.md`. |
 | Spars | Carbon fiber | — | |
-| Fuselage | Carbon fiber tube/rod | — | |
+| Fuselage | Carbon fiber tube/rod, **1220mm length** (sized 2026-07-24, same as wingspan) | — | Wing leading edge mounted at **380mm from fuselage front**. See "Empennage sizing" below for how this sets the tail moment arm. |
 | Motor mount | 3D printed | — | |
+| Horizontal Stabilizer | Flat/rectangular, **320mm span × 80mm chord** (sized 2026-07-24) | TBD — material not yet decided | Area = 256 cm² (25.6 dm²), AR = 4.0. Achieves Vh ≈ 0.414 (tail volume coefficient) at the 790mm moment arm — see "Empennage sizing" below. |
+| Vertical Stabilizer | Flat/rectangular, **120mm height × 80mm chord** (sized 2026-07-24) | TBD — material not yet decided | Area = 96 cm² (0.96 dm²), height/chord = 1.5. Achieves Vv ≈ 0.0255 (tail volume coefficient) at the 790mm moment arm — see "Empennage sizing" below. |
+
+## Empennage sizing (added 2026-07-24)
+
+First-ever tail sizing for this aircraft — no prior fuselage length or
+tail spec existed before this date. Used the standard tail volume
+coefficient method:
+
+```
+Sh = Vh × Sw × MAC / Lh      (horizontal stabilizer area)
+Sv = Vv × Sw × b / Lv        (vertical stabilizer area)
+```
+
+**Inputs:**
+- Wing area Sw = 0.244 m², MAC = 0.20 m (rectangular wing, MAC = chord),
+  span b = 1.22 m — see the Wing row above.
+- Fuselage length = 1220mm (same as wingspan), wing leading edge at
+  380mm from the fuselage front → wing quarter-chord at 380 + 0.25×200
+  = 430mm from the front.
+- **Tail moment arm (Lh = Lv) ≈ 1220 − 430 = 790mm.** Approximates the
+  tail's aerodynamic center as being at the very back of the fuselage,
+  since the tail chord (80mm) is small relative to the arm — a common
+  first-pass simplification. The true arm is ~25% of the tail chord
+  (≈20mm) shorter than this; not revisited since the correction is
+  small (~2.5%) relative to the overall uncertainty in this method.
+
+**Reference coefficients used:** Vh ≈ 0.4, Vv ≈ 0.025 — chosen from the
+general literature range (Vh 0.3–0.6, Vv 0.02–0.05), toward the lower/
+lighter end since gliders with slender, longer fuselages typically need
+less tail volume than powered trainers for the same stability.
+
+**Result — target vs. what was actually built:**
+
+| Surface | Target area (Vh=0.4 / Vv=0.025) | Chosen dimensions | Actual area | Actual coefficient |
+|---|---|---|---|---|
+| Horizontal | 247 cm² | 320mm × 80mm | 256 cm² | Vh ≈ 0.414 |
+| Vertical | 94 cm² | 120mm × 80mm | 96 cm² | Vv ≈ 0.0255 |
+
+Both chosen sizes land very close to the target coefficients (within
+~4%), landing on round, easy-to-cut dimensions rather than the exact
+computed area.
+
+**Not yet resolved:**
+- Tail surface material/construction and weight are **TBD** — not yet
+  decided, so not in the weight budget below. Whatever is chosen should
+  be added to `KNOWN_COMPONENTS_G` in `calculations/power_budget.py`
+  once picked.
+- This is a first-pass sizing, not a CG/stability analysis — actual
+  static margin depends on where the battery, motor, and other mass is
+  placed relative to the wing's aerodynamic center, which hasn't been
+  worked out yet. Tail volume coefficients get you a reasonable
+  *starting* tail size; they don't replace a CG check once the airframe
+  is actually built and weighed.
 
 ## Propulsion
 
